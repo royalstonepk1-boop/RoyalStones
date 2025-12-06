@@ -1,0 +1,31 @@
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+
+const AddressSub = new Schema({
+  fullName: String,
+  phone: String,
+  address: String,
+  city: String,
+  state: String,
+  postalCode: String,
+  country: String,
+});
+
+const OrderItem = new Schema({
+  productId: { type: Schema.Types.ObjectId, ref: 'Product' },
+  price: Number,
+  quantity: Number,
+});
+
+const OrderSchema = new Schema({
+  userId: { type: Schema.Types.ObjectId, ref: 'User' },
+  status: { type: String, enum: ['pending', 'paid', 'in_transit', 'delivered', 'cancelled'], default: 'pending' },
+  billingAddress: AddressSub,
+  shippingAddress: AddressSub,
+  paymentMethod: { type: String, enum: ['card', 'cod'] },
+  totalAmount: Number,
+  orderItems: [OrderItem],
+  createdAt: { type: Date, default: Date.now },
+});
+
+module.exports = mongoose.model('Order', OrderSchema);
