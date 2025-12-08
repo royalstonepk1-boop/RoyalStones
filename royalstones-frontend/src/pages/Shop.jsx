@@ -15,21 +15,11 @@ export default function Shop() {
   }, [search, category]);
 
   useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        console.log("data is");
-        const res = await fetchCategories();
-        setCategories(res.data);
-        console.log(res.data,"data is");
-      } catch (err) {
-        console.error("Category error", err);
-      }
-    };
-  
-    loadCategories();
+    fetchCategories().then((res) => setCategories(res.data)).catch((err) => {
+      console.error("Category error", err);
+    });
   }, []);
   
-
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Shop</h1>
