@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { createProduct, listProducts, getProduct, updateProduct, deleteProduct } = require('../controller/productController');
+const { createProduct, listProducts,listProductsForNavBar, getProduct, updateProduct, deleteProduct } = require('../controller/productController');
 const { authMiddleware, adminOnly } = require('../middleware/auth');
 const { upload } = require('../middleware/upload');
 
 // public
+router.get('/navbar', listProductsForNavBar);
 router.get('/', listProducts);
 router.get('/:id', getProduct);
 

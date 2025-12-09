@@ -38,7 +38,7 @@ export default function Footer() {
       </div>
 
       <div>
-        <div className='[&>i]:mx-2 text-2xl flex justify-center py-4 [&>i]:px-2 text-gray-500 [&>i]:hover:text-gray-800 cursor-pointer transform duration-150'>
+        <div className='[&>i]:mx-2 text-2xl flex justify-center mt-2 py-4 [&>i]:px-2 text-gray-500 [&>i]:hover:text-gray-800 cursor-pointer transform duration-150'>
           <i class="bi bi-facebook"></i>
           <i class="bi bi-instagram"></i>
           <i class="bi bi-youtube"></i>

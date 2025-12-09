@@ -42,6 +42,24 @@ async function getProduct(req, res) {
   res.json(p);
 }
 
+async function listProductsForNavBar(req, res) {
+  try {
+    const { category, limit } = req.query;
+    const filter = {};
+    if (category) {
+      filter.categoryId = String(category);
+    }
+    const products = await Product.find(filter)
+      .limit(Number(limit) || 0)
+      .sort({ createdAt: -1 });
+
+    res.json(products);
+  } catch (error) {
+    console.error('List products error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+}
+
 async function updateProduct(req, res) {
   try {
     const updates = req.body;
@@ -66,4 +84,4 @@ async function deleteProduct(req, res) {
   res.json({ message: 'Deleted' });
 }
 
-module.exports = { createProduct, listProducts, getProduct, updateProduct, deleteProduct };
+module.exports = { createProduct, listProducts, listProductsForNavBar,getProduct, updateProduct, deleteProduct };

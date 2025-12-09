@@ -1,36 +1,60 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 import { useCartStore } from "../../store/cartStore";
 import SubNavBar from "./SubNavBar";
+import CategoryNavBar from "./CategoryNavBar";
 
 export default function Navbar() {
   const user = useAuthStore((s) => s.user);
   const cart = useCartStore((s) => s.cart);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <>
       <SubNavBar />
       <nav className="bg-white shadow-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto flex justify-between items-center px-4 py-3">
+          <div className="flex md:hidden justify-between items-center px-4 py-3">
+            <button
+              onClick={() => setMobileOpen(true)}
+              className="text-2xl"
+            >
+              <i className="bi bi-list"></i>
+            </button>
+          </div>
           {/* Logo */}
           <Link to="/" className="text-2xl font-bold tracking-wide">
             Royal<span className="text-gray-600">Stones</span>
           </Link>
 
-          {/* Menu
-        <div className="hidden md:flex gap-6 text-sm font-medium">
-          <Link to="/">Home</Link>
-          <Link to="/shop">Shop</Link>
-          <Link to="/orders">Orders</Link>
-          {user?.role === "admin" && (
-            <Link to="/admin">Admin</Link>
-          )}
-        </div> */}
-          <div className="hidden md:flex items-center bg-white/70 backdrop-blur-md border border-gray-400 rounded-full px-6 py-2 w-74">
+          {/* Desktop Bottom Nav */}
+          <div className="hidden xl:flex gap-6 text-sm font-medium">
+            <Link to="/" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Home</Link>
+            <Link to="/shop" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Gemstones</Link>
+            <Link to="/about" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">About Us</Link>
+            <Link to="/contact" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Contact Us</Link>
+            {user?.role === "admin" && (
+              <Link to="/admin" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Admin</Link>
+            )} </div>
+          {/* Mobile Bottom Navbar */}
+          <div className="md:hidden fixed bottom-0 left-0 w-full bg-white border-t flex justify-around items-center py-2 text-xs font-medium z-50">
+            <Link to="/" className="flex flex-col items-center"><i className="bi bi-house text-lg"></i>Home</Link>
+            <Link to="/shop" className="flex flex-col items-center"><i className="bi bi-gem text-lg"></i>Shop</Link>
+            <Link to="/about" className="flex flex-col items-center"><i className="bi bi-info-circle text-lg"></i>About</Link>
+            <Link to="/contact" className="flex flex-col items-center"><i className="bi bi-telephone text-lg"></i>Contact</Link>
+            {user?.role === "admin" && (
+              <Link to="/admin" className="flex flex-col items-center">
+                <i className="bi bi-shield-lock text-lg"></i>Admin</Link>
+            )}
+          </div>
+
+
+          <div className="hidden md:flex items-center bg-white/70 backdrop-blur-md border border-gray-400 rounded-full px-6 py-2 w-74 xl:w-44">
             <input
               type="text"
               placeholder="Search products..."
-              className="bg-transparent outline-none text-sm text-gray-700 w-full placeholder-gray-400"
+              className="bg-transparent outline-none text-sm text-gray-700 w-full placeholder-gray-400 placeholder:text-[11px]"
             />
             <i class="bi bi-search"></i>
           </div>
@@ -70,6 +94,19 @@ export default function Navbar() {
         />
         <i class="bi bi-search"></i>
       </div>
+      {/* Desktop Bottom Nav */}
+      <div className="hidden md:flex xl:hidden gap-6 text-sm justify-center items-center min-h-16 font-medium">
+            <Link to="/" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Home</Link>
+            <Link to="/shop" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Gemstones</Link>
+            <Link to="/about" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">About Us</Link>
+            <Link to="/contact" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Contact Us</Link>
+            {user?.role === "admin" && (
+              <Link to="/admin" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Admin</Link>
+            )} </div>
+      <CategoryNavBar
+        mobileOpen={mobileOpen}
+        setMobileOpen={setMobileOpen}
+      />
     </>
   );
 }
