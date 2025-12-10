@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
+import Shop from "./Shop";
 
 export default function Home() {
   return (
+    <>
     <div className="relative bg-[url('../images/Home_BG.png')] bg-cover bg-center bg-no-repeat text-white text-center py-24">
 
       {/* Overlay - stays behind text */}
@@ -51,6 +53,8 @@ export default function Home() {
       </div>
 
     </div>
+    <Shop/>
+    </>
 
   );
 }

@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { fetchCategories } from "../../api/category.api";
 import { fetchFirst6Products } from "../../api/product.api";
 import { Link } from "react-router-dom";
 
-export default function CategoryNavBar({mobileOpen, setMobileOpen}) {
+export default function CategoryNavBar({ mobileOpen, setMobileOpen }) {
   const [categories, setCategories] = useState([]);
   const [productsByCategory, setProductsByCategory] = useState({});
 
@@ -36,7 +36,7 @@ export default function CategoryNavBar({mobileOpen, setMobileOpen}) {
   const firstFourCategories = categories.slice(0, 4);
 
   return (
-    <div className="bg-white border-b shadow-sm relative w-full ">
+    <div className="bg-white border-b shadow-sm relative w-full z-60 md:sticky md:top-17 ">
       {/* Overlay */}
       {mobileOpen && (
         <div
@@ -59,14 +59,14 @@ export default function CategoryNavBar({mobileOpen, setMobileOpen}) {
 
         <div className="p-4 space-y-3">
           {categories?.map((cat) => (
-            <Link
+            <a
               key={cat._id}
-              // to={`/shop?category=${cat._id}`}
-              className="block py-2 border-b text-sm hover:bg-gray-200 hover:border-b-4 border-gray-800"
+              href={`#${cat._id}`}
               onClick={() => setMobileOpen(false)}
+              className="block px-4 py-2 hover:bg-gray-200 hover:border-l-4 border-gray-800 hover:transform duration-200"
             >
               {cat.name}
-            </Link>
+            </a>
           ))}
         </div>
       </div>
@@ -84,12 +84,13 @@ export default function CategoryNavBar({mobileOpen, setMobileOpen}) {
           }
         >
           {categories.map((cat) => (
-            <Link
+            <a
               key={cat._id}
+              href={`#${cat._id}`}
               className="block px-4 py-2 hover:bg-gray-200 hover:border-l-4 border-gray-800 hover:transform duration-200"
             >
               {cat.name}
-            </Link>
+            </a>
           ))}
         </Dropdown>
 
@@ -128,15 +129,76 @@ export default function CategoryNavBar({mobileOpen, setMobileOpen}) {
 
 /* Dropdown Component */
 function Dropdown({ title, children }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  // Close when clicking outside
+  useEffect(() => {
+    function handleDocClick(e) {
+      if (ref.current && !ref.current.contains(e.target)) {
+        setOpen(false);
+      }
+    }
+    function handleEsc(e) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("mousedown", handleDocClick);
+    document.addEventListener("keydown", handleEsc);
+    return () => {
+      document.removeEventListener("mousedown", handleDocClick);
+      document.removeEventListener("keydown", handleEsc);
+    };
+  }, []);
+
+  // Helper to close when a menu item is clicked
+  function handleMenuClick(e) {
+    // If you want to allow clicks on elements that shouldn't close the menu,
+    // add logic here. By default we close on any click inside the menu.
+    setOpen(false);
+  }
+
   return (
-    <div className="group relative z-20">
-      <button className="text-gray-700 hover:text-black transition">
+    <div
+      ref={ref}
+      className="relative z-20"
+      onMouseLeave={() => setOpen(false)} // hide on mouse leave
+      onMouseEnter={() => setOpen(true)} // show on hover
+    >
+      <button
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={() => setOpen((s) => !s)} // toggle on click
+        className="text-gray-700 hover:text-black transition"
+        onKeyDown={(e) => {
+          // open with ArrowDown or Enter/Space
+          if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setOpen(true);
+          }
+        }}
+      >
         {title}
       </button>
 
-      <div className="absolute left-0 top-7 mt-2 w-64 bg-white border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-        <div className="py-2 max-h-80 overflow-y-auto">{children? children:"No item found"}</div>
+      <div
+        className={`absolute left-0 top-7 mt-2 w-64 bg-white border rounded-lg shadow-lg transition-all duration-300
+          ${open ? "opacity-100 visible translate-y-0" : "opacity-0 invisible translate-y-4"}`}
+      >
+        {children ? (
+          // clicking any child will close the menu
+          <div
+            className="py-2 max-h-80 overflow-y-auto custom-scroll"
+            onClick={handleMenuClick}
+            role="menu"
+          >
+            {children}
+          </div>
+        ) : (
+          <span className="flex justify-center items-center p-3">No item found</span>
+        )}
       </div>
     </div>
   );
 }
+

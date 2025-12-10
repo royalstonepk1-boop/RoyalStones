@@ -44,13 +44,16 @@ async function getProduct(req, res) {
 
 async function listProductsForNavBar(req, res) {
   try {
-    const { category, limit } = req.query;
+    const { category, limit, skip } = req.query;
     const filter = {};
-    if (category) {
-      filter.categoryId = String(category);
-    }
+    if (category) filter.categoryId = String(category);
+
+    const qLimit = Number(limit) || 0;
+    const qSkip = Number(skip) || 0;
+
     const products = await Product.find(filter)
-      .limit(Number(limit) || 0)
+      .skip(qSkip)
+      .limit(qLimit)
       .sort({ createdAt: -1 });
 
     res.json(products);
@@ -59,6 +62,8 @@ async function listProductsForNavBar(req, res) {
     res.status(500).json({ message: 'Server error' });
   }
 }
+
+
 
 async function updateProduct(req, res) {
   try {
