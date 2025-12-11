@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState,useRef } from "react";
+import { useLocation ,useNavigate} from "react-router-dom";
 import { useProductStore } from "../store/productStore";
 import { fetchCategories } from "../api/category.api";
 import ProductList from "../components/product/ProductList";
@@ -8,12 +9,41 @@ export default function Shop() {
   const [categories, setCategories] = useState([]);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
+  const location = useLocation();
+  const navigate = useNavigate();
+  const hasScrolled = useRef(false);
+  
 
   // global products if you still need them for other usage
   useEffect(() => {
     getProducts(search, categoryFilter);
   }, [search, categoryFilter, getProducts]);
 
+  useEffect(() => {
+    // Reset scroll flag when location changes
+    hasScrolled.current = false;
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (location.hash && !hasScrolled.current) {
+      const id = location.hash.replace('#', '');
+      
+      // Wait for all content to load
+      const timer = setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          hasScrolled.current = true;
+          
+          // Remove hash from URL after scrolling
+          navigate(location.pathname, { replace: true });
+        }
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [location.hash, location.pathname, navigate]);
+  
   // load categories once
   useEffect(() => {
     fetchCategories()

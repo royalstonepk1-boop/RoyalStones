@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { fetchCategories } from "../../api/category.api";
 import { fetchFirst6Products } from "../../api/product.api";
 import { Link } from "react-router-dom";
@@ -6,6 +7,8 @@ import { Link } from "react-router-dom";
 export default function CategoryNavBar({ mobileOpen, setMobileOpen }) {
   const [categories, setCategories] = useState([]);
   const [productsByCategory, setProductsByCategory] = useState({});
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     fetchCategories()
@@ -13,6 +16,21 @@ export default function CategoryNavBar({ mobileOpen, setMobileOpen }) {
       .catch((err) => console.log(err));
   }, []);
 
+  const handleCategoryClick = (e, catId) => {
+    e.preventDefault();
+
+    // Check if we're already on the shop page
+    if (location.pathname === '/' || location.pathname === '/shop') {
+      // Already on shop page, just scroll
+      const element = document.getElementById(catId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } else {
+      // Navigate to shop page with hash
+      navigate(`/#${catId}`);
+    }
+  };
   useEffect(() => {
     const loadProducts = async () => {
       const firstFour = categories.slice(0, 4);
@@ -62,7 +80,7 @@ export default function CategoryNavBar({ mobileOpen, setMobileOpen }) {
             <a
               key={cat._id}
               href={`#${cat._id}`}
-              onClick={() => setMobileOpen(false)}
+              onClick={(e) => {setMobileOpen(false); handleCategoryClick(e, cat._id)}}
               className="block px-4 py-2 hover:bg-gray-200 hover:border-l-4 border-gray-800 hover:transform duration-200"
             >
               {cat.name}
@@ -87,6 +105,7 @@ export default function CategoryNavBar({ mobileOpen, setMobileOpen }) {
             <a
               key={cat._id}
               href={`#${cat._id}`}
+              onClick={(e) => handleCategoryClick(e, cat._id)}
               className="block px-4 py-2 hover:bg-gray-200 hover:border-l-4 border-gray-800 hover:transform duration-200"
             >
               {cat.name}
@@ -108,6 +127,7 @@ export default function CategoryNavBar({ mobileOpen, setMobileOpen }) {
             {productsByCategory[cat._id]?.map((prod) => (
               <Link
                 key={prod._id}
+                to={`/product/${prod._id}`}
                 className="flex items-center gap-3 px-4 py-2 hover:bg-gray-200 hover:border-l-4 border-gray-800 hover:transform duration-200"
               >
                 <img

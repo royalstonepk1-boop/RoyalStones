@@ -2,6 +2,9 @@ import FooterImg1 from '../../Images/Group-1.png';
 import FooterImg2 from '../../Images/Group-2.png';
 import FooterImg3 from '../../Images/Group-3.png';
 export default function Footer() {
+  const open=(link)=>{
+    window.open(link,'_blank');
+  }
   return (
     <footer className="bg-white text-black mt-10">
       <div className="flex flex-col md:flex-row justify-center items-start md:items-center gap-18 text-center bg-[#333333] py-4 md:py-7 text-white">
@@ -39,10 +42,10 @@ export default function Footer() {
 
       <div>
         <div className='[&>i]:mx-2 text-2xl flex justify-center mt-2 py-4 [&>i]:px-2 text-gray-500 [&>i]:hover:text-gray-800 cursor-pointer transform duration-150'>
-          <i class="bi bi-facebook"></i>
-          <i class="bi bi-instagram"></i>
-          <i class="bi bi-youtube"></i>
-          <i class="bi bi-envelope"></i>
+          <i class="bi bi-facebook" onClick={()=>open('https://www.facebook.com/share/17jUiZNTtH/')}></i>
+          <i class="bi bi-tiktok" onClick={()=>open('https://www.tiktok.com/@royal_stone1?_r=1&_t=ZS-91kp31807kr')}></i>
+          <i class="bi bi-youtube" onClick={()=>open('https://youtube.com/@royal_stone_asad_ullah?si=O9s7qR4Su3cxo7GY')}></i>
+          <i class="bi bi-envelope" onClick={()=>open('mailto:royalstonepk1@gmail.com')}></i>
         </div>
       </div>
       <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-6 px-6 py-10">
@@ -72,9 +75,8 @@ export default function Footer() {
         {/* Contact */}
         <div>
           <h2 className="text-lg font-semibold mb-2">Contact</h2>
-          <p className="text-sm text-gray-400">Lahore, Pakistan</p>
-          <p className="text-sm text-gray-400">support@royalstones.com</p>
-          <p className="text-sm text-gray-400">+92 300 1234567</p>
+          <p className="text-sm text-gray-400">Islamabad, Pakistan</p>
+          <p className="text-sm text-gray-400">royalstonepk1@gmail.com</p>
         </div>
       </div>
 
