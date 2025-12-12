@@ -3,6 +3,7 @@ import { useLocation ,useNavigate} from "react-router-dom";
 import { useProductStore } from "../store/productStore";
 import { fetchCategories } from "../api/category.api";
 import ProductList from "../components/product/ProductList";
+import PageWrapper from "../util/PageWrapper";
 
 export default function Shop() {
   const { productsByCategory, getProductsByCategory, loading, getProducts } = useProductStore();
@@ -62,6 +63,7 @@ export default function Shop() {
   }, [getProductsByCategory]);
 
   return (
+    <PageWrapper>
     <div className="p-6">
       <h1 className="text-xl md:text-2xl font-extrabold my-2 text-center">New Arrival</h1>
       <p className="text-3xl md:text-4xl text-gray-600 mb-6 text-center">Latest Gemstone Collection</p>
@@ -72,8 +74,16 @@ export default function Shop() {
       </div> */}
 
       {/* Render per-category sections */}
+      { 
+        (!productsByCategory || Object.keys(productsByCategory).length === 0) &&
+        <div className="text-center pt-10">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900 mx-auto"></div>
+        <p className="mt-4 text-gray-600">Loading product...</p>
+      </div>
+      }
       {categories.map((cat) => {
         const catData = productsByCategory[cat._id] || { items: [], page: 0, finished: false, loading: false };
+        console.log(catData)
         return (
           <section key={cat._id} className="mb-10">
             <div className="flex items-center justify-between mb-4">
@@ -81,10 +91,18 @@ export default function Shop() {
               {/* optional: link to view all for this category */}
               {/* <a href={`/category/${cat._id}`} className="text-sm text-indigo-600">View all</a> */}
             </div>
+            {
+              catData?.loading && catData?.items.length === 0 ? (
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900 mx-auto"></div>
+                  <p className="mt-4 text-gray-600">Loading product...</p>
+                </div>) :
+                <ProductList
+                  products={catData.items}
+                />
+            }
 
-            <ProductList
-              products={catData.items}
-            />
+            
 
             <div className="mt-4 flex justify-center">
               {/* show load more only if we fetched at least `limit` (6) items in last fetch (i.e., not finished) */}
@@ -102,5 +120,6 @@ export default function Shop() {
         );
       })}
     </div>
+    </PageWrapper>
   );
 }

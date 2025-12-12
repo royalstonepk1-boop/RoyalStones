@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useProductStore } from "../store/productStore";
 import { useAuthStore } from "../store/authStore";
 import { useCartStore } from "../store/cartStore";
+import PageWrapper from "../util/PageWrapper";
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -58,12 +59,21 @@ export default function ProductDetails() {
     console.log("Add to wishlist", product._id);
   };
 
-  if (loading || !product) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading product...</p>
+        </div>
+      </div>
+    );
+  }
+  if(!product){
+    return (
+      <div className="min-h-screen flex items-start justify-center">
+        <div className="text-center">
+          <p className="mt-16 text-gray-600">Product not found.</p>
         </div>
       </div>
     );
@@ -80,7 +90,7 @@ export default function ProductDetails() {
   const isOutOfStock = stockQuantity === 0 || !isActive;
 
   return (
-    <>
+    <PageWrapper>
       {/* Zoom Modal */}
       {isZoomed && (
         <div 
@@ -299,7 +309,7 @@ export default function ProductDetails() {
                         </span>
                       </div>
                     )}
-                    <div className="flex justify-between py-2 border-b">
+                    <div className="flex justify-between py-2">
                       <span className="text-gray-600">Availability:</span>
                       <span className="font-medium">{isActive ? "Active" : "Inactive"}</span>
                     </div>
@@ -356,6 +366,6 @@ export default function ProductDetails() {
           </div>
         </div>
       </div>
-    </>
+    </PageWrapper>
   );
 }

@@ -4,6 +4,7 @@ import { useAuthStore } from "../../store/authStore";
 import { useCartStore } from "../../store/cartStore";
 import SubNavBar from "./SubNavBar";
 import CategoryNavBar from "./CategoryNavBar";
+import NavBarLogo from "../../Images/NavBarLogo.png";
 
 export default function Navbar() {
   const user = useAuthStore((s) => s.user);
@@ -13,7 +14,7 @@ export default function Navbar() {
   return (
     <>
       <SubNavBar />
-      <nav className="bg-white shadow-md sticky top-0 z-50">
+      <nav className="bg-white shadow-md sticky top-0 z-50 max-h-[90px]">
         <div className="max-w-7xl mx-auto flex justify-between items-center px-4 py-3">
           <div className="flex md:hidden justify-between items-center px-4 py-3">
             <button
@@ -25,7 +26,7 @@ export default function Navbar() {
           </div>
           {/* Logo */}
           <Link to="/" className="text-2xl font-bold tracking-wide">
-            Royal<span className="text-gray-600">Stones</span>
+            <img src={NavBarLogo} alt="logo" className="min-w-[150px] max-h-[70px]"/>
           </Link>
 
           {/* Desktop Bottom Nav */}
