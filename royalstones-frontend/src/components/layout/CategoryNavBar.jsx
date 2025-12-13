@@ -101,7 +101,7 @@ export default function CategoryNavBar({ mobileOpen, setMobileOpen }) {
             </span>
           }
         >
-          {categories.map((cat) => (
+          {categories.length > 0? categories.map((cat) => (
             <a
               key={cat._id}
               href={`#${cat._id}`}
@@ -110,7 +110,9 @@ export default function CategoryNavBar({ mobileOpen, setMobileOpen }) {
             >
               {cat.name}
             </a>
-          ))}
+          )) :
+          <span className="flex justify-center items-center p-1">No Categories found</span>
+          }
         </Dropdown>
 
         {/* First 4 Categories Dropdowns */}
@@ -202,7 +204,7 @@ function Dropdown({ title, children }) {
       </button>
 
       <div
-        className={`absolute left-0 top-7 mt-2 w-64 bg-white border rounded-lg shadow-lg transition-all duration-300
+        className={`absolute left-0 top-8 mt-2 w-64 bg-white border rounded-lg shadow-lg transition-all duration-300
           ${open ? "opacity-100 visible translate-y-0" : "opacity-0 invisible translate-y-4"}`}
       >
         {children ? (

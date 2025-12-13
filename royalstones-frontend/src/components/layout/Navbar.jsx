@@ -33,7 +33,7 @@ export default function Navbar() {
           <div className="hidden xl:flex gap-6 text-sm font-medium">
             <Link to="/" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Home</Link>
             <Link to="/shop" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Gemstones</Link>
-            <Link to="/about" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">About Us</Link>
+            <Link to="/about" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">About Stones</Link>
             <Link to="/contact" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Contact Us</Link>
             {user?.role === "admin" && (
               <Link to="/admin" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Admin</Link>
@@ -99,7 +99,7 @@ export default function Navbar() {
       <div className="hidden md:flex xl:hidden gap-6 text-sm justify-center items-center min-h-16 font-medium">
             <Link to="/" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Home</Link>
             <Link to="/shop" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Gemstones</Link>
-            <Link to="/about" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">About Us</Link>
+            <Link to="/about" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">About Stones</Link>
             <Link to="/contact" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Contact Us</Link>
             {user?.role === "admin" && (
               <Link to="/admin" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Admin</Link>

@@ -158,7 +158,7 @@ export default function ProductDetails() {
                   <img
                     src={currentImage}
                     alt={name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover border-1 border-gray-400 rounded-[15px]"
                   />
                   {discountPrice && (
                     <span className="absolute top-4 left-4 bg-red-600 text-white px-3 py-1 rounded-md font-semibold">
@@ -299,10 +299,10 @@ export default function ProductDetails() {
                 </div>
 
                 {/* Product Details */}
-                <div className="border-t pt-6">
+                <div className="border-t border-gray-400 pt-6">
                   <div className="space-y-3">
                     {product?.categoryId && (
-                      <div className="flex justify-between py-2 border-b">
+                      <div className="flex justify-between py-2 border-b border-gray-400">
                         <span className="text-gray-600">Category:</span>
                         <span className="font-medium">
                           {typeof product.categoryId === 'object' ? product.categoryId.name : product.categoryId}
@@ -318,7 +318,7 @@ export default function ProductDetails() {
 
                 {/* Description */}
                 {description && (
-                  <div className="border-t pt-6">
+                  <div className="border-t border-gray-400 pt-6">
                     <button
                       onClick={() => setShowFullDescription(!showFullDescription)}
                       className="flex items-center justify-between w-full mb-4 cursor-pointer"
@@ -345,7 +345,7 @@ export default function ProductDetails() {
                 )}
 
                 {/* Trust Badges */}
-                <div className="border-t pt-6">
+                <div className="border-t border-gray-400 pt-6">
                   <div className="grid grid-cols-3 gap-4 text-center">
                     <div className="space-y-2">
                       <i className="bi bi-truck text-3xl text-gray-700"></i>

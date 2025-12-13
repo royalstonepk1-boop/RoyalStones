@@ -1,7 +1,10 @@
+import { useNavigate } from 'react-router-dom';
 import FooterImg1 from '../../Images/Group-1.png';
 import FooterImg2 from '../../Images/Group-2.png';
 import FooterImg3 from '../../Images/Group-3.png';
+
 export default function Footer() {
+  const navigate = useNavigate();
   const open=(link)=>{
     window.open(link,'_blank');
   }
@@ -54,10 +57,10 @@ export default function Footer() {
         <div>
           <h2 className="text-lg font-semibold mb-2">Information</h2>
           <ul className="text-sm text-gray-500 space-y-1">
-            <li className="hover:text-gray-800 cursor-pointer transform duration-150">About Us</li>
-            <li className="hover:text-gray-800 cursor-pointer transform duration-150">Delivery Information</li>
-            <li className="hover:text-gray-800 cursor-pointer transform duration-150">Privacy Policy</li>
-            <li className="hover:text-gray-800 cursor-pointer transform duration-150">Terms & Conditions</li>
+            <li className="hover:text-gray-800 cursor-pointer transform duration-150" onClick={()=>navigate('/about')}>About Stones</li>
+            <li className="hover:text-gray-800 cursor-pointer transform duration-150" onClick={()=>navigate('/delivery')}>Delivery Information</li>
+            <li className="hover:text-gray-800 cursor-pointer transform duration-150" onClick={()=>navigate('/privacy')}>Privacy Policy</li>
+            <li className="hover:text-gray-800 cursor-pointer transform duration-150" onClick={()=>navigate('/terms')}>Terms & Conditions</li>
           </ul>
         </div>
 
@@ -65,17 +68,18 @@ export default function Footer() {
         <div>
           <h2 className="text-lg font-semibold mb-2">Quick Links</h2>
           <ul className="text-sm text-gray-400 space-y-1">
-            <li className="hover:text-gray-800 cursor-pointer transform duration-150">Home</li>
-            <li className="hover:text-gray-800 cursor-pointer transform duration-150">Shop</li>
-            <li className="hover:text-gray-800 cursor-pointer transform duration-150">Cart</li>
-            <li className="hover:text-gray-800 cursor-pointer transform duration-150">Orders</li>
+            <li className="hover:text-gray-800 cursor-pointer transform duration-150" onClick={()=>navigate('/')}>Home</li>
+            <li className="hover:text-gray-800 cursor-pointer transform duration-150" onClick={()=>navigate('/shop')}>Shop</li>
+            <li className="hover:text-gray-800 cursor-pointer transform duration-150" onClick={()=>navigate('/card')}>Cart</li>
+            <li className="hover:text-gray-800 cursor-pointer transform duration-150" onClick={()=>navigate('/orders')}>Orders</li>
           </ul>
         </div>
 
         {/* Contact */}
         <div>
           <h2 className="text-lg font-semibold mb-2">Contact</h2>
-          <p className="text-sm text-gray-400">Islamabad, Pakistan</p>
+          <p className="text-sm text-gray-400 mb-2">Rizwan Shaheed Rd, Nai Abadi Barakahu, Kot Hathyal, Pakistan</p>
+          <p className="text-sm text-gray-400">+92-315-5066472</p>
           <p className="text-sm text-gray-400">royalstonepk1@gmail.com</p>
         </div>
       </div>

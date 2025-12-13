@@ -12,12 +12,16 @@ import ProtectedRoute from "./ProtectedRoute";
 import Orders from "../pages/Orders";
 import ManageCategories from "../pages/admin/ManageCategories";
 import ManageOrders from "../pages/admin/ManageOrders";
+import About from "../pages/About";
+import Contact from "../pages/Contact";
 
 export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/shop" element={<Shop />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/contact" element={<Contact />} />
       <Route path="/product/:id" element={<ProductDetails />} />
 
       <Route
