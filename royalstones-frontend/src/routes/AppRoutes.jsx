@@ -14,6 +14,7 @@ import ManageCategories from "../pages/admin/ManageCategories";
 import ManageOrders from "../pages/admin/ManageOrders";
 import About from "../pages/About";
 import Contact from "../pages/Contact";
+import Profile from "../pages/Profile";
 
 export default function AppRoutes() {
   return (
@@ -30,6 +31,14 @@ export default function AppRoutes() {
           <ProtectedRoute>
             <Cart />
           </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          // <ProtectedRoute>
+            <Profile />
+          // </ProtectedRoute>
         }
       />
 

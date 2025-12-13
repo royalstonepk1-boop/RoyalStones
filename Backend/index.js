@@ -12,8 +12,8 @@ connectDB();
 
 // middleware
 app.use(cors({ origin: process.env.CORS_ORIGIN || true }));
-app.use(bodyParser.json({ limit: '10mb' }));
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
 
 // routes (mount)
 app.use('/api/users', require('./routes/userRoutes'));

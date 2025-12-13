@@ -54,7 +54,7 @@ export default function CategoryNavBar({ mobileOpen, setMobileOpen }) {
   const firstFourCategories = categories.slice(0, 4);
 
   return (
-    <div className="bg-white border-b shadow-sm relative w-full z-60 md:sticky md:top-20 ">
+    <div className={`bg-white border-b shadow-sm relative w-full z-60 md:sticky md:top-20  ${location.pathname === '/login' || location.pathname === '/register' ? 'hidden' : ''}`}>
       {/* Overlay */}
       {mobileOpen && (
         <div

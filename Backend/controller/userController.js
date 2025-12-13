@@ -1,20 +1,45 @@
 const User = require('../models/User');
-const { createFirebaseUser } = require('../helper/firebaseAuth');
+const bcrypt = require('bcrypt');
+// const { createFirebaseUser } = require('../helper/firebaseAuth');
 
-async function register(req, res) {
+async function registerWithEmail(req, res) {
   try {
-    const { email, password, name, phone } = req.body;
+    const {uid, email, password, name, phone } = req.body;
     if (!email || !password) return res.status(400).json({ message: 'Email & password required' });
 
     // Create firebase user
-    const fbUser = await createFirebaseUser(email, password, name);
+    // const fbUser = await createFirebaseUser(email, password, name);
 
     // create local user
+    const saltRounds = 10;
+    const hashPassword = async (pass) => {
+      const hashedPassword = await bcrypt.hash(pass, saltRounds);
+      return hashedPassword;
+    };
+    const hashedPassword = await hashPassword(password);
     const user = await User.create({
-      firebaseUid: fbUser.uid,
+      firebaseUid: uid,
       name,
       email,
       phone,
+      password: hashedPassword,
+      role: 'user',
+    });
+
+    res.json({ user });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
+}
+async function registerWithGoogle(req, res) {
+  try {
+    const {uid, email, name } = req.body;
+    console.log(req.body);
+    const user = await User.create({
+      firebaseUid: uid,
+      name,
+      email,
       role: 'user',
     });
 
@@ -34,6 +59,23 @@ async function getProfile(req, res) {
   }
 }
 
+async function getProfileByEmail(req, res) {
+  try {
+    const { email } = req.query;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
+
 async function updateProfile(req, res) {
   try {
     const updates = req.body;
@@ -44,4 +86,4 @@ async function updateProfile(req, res) {
   }
 }
 
-module.exports = { register, getProfile, updateProfile };
+module.exports = { registerWithEmail, registerWithGoogle , getProfile, getProfileByEmail, updateProfile };

@@ -112,7 +112,7 @@ export default function Shop() {
                   disabled={catData.loading}
                   className="px-4 py-2 border rounded-md cursor-pointer hover:bg-gray-100"
                 >
-                  {catData.loading ? "Loading..." : "Load more"}
+                  {catData.loading ? <div className="w-25"> <p className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 mx-auto"></p></div> : "Load more"}
                 </button>
               ) : null}
             </div>

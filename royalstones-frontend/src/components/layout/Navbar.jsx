@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState,useEffect } from "react";
+import { Link ,useNavigate ,useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 import { useCartStore } from "../../store/cartStore";
 import SubNavBar from "./SubNavBar";
@@ -7,14 +7,22 @@ import CategoryNavBar from "./CategoryNavBar";
 import NavBarLogo from "../../Images/NavBarLogo.png";
 
 export default function Navbar() {
+  const navigate=useNavigate();
+  const location=useLocation();
   const user = useAuthStore((s) => s.user);
+ 
   const cart = useCartStore((s) => s.cart);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    console.log(user);
+  }, [])
+  
 
   return (
     <>
       <SubNavBar />
-      <nav className="bg-white shadow-md sticky top-0 z-50 max-h-[90px]">
+      <nav className={`bg-white shadow-md sticky top-0 z-50 max-h-[90px] ${location.pathname === '/login' || location.pathname === '/register' ? 'hidden' : ''}`}>
         <div className="max-w-7xl mx-auto flex justify-between items-center px-4 py-3">
           <div className="flex md:hidden justify-between items-center px-4 py-3">
             <button
@@ -82,12 +90,15 @@ export default function Navbar() {
                   Login</span></Link>
               </>
             ) : (
-              <span>Hi, {user.email}</span>
+                <div className="bg-amber-500 w-10 h-10 rounded-full flex items-center justify-center cursor-pointer hover:opacity-80 hover:transform duration-150 text-gray-900 text-md md:text-xl"
+                onClick={()=>navigate("/profile")}>
+                  {user?.name?.charAt(0).toUpperCase()}
+                </div>
             )}
           </div>
         </div>
       </nav>
-      <div className="flex items-center md:hidden bg-white/70 backdrop-blur-md border border-gray-400 rounded-full px-6 py-2 my-6 w-[100%]">
+      <div className={`flex items-center md:hidden bg-white/70 backdrop-blur-md border border-gray-400 rounded-full px-6 py-2 my-6 w-[100%] ${location.pathname === '/login' || location.pathname === '/register' ? 'hidden' : ''}`}>
         <input
           type="text"
           placeholder="Search products..."
@@ -96,7 +107,7 @@ export default function Navbar() {
         <i class="bi bi-search"></i>
       </div>
       {/* Desktop Bottom Nav */}
-      <div className="hidden md:flex xl:hidden gap-6 text-sm justify-center items-center min-h-16 font-medium">
+      <div className={`hidden md:flex xl:hidden gap-6 text-sm justify-center items-center min-h-16 font-medium ${location.pathname === '/login' || location.pathname === '/register' ? 'hidden' : ''}`}>
             <Link to="/" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Home</Link>
             <Link to="/shop" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Gemstones</Link>
             <Link to="/about" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">About Stones</Link>
