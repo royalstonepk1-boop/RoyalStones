@@ -1,23 +1,37 @@
-import { useState,useEffect } from "react";
-import { Link ,useNavigate ,useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 import { useCartStore } from "../../store/cartStore";
 import SubNavBar from "./SubNavBar";
 import CategoryNavBar from "./CategoryNavBar";
 import NavBarLogo from "../../Images/NavBarLogo.png";
+import { toast } from 'react-toastify';
 
 export default function Navbar() {
-  const navigate=useNavigate();
-  const location=useLocation();
+  const navigate = useNavigate();
+  const location = useLocation();
   const user = useAuthStore((s) => s.user);
- 
+  const logoutUser = useAuthStore((s) => s.logout);
+
   const cart = useCartStore((s) => s.cart);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     console.log(user);
   }, [])
-  
+
+  const logout= () => {
+    logoutUser();
+    toast.success("Logout success!", {
+      position: "top-right",
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
+    navigate("/");  
+  }
+
 
   return (
     <>
@@ -34,7 +48,7 @@ export default function Navbar() {
           </div>
           {/* Logo */}
           <Link to="/" className="text-2xl font-bold tracking-wide">
-            <img src={NavBarLogo} alt="logo" className="min-w-[150px] max-h-[70px]"/>
+            <img src={NavBarLogo} alt="logo" className="min-w-[150px] max-h-[70px]" />
           </Link>
 
           {/* Desktop Bottom Nav */}
@@ -90,10 +104,23 @@ export default function Navbar() {
                   Login</span></Link>
               </>
             ) : (
+              <>
                 <div className="bg-amber-500 w-10 h-10 rounded-full flex items-center justify-center cursor-pointer hover:opacity-80 hover:transform duration-150 text-gray-900 text-md md:text-xl"
-                onClick={()=>navigate("/profile")}>
+                  onClick={() => navigate("/profile")}>
                   {user?.name?.charAt(0).toUpperCase()}
                 </div>
+                <div className="relative group inline-block">
+                  <i className="bi bi-box-arrow-left text-xl cursor-pointer hover:opacity-70 transition"
+                  onClick={logout}></i>
+
+                  <span className="absolute -top-6 left-1/2 -translate-x-1/2 
+                                 whitespace-nowrap bg-White text-black text-xs 
+                                 px-2 py-1 rounded opacity-0 
+                                 group-hover:opacity-100 transition">
+                    Logout
+                  </span>
+                </div>
+              </>
             )}
           </div>
         </div>
@@ -108,13 +135,13 @@ export default function Navbar() {
       </div>
       {/* Desktop Bottom Nav */}
       <div className={`hidden md:flex xl:hidden gap-6 text-sm justify-center items-center min-h-16 font-medium ${location.pathname === '/login' || location.pathname === '/register' ? 'hidden' : ''}`}>
-            <Link to="/" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Home</Link>
-            <Link to="/shop" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Gemstones</Link>
-            <Link to="/about" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">About Stones</Link>
-            <Link to="/contact" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Contact Us</Link>
-            {user?.role === "admin" && (
-              <Link to="/admin" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Admin</Link>
-            )} </div>
+        <Link to="/" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Home</Link>
+        <Link to="/shop" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Gemstones</Link>
+        <Link to="/about" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">About Stones</Link>
+        <Link to="/contact" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Contact Us</Link>
+        {user?.role === "admin" && (
+          <Link to="/admin" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Admin</Link>
+        )} </div>
       <CategoryNavBar
         mobileOpen={mobileOpen}
         setMobileOpen={setMobileOpen}

@@ -1,5 +1,4 @@
 const User = require('../models/User');
-const bcrypt = require('bcrypt');
 // const { createFirebaseUser } = require('../helper/firebaseAuth');
 
 async function registerWithEmail(req, res) {
@@ -11,18 +10,11 @@ async function registerWithEmail(req, res) {
     // const fbUser = await createFirebaseUser(email, password, name);
 
     // create local user
-    const saltRounds = 10;
-    const hashPassword = async (pass) => {
-      const hashedPassword = await bcrypt.hash(pass, saltRounds);
-      return hashedPassword;
-    };
-    const hashedPassword = await hashPassword(password);
     const user = await User.create({
       firebaseUid: uid,
       name,
       email,
       phone,
-      password: hashedPassword,
       role: 'user',
     });
 

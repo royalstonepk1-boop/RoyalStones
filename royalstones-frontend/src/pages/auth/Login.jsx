@@ -5,19 +5,21 @@ import { useAuthStore } from "../../store/authStore";
 import { useNavigate, Link } from "react-router-dom";
 import { getUserByEmail } from "../../api/auth.api";
 import PageWrapper from "../../util/PageWrapper";
+import { toast } from 'react-toastify';
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const setUser = useAuthStore((s) => s.setUser);
   const setToken = useAuthStore((s) => s.setToken);
   const navigate = useNavigate();
 
   const login = async () => {
     if (!email || !password) {
-      alert("Please fill in all fields");
+      setErrorMessage("Please fill in all fields");
       return;
     }
 
@@ -32,10 +34,22 @@ export default function Login() {
           setUser(response?.data);
         }
       }
-      alert("Login success!");
+      toast.success("Login success!", {
+        position: "top-right",
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       navigate("/");
     } catch (err) {
-      alert(err.message);
+      toast.error(err.message, {
+        position: "top-right",
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } finally {
       setLoading(false);
     }
@@ -47,17 +61,30 @@ export default function Login() {
       const provider = new GoogleAuthProvider();
       const res = await signInWithPopup(auth, provider);
       const token = await res.user.getIdToken();
+      console.log(res,token)
       setToken(token);
       if(res){
-        const response = await getUserByEmail(email);
+        const response = await getUserByEmail(res.user.email);
         if(response){
           setUser(response?.data);
         }
       }
-      alert("Login with Google success!");
+      toast.success("Login success!", {
+        position: "top-right",
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       navigate("/");
     } catch (err) {
-      alert(err.message);
+      toast.error(err.message, {
+        position: "top-right",
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } finally {
       setLoading(false);
     }
@@ -72,7 +99,7 @@ export default function Login() {
   return (
     <PageWrapper>
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-amber-50 to-gray-100 flex items-center justify-center px-4 py-12">
-    <div className="max-w-md w-full">
+    <div className="max-w-md lg:max-w-lg w-full">
       {/* Logo/Brand */}
       <div className="text-center mb-8">
       <i class="bi bi-arrow-left float-left cursor-pointer text-md p-1 max-w-4 hover:text-xl hover:transform duration-150 "
@@ -149,6 +176,15 @@ export default function Login() {
           {/* <a href="#forgot" className="text-sm text-amber-600 hover:text-amber-700 transition-colors font-semibold">
             Forgot Password?
           </a> */}
+        </div>
+
+        {/* Error Message */}
+        <div className="flex items-center justify-between mb-6">
+          {errorMessage !== '' && (
+            <p className="text-sm text-red-600 font-semibold">
+              {errorMessage}
+            </p>
+          )}
         </div>
 
         {/* Login Button */}

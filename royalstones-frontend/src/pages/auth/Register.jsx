@@ -2,9 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../../firebase/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { signInWithPopup, GoogleAuthProvider ,fetchSignInMethodsForEmail  } from "firebase/auth";
 import { addProfileWithEmail,addProfileWithGoogle } from "../../api/auth.api";
 import PageWrapper from "../../util/PageWrapper";
+import {useAuthStore} from "../../store/authStore";
+import { toast } from 'react-toastify';
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -16,40 +18,62 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const setUser = useAuthStore((s) => s.setUser);
 
   const navigate = useNavigate();
 
   const register = async () => {
     if (!name || !email || !phone || !password || !confirmPassword) {
-      alert("Please fill in all fields");
+      setErrorMessage("Please fill in all fields");
       return;
     }
 
     if (password !== confirmPassword) {
-      alert("Passwords do not match");
+      setErrorMessage("Passwords do not match");
       return;
     }
 
     if (password.length < 6) {
-      alert("Password must be at least 6 characters");
+      setErrorMessage("Password must be at least 6 characters");
       return;
     }
 
     if (!agreeTerms) {
-      alert("Please agree to the Terms & Conditions");
+      setErrorMessage("Please agree to the Terms & Conditions");
       return;
     }
 
     setLoading(true);
     try {
+      const signInMethods = await fetchSignInMethodsForEmail(auth, email);
+      console.log(signInMethods);
+      if(signInMethods.length > 0){
+        setErrorMessage(true);
+      }
+      else if (signInMethods.length <= 0) {
       const response = await createUserWithEmailAndPassword(auth, email, password);
       if(response){
-        alert("Registered successfully!");
-        await addProfileWithEmail({uid:response.user.uid, email, password ,name, phone});
-        navigate("/login");
+        toast.success("Registered successfully!", {
+          position: "top-right",
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+        const res = await addProfileWithEmail({uid:response.user.uid, email, password ,name, phone});
+        setUser(res?.data?.user);
+        navigate("/");
       }
+    }
     } catch (err) {
-      alert(err.message);
+      toast.error(err.message, {
+        position: "top-right",
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
     finally {
       setLoading(false);
@@ -58,19 +82,32 @@ export default function Register() {
 
   const registerWithGoogle = async () => {
     if (!agreeTerms) {
-      alert("Please agree to the Terms & Conditions");
+      setErrorMessage("Please agree to the Terms & Conditions");
       return;
     }
     try {
       const provider = new GoogleAuthProvider();
       const response = await signInWithPopup(auth, provider);
       if(response){
-        alert("Registered with Google successfully!");
-        await addProfileWithGoogle({uid:response?.user?.uid, email:response?.user?.email, name:response?.user?.displayName});
-        navigate("/login");
+        toast.success("Registered successfully!", {
+          position: "top-right",
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+        const res =await addProfileWithGoogle({uid:response?.user?.uid, email:response?.user?.email, name:response?.user?.displayName});
+        setUser(res?.data?.user);
+        navigate("/");
       }
     } catch (err) {
-      alert(err.message);
+      toast.error(err.message, {
+        position: "top-right",
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } finally {
       setLoading(false);
     }
@@ -84,7 +121,7 @@ export default function Register() {
   return (
     <PageWrapper>
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-amber-50 to-gray-100 flex items-center justify-center px-4 py-12">
-    <div className="max-w-md w-full">
+    <div className="max-w-md lg:max-w-lg w-full">
       {/* Logo/Brand */}
       <div className="text-center mb-8">
       <i class="bi bi-arrow-left float-left cursor-pointer text-md p-1 max-w-4 hover:text-xl hover:transform duration-150 "
@@ -105,7 +142,7 @@ export default function Register() {
         {/* Name Input */}
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-semibold mb-2">
-            Full Name
+            Full Name <span className="text-red-600">*</span>
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -126,7 +163,7 @@ export default function Register() {
         {/* Email Input */}
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-semibold mb-2">
-            Email Address
+            Email Address <span className="text-red-600">*</span>
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -146,7 +183,7 @@ export default function Register() {
         {/* Email Input */}
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-semibold mb-2">
-            Contact Number
+            Contact Number <span className="text-red-600">*</span>
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -167,7 +204,7 @@ export default function Register() {
         {/* Password Input */}
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-semibold mb-2">
-            Password
+            Password <span className="text-red-600">*</span>
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -195,7 +232,7 @@ export default function Register() {
         {/* Confirm Password Input */}
         <div className="mb-6">
           <label className="block text-gray-700 text-sm font-semibold mb-2">
-            Confirm Password
+            Confirm Password <span className="text-red-600">*</span>
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -240,6 +277,15 @@ export default function Register() {
             </span>
           </label>
         </div>
+
+        {/* Error Message */}
+        {
+          errorMessage !== '' && (
+            <div className="mb-6">
+              <p className="text-red-600">{errorMessage}</p>
+            </div>
+          )
+        }
 
         {/* Register Button */}
         <button
