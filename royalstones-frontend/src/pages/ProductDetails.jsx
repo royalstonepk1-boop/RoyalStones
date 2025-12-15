@@ -4,35 +4,76 @@ import { useProductStore } from "../store/productStore";
 import { useAuthStore } from "../store/authStore";
 import { useCartStore } from "../store/cartStore";
 import PageWrapper from "../util/PageWrapper";
+import { toast } from 'react-toastify';
 
 export default function ProductDetails() {
   const { id } = useParams();
   const { product, getProductById, loading } = useProductStore();
   const user = useAuthStore((s) => s.user);
   const addToCart = useCartStore((s) => s.addToCart);
+  const openCart = useCartStore((s) => s.openCart);
   const navigate = useNavigate();
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [buyNow, setBuyNow] = useState(false);
   const [isZoomed, setIsZoomed] = useState(false);
+  const [error, setError] = useState('');
+  const [fingerSize, setFingerSize] = useState('');
 
   useEffect(() => {
     getProductById(id);
   }, [id]);
 
+  const handleChange = (e) => {
+    const size = parseFloat(e.target.value);
+    
+    if (e.target.value === '') {
+      setError('');
+      return;
+    }
+
+    if (size < 12) {
+      setError('Minimum size is 12mm');
+    } else if (size > 25) {
+      setError('Maximum size is 25mm');
+    } else {
+      setError('');
+    }
+    // console.log(typeof(fingerSize),typeof(size));
+    setFingerSize(size);
+  };
+
   const handleAddToCart = async () => {
     if (!user) {
       return navigate("/login");
     }
+    if(!fingerSize || fingerSize < 12 || fingerSize > 25 || fingerSize === ''){
+      setError('Please enter a valid finger size between 12mm and 25mm');
+      return;
+    }
     setAddingToCart(true);
     try {
-      await addToCart(product._id, 1);
-      alert("Added to Cart!");
+      await addToCart(product._id, 1 ,fingerSize);
+      toast.success("Added To Cart!", {
+        position: "top-right",
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } catch (error) {
-      alert("Failed to add to cart");
+      toast.error(err.message, {
+        position: "top-right",
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } finally {
       setAddingToCart(false);
+      setFingerSize('');
     }
   };
 
@@ -40,24 +81,36 @@ export default function ProductDetails() {
     if (!user) {
       return navigate("/login");
     }
-    setAddingToCart(true);
+    if(!fingerSize || fingerSize < 12 || fingerSize > 25 || fingerSize === ''){
+      setError('Please enter a valid finger size between 12mm and 25mm');
+      return;
+    }
+
+    setBuyNow(true);
     try {
-      await addToCart(product._id, 1);
-      navigate("/cart");
+      await addToCart(product._id, 1 ,fingerSize);
+      openCart();
     } catch (error) {
-      alert("Failed to proceed");
+      toast.error(err.message, {
+        position: "top-right",
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } finally {
-      setAddingToCart(false);
+      setBuyNow(false);
+      setFingerSize('');
     }
   };
 
-  const handleAddToWishlist = () => {
-    if (!user) {
-      return navigate("/login");
-    }
-    // Add wishlist logic here
-    console.log("Add to wishlist", product._id);
-  };
+  // const handleAddToWishlist = () => {
+  //   if (!user) {
+  //     return navigate("/login");
+  //   }
+  //   // Add wishlist logic here
+  //   console.log("Add to wishlist", product._id);
+  // };
 
   if (loading) {
     return (
@@ -69,7 +122,7 @@ export default function ProductDetails() {
       </div>
     );
   }
-  if(!product){
+  if (!product) {
     return (
       <div className="min-h-screen flex items-start justify-center">
         <div className="text-center">
@@ -93,17 +146,17 @@ export default function ProductDetails() {
     <PageWrapper>
       {/* Zoom Modal */}
       {isZoomed && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-95 z-60 flex items-center justify-center p-4"
           onClick={() => setIsZoomed(false)}
         >
           <button
             className="absolute top-4 right-4 text-white text-4xl hover:text-gray-300 z-10"
-            onClick={() => {setIsZoomed(false); setSelectedImage(0);}}
+            onClick={() => { setIsZoomed(false); setSelectedImage(0); }}
           >
             <i className="bi bi-x cursor-pointer"></i>
           </button>
-          
+
           {/* Previous Image */}
           {selectedImage > 0 && (
             <button
@@ -116,7 +169,7 @@ export default function ProductDetails() {
               <i className="bi bi-chevron-left cursor-pointer"></i>
             </button>
           )}
-          
+
           {/* Zoomed Image */}
           <img
             src={currentImage}
@@ -124,7 +177,7 @@ export default function ProductDetails() {
             className="min-w-[40%] min-h-[40%] object-contain"
             onClick={(e) => e.stopPropagation()}
           />
-          
+
           {/* Next Image */}
           {selectedImage < images.length - 1 && (
             <button
@@ -137,7 +190,7 @@ export default function ProductDetails() {
               <i className="bi bi-chevron-right cursor-pointer"></i>
             </button>
           )}
-          
+
           {/* Image Counter */}
           {images.length > 1 && (
             <div className="absolute bottom-4 text-white text-sm bg-black bg-opacity-50 px-4 py-2 rounded">
@@ -188,9 +241,8 @@ export default function ProductDetails() {
                       <button
                         key={index}
                         onClick={() => setSelectedImage(index)}
-                        className={`cursor-pointer relative bg-gray-100 rounded-lg overflow-hidden aspect-square border-2 transition-all hover:border-gray-400 ${
-                          selectedImage === index ? "border-blue-600" : "border-transparent"
-                        }`}
+                        className={`cursor-pointer relative bg-gray-100 rounded-lg overflow-hidden aspect-square border-2 transition-all hover:border-gray-400 ${selectedImage === index ? "border-blue-600" : "border-transparent"
+                          }`}
                       >
                         <img
                           src={image.url || "/images/placeholder.png"}
@@ -258,6 +310,22 @@ export default function ProductDetails() {
                   )}
                 </div>
 
+                {/* For Finger Size */}
+                <input
+                  type="number"
+                  value={fingerSize}
+                  onChange={handleChange}
+                  min="14"
+                  max="23"
+                  step="0.5"
+                  placeholder="Please Enter Finger size e.g; 16.5mm"
+                  className={`w-full pl-5 pr-12 py-3 border rounded-lg focus:ring-1 focus:ring-gray-400 focus:border-transparent ${error ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                />
+                {
+                      error && <p className="text-red-500 text-sm ">{error}</p>
+                }
+
                 {/* Action Buttons */}
                 <div className="space-y-3">
                   <div className="flex gap-3">
@@ -280,10 +348,20 @@ export default function ProductDetails() {
                     </button>
                     <button
                       onClick={handleBuyNow}
-                      disabled={isOutOfStock || addingToCart}
-                      className="flex-1 bg-amber-500 text-white cursor-pointer py-3 px-6 rounded-lg font-semibold hover:bg-amber-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                      disabled={isOutOfStock || buyNow}
+                      className="flex-1 bg-amber-500 text-white cursor-pointer py-3 px-6 rounded-lg font-semibold hover:bg-amber-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
-                      BUY NOW
+                      {buyNow ? (
+                        <>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                          Adding...
+                        </>
+                      ) : (
+                        <>
+                          <i className="bi bi-cart-plus text-xl"></i>
+                          BUY NOW
+                        </>
+                      )}
                     </button>
                   </div>
 
@@ -326,13 +404,12 @@ export default function ProductDetails() {
                       <h2 className="text-xl font-bold text-gray-900">Description</h2>
                       <i className={`bi bi-chevron-${showFullDescription ? 'up' : 'down'} text-xl`}></i>
                     </button>
-                    
-                    <div className={`text-gray-700 leading-relaxed whitespace-pre-line ${
-                      showFullDescription ? '' : 'line-clamp-4'
-                    }`}>
+
+                    <div className={`text-gray-700 leading-relaxed whitespace-pre-line ${showFullDescription ? '' : 'line-clamp-4'
+                      }`}>
                       {description}
                     </div>
-                    
+
                     {!showFullDescription && description.length > 200 && (
                       <button
                         onClick={() => setShowFullDescription(true)}

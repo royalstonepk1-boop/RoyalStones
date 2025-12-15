@@ -15,24 +15,31 @@ import ManageOrders from "../pages/admin/ManageOrders";
 import About from "../pages/About";
 import Contact from "../pages/Contact";
 import Profile from "../pages/Profile";
+import DeliveryInfo from "../pages/DeliveryInfo";
+import PrivacyPolicy from "../pages/PrivacyPolicy";
+import Terms from "../pages/Terms";
 
 export default function AppRoutes() {
   return (
+    <>
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/shop" element={<Shop />} />
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
+      <Route path="/delivery" element={<DeliveryInfo />} />
+      <Route path="/privacy" element={<PrivacyPolicy />} />
+      <Route path="/terms" element={<Terms />} />
       <Route path="/product/:id" element={<ProductDetails />} />
 
-      <Route
+      {/* <Route
         path="/cart"
         element={
           <ProtectedRoute>
             <Cart />
           </ProtectedRoute>
         }
-      />
+      /> */}
       <Route
         path="/profile"
         element={
@@ -96,5 +103,8 @@ export default function AppRoutes() {
         }
       />
     </Routes>
+      <Cart />
+
+    </>
   );
 }

@@ -14,10 +14,16 @@ export default function Navbar() {
   const logoutUser = useAuthStore((s) => s.logout);
 
   const cart = useCartStore((s) => s.cart);
+  const openCart = useCartStore((s) => s.openCart);
+  const fetchCart = useCartStore((s) => s.fetchCart);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    console.log(user);
+    if(!user){
+      return;
+    }
+    fetchCart();
+
   }, [])
 
   const logout= () => {
@@ -84,7 +90,7 @@ export default function Navbar() {
 
           {/* Right Side */}
           <div className="flex gap-4 items-center text-sm">
-            <Link to="/cart" className="relative">
+            <button onClick={openCart} className="relative cursor-pointer">
               <div className="bg-[#333333] px-[10px] py-2 sm:p-3 rounded-full text-white flex items-center hover:opacity-55 hover:transform duration-300">
                 <i class="bi bi-cart3 text-[14px]"></i>
                 <span className="absolute top-0 right-0 sm:top-1 sm:right-29 bg-[#C09578] text-white text-[10px] px-1 rounded-full">
@@ -95,7 +101,7 @@ export default function Navbar() {
                 </span>
               </div>
 
-            </Link>
+            </button>
 
             {!user ? (
               <>

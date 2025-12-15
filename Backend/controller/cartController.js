@@ -1,42 +1,135 @@
 const Cart = require('../models/Cart');
 
+// ✅ Single DB call - returns populated cart
 async function getCart(req, res) {
-  let cart = await Cart.findOne({ userId: req.user._id }).populate('items.productId');
-  if (!cart) cart = await Cart.create({ userId: req.user._id, items: [] });
-  res.json(cart);
-}
-
-async function addToCart(req, res) {
-  const { productId, quantity = 1 } = req.body;
-  let cart = await Cart.findOne({ userId: req.user._id });
-  if (!cart) {
-    cart = await Cart.create({ userId: req.user._id, items: [{ productId, quantity }] });
-    return res.json(cart);
+  try {
+    let cart = await Cart.findOne({ userId: req.user._id })
+      .populate('items.productId');
+    
+    if (!cart) {
+      cart = await Cart.create({ userId: req.user._id, items: [] });
+    }
+    
+    res.json(cart);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
-  const idx = cart.items.findIndex(i => i.productId.toString() === productId);
-  if (idx > -1) cart.items[idx].quantity += +quantity;
-  else cart.items.push({ productId, quantity });
-  cart.updatedAt = Date.now();
-  await cart.save();
-  res.json(cart);
 }
 
+// ✅ Optimized - single save + return updated cart
+async function addToCart(req, res) {
+  try {
+    const { productId, quantity = 1 , fingerSize } = req.body;
+    
+    let cart = await Cart.findOne({ userId: req.user._id });
+    
+    if (!cart) {
+      cart = new Cart({ 
+        userId: req.user._id, 
+        items: [{ productId, quantity, fingerSize }] 
+      });
+    } else {
+      const idx = cart.items.findIndex(
+        i => i.productId.toString() === productId
+      );
+      
+      if (idx > -1) {
+        cart.items[idx].quantity += quantity;
+        cart.items[idx].fingerSize = fingerSize;
+      } else {
+        cart.items.push({ productId, quantity, fingerSize });
+      }
+    }
+    
+    cart.updatedAt = Date.now();
+    await cart.save();
+    
+    // Populate before returning
+    await cart.populate('items.productId');
+    res.json(cart);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+// ✅ Update quantity - optimized single operation
 async function updateCartItem(req, res) {
-  const { productId, quantity } = req.body;
-  let cart = await Cart.findOne({ userId: req.user._id });
-  if (!cart) return res.status(404).json({ message: 'Cart not found' });
-  const idx = cart.items.findIndex(i => i.productId.toString() === productId);
-  if (idx === -1) return res.status(404).json({ message: 'Item not found' });
-  if (quantity <= 0) cart.items.splice(idx, 1);
-  else cart.items[idx].quantity = quantity;
-  cart.updatedAt = Date.now();
-  await cart.save();
-  res.json(cart);
+  try {
+    const { productId, quantity , fingerSize } = req.body;
+    
+    const cart = await Cart.findOne({ userId: req.user._id });
+    if (!cart) return res.status(404).json({ message: 'Cart not found' });
+    
+    const idx = cart.items.findIndex(
+      i => i.productId.toString() === productId
+    );
+    
+    if (idx === -1) {
+      return res.status(404).json({ message: 'Item not found' });
+    }
+    
+    if (quantity <= 0) {
+      cart.items.splice(idx, 1);
+    } else {
+      cart.items[idx].quantity = quantity;
+    }
+    if (fingerSize) {
+      cart.items[idx].fingerSize = fingerSize;
+    }
+    
+    cart.updatedAt = Date.now();
+    await cart.save();
+    await cart.populate('items.productId');
+    
+    res.json(cart);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+// ✅ Remove entire item - fixed variable name bug
+async function removeFullSingleItem(req, res) {
+  try {
+    const { productId } = req.body;
+    
+    const cart = await Cart.findOne({ userId: req.user._id });
+    if (!cart) return res.status(404).json({ message: 'Cart not found' });
+    
+    const idx = cart.items.findIndex(
+      i => i.productId.toString() === productId
+    );
+    
+    if (idx === -1) {
+      return res.status(404).json({ message: 'Item not found' });
+    }
+    
+    cart.items.splice(idx, 1); // ✅ Fixed: was 'itemIndex'
+    cart.updatedAt = Date.now();
+    await cart.save();
+    await cart.populate('items.productId');
+    
+    res.json(cart);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 }
 
 async function clearCart(req, res) {
-  await Cart.findOneAndUpdate({ userId: req.user._id }, { items: [] });
-  res.json({ message: 'Cart cleared' });
+  try {
+    await Cart.findOneAndUpdate(
+      { userId: req.user._id }, 
+      { items: [], updatedAt: Date.now() }
+    );
+    res.json({ message: 'Cart cleared' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 }
 
-module.exports = { getCart, addToCart, updateCartItem, clearCart };
+module.exports = { 
+  getCart, 
+  addToCart, 
+  updateCartItem, 
+  removeFullSingleItem, 
+  clearCart 
+};
