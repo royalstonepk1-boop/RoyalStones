@@ -26,6 +26,7 @@ app.use('/api/messages', require('./routes/messageRoutes'));
 app.use('/api/reviews', require('./routes/reviewRoutes'));
 app.use('/api/inventory', require('./routes/inventoryRoutes'));
 app.use('/api/adminlogs', require('./routes/adminLogRoutes'));
+app.use('/api/delivery', require('./routes/deliveryRoutes'));
 
 app.get('/', (req, res) => res.send('Royal Stones API is running'));
 

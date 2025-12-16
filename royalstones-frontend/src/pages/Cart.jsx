@@ -5,6 +5,7 @@ import { useCartStore } from '../store/cartStore';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore'; // ✅ Import auth store
 import { useNavigate } from 'react-router-dom';
+import { useDeliveryStore } from '../store/deliveryStore';
 
 export default function Cart() {
   const {
@@ -16,9 +17,21 @@ export default function Cart() {
     removeItem,
     fetchCart
   } = useCartStore();
+  const { fetchCharges,charges } = useDeliveryStore();
 
   const user = useAuthStore((state) => state.user); // ✅ Get user
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isOpen && !user) {
+      closeCart();
+      navigate('/login');
+      return;
+    }
+      fetchCharges();
+    
+  }, [])
+  
 
   useEffect(() => {
     // ✅ If cart opens and user not logged in, redirect to login
@@ -62,7 +75,7 @@ export default function Cart() {
           }`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b">
+        <div className="flex items-center justify-between px-6 py-2 border-b">
           <div>
             <h2 className="text-xl md:text-2xl font-bold">Shopping Cart</h2>
             <p className="text-sm text-gray-500">{`${itemCount > 1 ? itemCount + " items" : itemCount + " item"}`} </p>
@@ -143,14 +156,18 @@ export default function Cart() {
                 <span>Subtotal</span>
                 <span className="font-semibold">Rs {total.toLocaleString()}</span>
               </div>
+              <div className="flex justify-between text-orange-600">
+                <span>Shipping Charges</span>
+                <span className="font-semibold">Rs {charges.toLocaleString()}</span>
+              </div>
               <div className="border-t pt-3 flex justify-between text-lg font-bold">
                 <span>Total</span>
-                <span>Rs {total.toLocaleString()}</span>
+                <span>Rs {(total+charges).toLocaleString()}</span>
               </div>
             </div>
 
             <Link to="/checkout" onClick={closeCart}>
-              <button className="w-full bg-black text-white py-4 rounded-lg font-semibold hover:bg-gray-800">
+              <button className="w-full bg-black text-white py-4 rounded-lg font-semibold cursor-pointer hover:bg-gray-800">
                 Proceed to Checkout
               </button>
             </Link>

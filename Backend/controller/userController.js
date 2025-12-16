@@ -71,7 +71,7 @@ async function getProfileByEmail(req, res) {
 async function updateProfile(req, res) {
   try {
     const updates = req.body;
-    const user = await User.findByIdAndUpdate(req.user._id, updates, { new: true });
+    const user = await User.findByIdAndUpdate(req._id, updates, { new: true });
     res.json(user);
   } catch (err) {
     res.status(500).json({ message: err.message });

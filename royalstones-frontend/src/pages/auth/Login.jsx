@@ -41,7 +41,7 @@ export default function Login() {
         pauseOnHover: true,
         draggable: true,
       });
-      navigate("/");
+      navigate(-1);
     } catch (err) {
       toast.error(err.message, {
         position: "top-right",
@@ -76,7 +76,7 @@ export default function Login() {
         pauseOnHover: true,
         draggable: true,
       });
-      navigate("/");
+      navigate(-1);
     } catch (err) {
       toast.error(err.message, {
         position: "top-right",
