@@ -24,7 +24,7 @@ export default function Navbar() {
     }
     fetchCart();
 
-  }, [])
+  }, [user])
 
   const logout= () => {
     logoutUser();

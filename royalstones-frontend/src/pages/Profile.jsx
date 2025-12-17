@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/authStore";
 import PageWrapper from "../util/PageWrapper";
+import { toast } from 'react-toastify';
 
 export default function Profile() {
     const user = useAuthStore((s) => s.user);
@@ -40,7 +41,13 @@ export default function Profile() {
     const handleSaveProfile = () => {
         setUser({ ...user, ...profileForm });
         setIsEditingProfile(false);
-        alert("Profile updated successfully!");
+        toast.success("Profile updated successfully!", {
+            position: "top-right",
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          });
     };
 
     const handleAddAddress = () => {
@@ -57,7 +64,14 @@ export default function Profile() {
             isDefault: false
         });
         setIsAddingAddress(false);
-        alert("Address added successfully!");
+        toast.success("Address added successfully!", {
+            position: "top-right",
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          });
+
     };
 
     const handleEditAddress = (address) => {
@@ -81,7 +95,14 @@ export default function Profile() {
             country: "Pakistan",
             isDefault: false
         });
-        alert("Address updated successfully!");
+        toast.success("Address updated successfully!", {
+            position: "top-right",
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          });
+        
     };
 
     const handleDeleteAddress = (addressId) => {
@@ -89,6 +110,14 @@ export default function Profile() {
             const updatedAddresses = user.addresses.filter(addr => addr._id !== addressId);
             setUser({ ...user, addresses: updatedAddresses });
             alert("Address deleted successfully!");
+            toast.success("Address deleted successfully!", {
+                position: "top-right",
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+              });
+
         }
     };
 
@@ -98,7 +127,13 @@ export default function Profile() {
             isDefault: addr._id === addressId
         }));
         setUser({ ...user, addresses: updatedAddresses });
-        alert("Default address updated!");
+        toast.success("Default address updated!", {
+            position: "top-right",
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          });
     };
 
     const formatDate = (date) => {

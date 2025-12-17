@@ -22,17 +22,17 @@ export default function ProductCard({ product }) {
   }, [secondary]);
 
   // action handlers (replace with real cart logic)
-  const handleAddToCart = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log("Add to cart", product._id);
-  };
+  // const handleAddToCart = (e) => {
+  //   e.preventDefault();
+  //   e.stopPropagation();
+  //   console.log("Add to cart", product._id);
+  // };
 
-  const handleBuyNow = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log("Buy now", product._id);
-  };
+  // const handleBuyNow = (e) => {
+  //   e.preventDefault();
+  //   e.stopPropagation();
+  //   console.log("Buy now", product._id);
+  // };
 
   return (
     <div
@@ -78,13 +78,13 @@ export default function ProductCard({ product }) {
             {
               stock === 0 ?'':
               <div className="w-full flex gap-2 justify-end pointer-events-auto">
-              <button
+              {/* <button
                 onClick={handleAddToCart}
                 className="px-3 py-2 border rounded text-sm font-medium shadow-sm text-black bg-white hover:bg-[#333333] hover:text-white hover:cursor-pointer hover:transform duration-150"
                 aria-label={`Add ${name} to cart`}
               >
                 <i class="bi bi-cart-check text-xl md:text-2xl"></i>
-              </button>
+              </button> */}
               {/* <button
                 onClick={handleBuyNow}
                 className="px-3 py-2 bg-indigo-600 text-white rounded text-sm font-medium shadow-sm hover:bg-indigo-700"
