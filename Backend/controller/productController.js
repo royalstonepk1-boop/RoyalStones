@@ -54,7 +54,8 @@ async function listProductsForNavBar(req, res) {
     const products = await Product.find(filter)
       .skip(qSkip)
       .limit(qLimit)
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .populate('categoryId');
 
     res.json(products);
   } catch (error) {
@@ -77,7 +78,7 @@ async function updateProduct(req, res) {
       if (!updates.images) updates.images = [];
       updates.images = updates.images.concat(images);
     }
-    const p = await Product.findByIdAndUpdate(req.params.id, updates, { new: true });
+    const p = await Product.findByIdAndUpdate(req.params.id, updates, { new: true }).populate('categoryId');
     res.json(p);
   } catch (err) {
     res.status(500).json({ message: err.message });

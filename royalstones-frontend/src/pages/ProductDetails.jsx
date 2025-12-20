@@ -22,13 +22,15 @@ export default function ProductDetails() {
   const [isZoomed, setIsZoomed] = useState(false);
   const [error, setError] = useState('');
   const [fingerSize, setFingerSize] = useState('');
-  const [carret, setCarret] = useState(0.0);
+  const [carret, setCarret] = useState(product?.categoryId?.carretRate?.min || 1);
 
   useEffect(() => {
     getProductById(id);
   }, [id]);
   
-  
+  useEffect(() => 
+    setCarret(product?.categoryId?.carretRate?.min || 1)
+  , [product]);
 
   const handleChange = (e) => {
     const size = parseFloat(e.target.value);

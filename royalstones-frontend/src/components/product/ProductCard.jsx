@@ -8,6 +8,7 @@ export default function ProductCard({ product }) {
   const price = typeof product.price === "number" ? product.price : product.price || "—";
   const discount = product.discountPrice;
   const stock = product.stockQuantity ?? 0;
+  const carret = product.categoryId?.carretRate?.min || 1;
 
   const [hovered, setHovered] = useState(false);
   const [secondaryLoaded, setSecondaryLoaded] = useState(false);
@@ -33,6 +34,10 @@ export default function ProductCard({ product }) {
   //   e.stopPropagation();
   //   console.log("Buy now", product._id);
   // };
+  // useEffect(() => {
+  //   console.log(product);
+  // }, [product])
+  
 
   return (
     <div
@@ -103,11 +108,11 @@ export default function ProductCard({ product }) {
           <div className="mt-2 flex items-baseline gap-2">
             {discount ? (
               <>
-                <span className="text-sm md:text-base font-semibold">Rs {discount}</span>
-                <span className="text-xs line-through text-gray-400">Rs {price}</span>
+                <span className="text-sm md:text-base font-semibold">Rs {discount*carret}</span>
+                <span className="text-xs line-through text-gray-400">Rs {price*carret}</span>
               </>
             ) : (
-              <span className="text-sm md:text-base font-semibold">Rs {price}</span>
+              <span className="text-sm md:text-base font-semibold">Rs {price*carret}</span>
             )}
           </div>
 
