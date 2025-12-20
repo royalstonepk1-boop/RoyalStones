@@ -58,7 +58,7 @@ export default function Register() {
           position: "top-right",
           hideProgressBar: false,
           closeOnClick: true,
-          pauseOnHover: true,
+          pauseOnHover: false,
           draggable: true,
         });
         const res = await addProfileWithEmail({uid:response.user.uid, email, password ,name, phone});
@@ -71,7 +71,7 @@ export default function Register() {
         position: "top-right",
         hideProgressBar: false,
         closeOnClick: true,
-        pauseOnHover: true,
+        pauseOnHover: false,
         draggable: true,
       });
     }
@@ -93,7 +93,7 @@ export default function Register() {
           position: "top-right",
           hideProgressBar: false,
           closeOnClick: true,
-          pauseOnHover: true,
+          pauseOnHover: false,
           draggable: true,
         });
         const res =await addProfileWithGoogle({uid:response?.user?.uid, email:response?.user?.email, name:response?.user?.displayName});
@@ -105,7 +105,7 @@ export default function Register() {
         position: "top-right",
         hideProgressBar: false,
         closeOnClick: true,
-        pauseOnHover: true,
+        pauseOnHover: false,
         draggable: true,
       });
     } finally {

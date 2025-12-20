@@ -19,25 +19,28 @@ async function getCart(req, res) {
 // ✅ Optimized - single save + return updated cart
 async function addToCart(req, res) {
   try {
-    const { productId, quantity = 1 , fingerSize } = req.body;
+    const { productId, quantity = 1 , fingerSize ,carretValue } = req.body;
     
     let cart = await Cart.findOne({ userId: req.user._id });
     
     if (!cart) {
       cart = new Cart({ 
         userId: req.user._id, 
-        items: [{ productId, quantity, fingerSize }] 
+        items: [{ productId, quantity, fingerSize,carretValue }] 
       });
     } else {
       const idx = cart.items.findIndex(
-        i => i.productId.toString() === productId
+        i => i.productId.toString() === productId &&
+            i.fingerSize === fingerSize &&
+            i.carretValue === carretValue
       );
       
       if (idx > -1) {
         cart.items[idx].quantity += quantity;
         cart.items[idx].fingerSize = fingerSize;
+        cart.items[idx].carretValue = carretValue;
       } else {
-        cart.items.push({ productId, quantity, fingerSize });
+        cart.items.push({ productId, quantity, fingerSize ,carretValue });
       }
     }
     
@@ -55,13 +58,15 @@ async function addToCart(req, res) {
 // ✅ Update quantity - optimized single operation
 async function updateCartItem(req, res) {
   try {
-    const { productId, quantity , fingerSize } = req.body;
+    const { productId, quantity , fingerSize ,carretValue } = req.body;
     
     const cart = await Cart.findOne({ userId: req.user._id });
     if (!cart) return res.status(404).json({ message: 'Cart not found' });
     
     const idx = cart.items.findIndex(
-      i => i.productId.toString() === productId
+      i => i.productId.toString() === productId &&
+          i.fingerSize === fingerSize &&
+          i.carretValue === carretValue
     );
     
     if (idx === -1) {
@@ -75,6 +80,9 @@ async function updateCartItem(req, res) {
     }
     if (fingerSize) {
       cart.items[idx].fingerSize = fingerSize;
+    }
+    if (carretValue) {
+      cart.items[idx].carretValue = carretValue;
     }
     
     cart.updatedAt = Date.now();
@@ -90,13 +98,15 @@ async function updateCartItem(req, res) {
 // ✅ Remove entire item - fixed variable name bug
 async function removeFullSingleItem(req, res) {
   try {
-    const { productId } = req.body;
+    const { productId,fingerSize, carretValue } = req.body;
     
     const cart = await Cart.findOne({ userId: req.user._id });
     if (!cart) return res.status(404).json({ message: 'Cart not found' });
     
     const idx = cart.items.findIndex(
-      i => i.productId.toString() === productId
+      i => i.productId.toString() === productId &&
+          i.fingerSize === fingerSize &&
+          i.carretValue === carretValue
     );
     
     if (idx === -1) {

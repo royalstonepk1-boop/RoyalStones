@@ -5,6 +5,7 @@ import { useAuthStore } from "../store/authStore";
 import { useCartStore } from "../store/cartStore";
 import PageWrapper from "../util/PageWrapper";
 import { toast } from 'react-toastify';
+import RangeSlider from "./RangeSlider";
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -21,10 +22,13 @@ export default function ProductDetails() {
   const [isZoomed, setIsZoomed] = useState(false);
   const [error, setError] = useState('');
   const [fingerSize, setFingerSize] = useState('');
+  const [carret, setCarret] = useState(0.0);
 
   useEffect(() => {
     getProductById(id);
   }, [id]);
+  
+  
 
   const handleChange = (e) => {
     const size = parseFloat(e.target.value);
@@ -49,13 +53,14 @@ export default function ProductDetails() {
     if (!user) {
       return navigate("/login");
     }
-    if(!fingerSize || fingerSize < 12 || fingerSize > 25 || fingerSize === ''){
+    if(product?.categoryId?.hasFingerSize && (!fingerSize || fingerSize < 12 || fingerSize > 25 || fingerSize === '')){
       setError('Please enter a valid finger size between 12mm and 25mm');
       return;
     }
     setAddingToCart(true);
     try {
-      await addToCart(product._id, 1 ,fingerSize);
+      console.log(carret);
+      await addToCart(product._id, 1 ,fingerSize ,carret);
       toast.success("Added To Cart!", {
         position: "top-right",
         hideProgressBar: false,
@@ -81,14 +86,14 @@ export default function ProductDetails() {
     if (!user) {
       return navigate("/login");
     }
-    if(!fingerSize || fingerSize < 12 || fingerSize > 25 || fingerSize === ''){
+    if(product?.categoryId?.hasFingerSize && (!fingerSize || fingerSize < 12 || fingerSize > 25 || fingerSize === '')){
       setError('Please enter a valid finger size between 12mm and 25mm');
       return;
     }
 
     setBuyNow(true);
     try {
-      await addToCart(product._id, 1 ,fingerSize);
+      await addToCart(product._id, 1 ,fingerSize ,carret);
       openCart();
     } catch (error) {
       toast.error(err.message, {
@@ -130,6 +135,9 @@ export default function ProductDetails() {
         </div>
       </div>
     );
+  }
+  const handleSetCarret=(val)=>{
+    setCarret(val);
   }
 
   const images = product?.images || [];
@@ -262,14 +270,6 @@ export default function ProductDetails() {
                   <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
                     {name}
                   </h1>
-                  <div className="flex items-center gap-2">
-                    <div className="flex text-yellow-400">
-                      {[...Array(5)].map((_, i) => (
-                        <i key={i} className="bi bi-star-fill text-sm"></i>
-                      ))}
-                    </div>
-                    <span className="text-sm text-gray-600">(24 reviews)</span>
-                  </div>
                 </div>
 
                 {/* Price */}
@@ -277,10 +277,10 @@ export default function ProductDetails() {
                   {discountPrice ? (
                     <>
                       <span className="text-3xl font-bold text-gray-900">
-                        Rs {discountPrice.toLocaleString()}
+                        Rs {(discountPrice*carret).toLocaleString()}
                       </span>
                       <span className="text-xl line-through text-gray-400">
-                        Rs {price.toLocaleString()}
+                        Rs {(price*carret).toLocaleString()}
                       </span>
                       <span className="bg-red-100 text-red-700 px-2 py-1 rounded text-sm font-semibold">
                         {Math.round(((price - discountPrice) / price) * 100)}% OFF
@@ -288,7 +288,7 @@ export default function ProductDetails() {
                     </>
                   ) : (
                     <span className="text-3xl font-bold text-gray-900">
-                      Rs {price.toLocaleString()}
+                      Rs {(price*carret).toLocaleString()}
                     </span>
                   )}
                 </div>
@@ -311,7 +311,9 @@ export default function ProductDetails() {
                 </div>
 
                 {/* For Finger Size */}
-                <input
+                {
+                  product?.categoryId?.hasFingerSize &&
+                  <input
                   type="number"
                   value={fingerSize}
                   onChange={handleChange}
@@ -322,9 +324,12 @@ export default function ProductDetails() {
                   className={`w-full pl-5 pr-12 py-3 border rounded-lg focus:ring-1 focus:ring-gray-400 focus:border-transparent ${error ? 'border-red-500' : 'border-gray-300'
                     }`}
                 />
+                }
                 {
                       error && <p className="text-red-500 text-sm ">{error}</p>
                 }
+
+                <RangeSlider min={product?.categoryId?.carretRate?.min} max={product?.categoryId?.carretRate?.max} setCarret={handleSetCarret} />
 
                 {/* Action Buttons */}
                 <div className="space-y-3">

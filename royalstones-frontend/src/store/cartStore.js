@@ -24,10 +24,10 @@ export const useCartStore = create((set) => ({
   },
 
   // ✅ Add to cart - backend returns updated cart
-  addToCart: async (productId, quantity = 1 ,fingerSize) => {
+  addToCart: async (productId, quantity = 1 ,fingerSize ,carretValue) => {
     set({ loading: true });
     try {
-      const res = await addToCartApi(productId, quantity ,fingerSize);
+      const res = await addToCartApi(productId, quantity ,fingerSize, carretValue);
       set({ cart: res.data, loading: false });
     } catch (error) {
       set({ loading: false });
@@ -36,10 +36,10 @@ export const useCartStore = create((set) => ({
   },
 
   // ✅ Update quantity - single API call
-  updateQuantity: async (productId, quantity ,fingerSize) => {
+  updateQuantity: async (productId, quantity ,fingerSize ,carretValue) => {
     set({ loading: true });
     try {
-      const res = await updateCartItemApi(productId, quantity, fingerSize);
+      const res = await updateCartItemApi(productId, quantity, fingerSize ,carretValue);
       set({ cart: res.data, loading: false });
     } catch (error) {
       set({ loading: false });
@@ -48,10 +48,10 @@ export const useCartStore = create((set) => ({
   },
 
   // ✅ Remove entire item - single API call
-  removeItem: async (productId) => {
+  removeItem: async (productId ,fingerSize, carretValue) => {
     set({ loading: true });
     try {
-      const res = await removeFromCartApi(productId);
+      const res = await removeFromCartApi(productId, fingerSize, carretValue);
       set({ cart: res.data, loading: false });
     } catch (error) {
       set({ loading: false });

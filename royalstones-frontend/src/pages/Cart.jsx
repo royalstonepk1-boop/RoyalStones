@@ -1,5 +1,5 @@
 // components/CartSidebar.jsx
-import {useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Plus, Minus, ShoppingCart, Trash2 } from 'lucide-react';
 import { useCartStore } from '../store/cartStore';
 import { Link } from 'react-router-dom';
@@ -17,7 +17,7 @@ export default function Cart() {
     removeItem,
     fetchCart
   } = useCartStore();
-  const { fetchCharges,charges } = useDeliveryStore();
+  const { fetchCharges, charges } = useDeliveryStore();
 
   const user = useAuthStore((state) => state.user); // ✅ Get user
   const navigate = useNavigate();
@@ -28,10 +28,10 @@ export default function Cart() {
       navigate('/login');
       return;
     }
-      fetchCharges();
-    
+    fetchCharges();
+
   }, [])
-  
+
 
   useEffect(() => {
     // ✅ If cart opens and user not logged in, redirect to login
@@ -50,7 +50,7 @@ export default function Cart() {
   if (!user) return null;
 
   const total = cart?.items.reduce(
-    (sum, item) => sum + item.productId.price * item.quantity,
+    (sum, item) => sum +  ( item.productId.discountPrice ? item.productId.discountPrice : item.productId.price) * item.carretValue * item.quantity,
     0
   ) || 0;
 
@@ -62,7 +62,7 @@ export default function Cart() {
       {isOpen && (
         <div
           tabIndex={-1}
-          className="fixed inset-0 bg-black opacity-30 z-60"
+          className="fixed inset-0 bg-black opacity-30 z-1001"
           onClick={closeCart}
           onMouseDown={closeCart}
           aria-hidden="true"
@@ -71,7 +71,7 @@ export default function Cart() {
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-70 transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'
+        className={`fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-1002 transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
       >
         {/* Header */}
@@ -106,19 +106,35 @@ export default function Cart() {
 
                 <div className="flex-1">
                   <h3 className="font-semibold text-sm md:text-md mb-1">{item?.productId?.name}</h3>
-                  <p className=" text-sm md:text-md font-bold">Rs {item?.productId?.price.toLocaleString()}</p>
-                  <input
-                  type="text"
-                  value={item?.fingerSize+" mm"}
-                  step="0.5"
-                  readOnly
-                  className={`w-full pr-2 py-2 border-none outline-none rounded-lg text-[12px]`}
-                />
+                  <p className=" text-sm md:text-md font-bold">Rs {((item?.productId?.discountPrice ? item?.productId?.discountPrice : item?.productId?.price) * item?.carretValue).toLocaleString()}</p>
+                  <p className='flex gap-1'>
+                  {
+                    item?.fingerSize &&
+                    <input
+                      type="text"
+                      value={item?.fingerSize ? item.fingerSize + " mm" : ""}
+                      step="0.5"
+                      readOnly
+                      className={`w-full border-none outline-none rounded-lg text-[12px]`}
+                    />
+                  }
+                  {
+                    item?.carretValue &&
+                    <input
+                      type="text"
+                      value={item?.carretValue ? item.carretValue + " Carret" : ""}
+                      step="0.5"
+                      readOnly
+                      className={`w-full py-1 border-none outline-none rounded-lg text-[12px]`}
+                    />
+                  }
+                  </p>
+
 
                   <div className="flex items-center justify-between mt-2">
                     <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
                       <button
-                        onClick={() => updateQuantity(item.productId._id, item.quantity - 1)}
+                        onClick={() => updateQuantity(item.productId._id, item.quantity - 1 ,item.fingerSize, item.carretValue)}
                         disabled={loading}
                         className="p-1 hover:bg-white rounded disabled:opacity-50"
                       >
@@ -126,7 +142,7 @@ export default function Cart() {
                       </button>
                       <span className="w-8 text-center text-sm md:text-md font-semibold">{item.quantity}</span>
                       <button
-                        onClick={() => updateQuantity(item.productId._id, item.quantity + 1)}
+                        onClick={() => updateQuantity(item.productId._id, item.quantity + 1 ,item.fingerSize, item.carretValue)}
                         disabled={loading}
                         className="p-1 hover:bg-white rounded disabled:opacity-50"
                       >
@@ -135,7 +151,7 @@ export default function Cart() {
                     </div>
 
                     <button
-                      onClick={() => removeItem(item.productId._id)}
+                      onClick={() => removeItem(item.productId._id ,item.fingerSize, item.carretValue)}
                       disabled={loading}
                       className="text-red-500 cursor-pointer hover:text-red-700 p-2 disabled:opacity-50"
                     >
@@ -162,7 +178,7 @@ export default function Cart() {
               </div>
               <div className="border-t pt-3 flex justify-between text-lg font-bold">
                 <span>Total</span>
-                <span>Rs {(total+charges).toLocaleString()}</span>
+                <span>Rs {(total + charges).toLocaleString()}</span>
               </div>
             </div>
 

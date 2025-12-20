@@ -2,8 +2,8 @@ const Category = require('../models/Category');
 
 async function createCategory(req, res) {
   try {
-    const { name, parentId } = req.body;
-    const cat = await Category.create({ name, parentId: parentId || null });
+    const { name, parentId ,hasFingerSize,carretRateMin ,carretRateMax } = req.body;
+    const cat = await Category.create({ name, parentId: parentId || null ,hasFingerSize:hasFingerSize, carretRate: { min: carretRateMin || 0, max: carretRateMax || 0 } });
     res.json(cat);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -16,6 +16,7 @@ async function listCategories(req, res) {
 }
 
 async function getCategory(req, res) {
+  console.log("triggered");
   const cat = await Category.findById(req.params.id);
   if (!cat) return res.status(404).json({ message: 'Not found' });
   res.json(cat);

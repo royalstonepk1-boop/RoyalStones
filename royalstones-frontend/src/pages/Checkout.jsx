@@ -19,10 +19,10 @@ export default function Checkout() {
   const [paymentMethod, setPaymentMethod] = useState('');
 
   // Calculate totals
-  const subtotal = cart?.items?.reduce(
-    (sum, item) => sum + item.productId.price * item.quantity,
+  const subtotal =cart?.items.reduce(
+    (sum, item) => sum +  ( item.productId.discountPrice ? item.productId.discountPrice : item.productId.price) * item.carretValue * item.quantity,
     0
-  );
+  ) || 0;
   const total = subtotal + charges;
 
   useEffect(() => {
@@ -128,15 +128,16 @@ export default function Checkout() {
               <h3 className="font-semibold text-gray-800">{item.productId.name}</h3>
               <div className="text-sm text-gray-600 mt-1">
                 <p>Quantity: {item.quantity}</p>
+                {item.carretValue && <p>Carret: {item.carretValue}Carret</p>}
                 {item.fingerSize && <p>Finger Size: {item.fingerSize}mm</p>}
               </div>
             </div>
             <div className="text-right">
               <p className="font-semibold text-gray-800">
-                Rs {(item.productId.price * item.quantity).toLocaleString()}
+                Rs {((item.productId.discountPrice ? item.productId.discountPrice : item.productId.price )* item.quantity * item.carretValue).toLocaleString()}
               </p>
               <p className="text-sm text-gray-500">
-                Rs {item.productId.price.toLocaleString()} each
+                Rs {((item.productId.discountPrice ? item.productId.discountPrice : item.productId.price ) * item.carretValue).toLocaleString()} each
               </p>
             </div>
           </div>

@@ -5,6 +5,7 @@ const CartItem = new Schema({
   productId: { type: Schema.Types.ObjectId, ref: 'Product' },
   quantity: { type: Number, default: 1 },
   fingerSize:{ type: Number, default: 1},
+  carretValue:{ type: Number, default: 1},
 });
 
 const CartSchema = new Schema({
