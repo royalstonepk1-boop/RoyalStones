@@ -11,7 +11,6 @@ import { toast } from 'react-toastify';
 export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -24,7 +23,7 @@ export default function Register() {
   const navigate = useNavigate();
 
   const register = async () => {
-    if (!name || !email || !phone || !password || !confirmPassword) {
+    if (!name || !email || !password || !confirmPassword) {
       setErrorMessage("Please fill in all fields");
       return;
     }
@@ -47,7 +46,7 @@ export default function Register() {
     setLoading(true);
     try {
       const signInMethods = await fetchSignInMethodsForEmail(auth, email);
-      console.log(signInMethods);
+      // console.log(signInMethods);
       if(signInMethods.length > 0){
         setErrorMessage(true);
       }
@@ -61,7 +60,7 @@ export default function Register() {
           pauseOnHover: false,
           draggable: true,
         });
-        const res = await addProfileWithEmail({uid:response.user.uid, email, password ,name, phone});
+        const res = await addProfileWithEmail({uid:response.user.uid, email, password ,name});
         setUser(res?.data?.user);
         navigate("/");
       }
@@ -174,27 +173,6 @@ export default function Register() {
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              onKeyPress={handleKeyPress}
-              className="w-full bg-gray-50 text-gray-900 pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-200 focus:outline-none transition-all"
-            />
-          </div>
-        </div>
-
-        {/* Email Input */}
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-semibold mb-2">
-            Contact Number <span className="text-red-600">*</span>
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <i className="bi bi-phone text-gray-400"></i>
-            </div>
-            <input
-              type="text"
-              placeholder="03000000000"
-              maxLength= {11}
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
               onKeyPress={handleKeyPress}
               className="w-full bg-gray-50 text-gray-900 pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-200 focus:outline-none transition-all"
             />

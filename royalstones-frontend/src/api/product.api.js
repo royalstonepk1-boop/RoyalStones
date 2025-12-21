@@ -15,3 +15,4 @@ export const fetchFirst6Products = (categoryId, page = 0, limit = 6) => {
 export const fetchSingleProduct = (id) => {
   return api.get(`/products/${id}`);
 };
+

@@ -8,3 +8,5 @@ export const getUserByEmail = (email) =>
 
 export const addProfileWithEmail = (data) => api.post("/users/registerWithEmail", data);
 export const addProfileWithGoogle = (data) => api.post("/users/registerWithGoogle", data);
+
+export const updateProfile = (data) => api.put("/users/me", data);

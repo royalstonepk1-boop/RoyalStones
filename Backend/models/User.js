@@ -16,7 +16,6 @@ const UserSchema = new Schema({
   firebaseUid: { type: String, index: true },
   name: String,
   email: { type: String, unique: true, sparse: true },
-  phone: String,
   role: { type: String, enum: ['admin', 'user'], default: 'user' },
   addresses: [AddressSchema],
   createdAt: { type: Date, default: Date.now },

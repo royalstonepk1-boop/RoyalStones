@@ -3,7 +3,7 @@ const User = require('../models/User');
 
 async function registerWithEmail(req, res) {
   try {
-    const {uid, email, password, name, phone } = req.body;
+    const {uid, email, password, name } = req.body;
     if (!email || !password) return res.status(400).json({ message: 'Email & password required' });
 
     // Create firebase user
@@ -14,7 +14,6 @@ async function registerWithEmail(req, res) {
       firebaseUid: uid,
       name,
       email,
-      phone,
       role: 'user',
     });
 
@@ -27,7 +26,7 @@ async function registerWithEmail(req, res) {
 async function registerWithGoogle(req, res) {
   try {
     const {uid, email, name } = req.body;
-    console.log(req.body);
+    // console.log(req.body);
     const user = await User.create({
       firebaseUid: uid,
       name,
@@ -71,9 +70,26 @@ async function getProfileByEmail(req, res) {
 async function updateProfile(req, res) {
   try {
     const updates = req.body;
-    const user = await User.findByIdAndUpdate(req._id, updates, { new: true });
+    // console.log('Update request body:', updates ,req.user._id);
+    // If updating addresses, ensure it's an array
+    if (updates.addresses && !Array.isArray(updates.addresses)) {
+      return res.status(400).json({ message: 'Addresses must be an array' });
+    }
+    
+    const user = await User.findByIdAndUpdate(
+      req.user._id, 
+      updates, 
+      { new: true, runValidators: true }
+    );
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    // console.log('Updated user:', user);
     res.json(user);
   } catch (err) {
+    console.error('Update profile error:', err);
     res.status(500).json({ message: err.message });
   }
 }

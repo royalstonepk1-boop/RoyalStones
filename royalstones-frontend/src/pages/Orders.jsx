@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useOrderStore } from "../store/orderStore";
+import PageWrapper from "../util/PageWrapper";
 
 export default function Orders() {
   const { orders, fetchMyOrders, loading } = useOrderStore();
@@ -39,6 +40,7 @@ export default function Orders() {
   );
 
   return (
+    <PageWrapper>
     <div className="max-w-6xl mx-auto p-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">My Orders</h1>
@@ -57,7 +59,9 @@ export default function Orders() {
         </div>
       ) : (
         <div className="space-y-4">
-          {orders.map((order) => (
+          {orders
+          .reverse()
+          .map((order) => (
             <div key={order._id} className="bg-white rounded-lg shadow-sm border border-gray-300 overflow-hidden hover:shadow-md transition-shadow">
               <div className="p-6">
                 <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
@@ -126,5 +130,6 @@ export default function Orders() {
         </div>
       )}
     </div>
+    </PageWrapper>
   );
 }

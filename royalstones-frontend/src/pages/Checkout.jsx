@@ -12,17 +12,17 @@ export default function Checkout() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  
-  const {cart ,openCart} = useCartStore();
-  const {user} = useAuthStore();
 
-  const {charges} = useDeliveryStore();
+  const { cart, openCart, fetchCart } = useCartStore();
+  const { user } = useAuthStore();
+
+  const { charges } = useDeliveryStore();
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('');
 
   // Calculate totals
-  const subtotal =cart?.items.reduce(
-    (sum, item) => sum +  ( item.productId.discountPrice ? item.productId.discountPrice : item.productId.price) * item.carretValue * item.quantity,
+  const subtotal = cart?.items.reduce(
+    (sum, item) => sum + (item.productId.discountPrice ? item.productId.discountPrice : item.productId.price) * item.carretValue * item.quantity,
     0
   ) || 0;
   const total = subtotal + charges;
@@ -43,7 +43,7 @@ export default function Checkout() {
       setErrorMsg('Please select a delivery address');
       return;
     }
-    setErrorMsg('') ;
+    setErrorMsg('');
     setStep(3);
   };
 
@@ -64,19 +64,58 @@ export default function Checkout() {
           paymentMethod: 'cod',
           deliveryCharges: charges,
         };
-        
+
         const response = await createOrderApi(orderData);
         // console.log(response.data);
         // Simulate API call
+        if (response) {
+          fetchCart();
+        }
+        const order = response.data;
+        const adminPhone = '923155066472'; // Replace with your admin's phone (country code + number, no + or -)
+
+        const message = `
+🛒 *New Order Received!*
+
+📦 *Order #RSSJ${order.orderNumber}*
+💰 *Total Amount:* Rs ${order.totalAmount.toLocaleString()}
+📍 *Payment:* Cash on Delivery
+
+👤 *Customer Details:*
+Name: ${user.name}
+Email: ${user.email}
+
+📬 *Shipping Address:*
+${orderData.shippingAddress.fullName}
+${orderData.shippingAddress.address}
+${orderData.shippingAddress.city}, ${orderData.shippingAddress.state}
+${orderData.shippingAddress.postalCode}
+Phone: ${orderData.shippingAddress.phone}
+
+🛍️ *Order Items:*
+${cart.items.map((item, i) =>
+          `${i + 1}. ${item.productId.name}
+   Qty: ${item.quantity} × Rs ${(item.productId.discountPrice || item.productId.price).toLocaleString()}`
+        ).join('\n')}
+
+📊 *Order Summary:*
+Subtotal: Rs ${(order.totalAmount - order.deliveryCharges).toLocaleString()}
+Delivery: Rs ${order.deliveryCharges.toLocaleString()}
+Total: Rs ${order.totalAmount.toLocaleString()}
+    `.trim();
+
+        // Open WhatsApp
+        const whatsappUrl = `https://wa.me/${adminPhone}?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, '_blank');
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
+
         navigate('/orders');
       } else if (paymentMethod === 'card') {
         // Redirect to Stripe
         // const stripe = await stripePromise;
         // const session = await createStripeSession({...});
         // await stripe.redirectToCheckout({ sessionId: session.id });
-        
+
         // Simulate redirect
         alert('Redirecting to Stripe...');
         setTimeout(() => navigate('/orders'), 2000);
@@ -92,23 +131,20 @@ export default function Checkout() {
   const StepIndicator = () => (
     <div className="flex items-center justify-center mb-8">
       <div className="flex items-center">
-        <div className={`flex items-center justify-center w-10 h-10 rounded-full ${
-          step >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
-        }`}>
+        <div className={`flex items-center justify-center w-10 h-10 rounded-full ${step >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
+          }`}>
           {step > 1 ? <CheckCircle size={20} /> : <ShoppingCart size={20} />}
         </div>
         <div className={`w-24 h-1 ${step >= 2 ? 'bg-blue-600' : 'bg-gray-200'}`} />
-        
-        <div className={`flex items-center justify-center w-10 h-10 rounded-full ${
-          step >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
-        }`}>
+
+        <div className={`flex items-center justify-center w-10 h-10 rounded-full ${step >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
+          }`}>
           {step > 2 ? <CheckCircle size={20} /> : <MapPin size={20} />}
         </div>
         <div className={`w-24 h-1 ${step >= 3 ? 'bg-blue-600' : 'bg-gray-200'}`} />
-        
-        <div className={`flex items-center justify-center w-10 h-10 rounded-full ${
-          step >= 3 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
-        }`}>
+
+        <div className={`flex items-center justify-center w-10 h-10 rounded-full ${step >= 3 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
+          }`}>
           <CreditCard size={20} />
         </div>
       </div>
@@ -119,12 +155,12 @@ export default function Checkout() {
   const CartReview = () => (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-800">Review Your Order</h2>
-      
+
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         {cart?.items?.map((item) => (
           <div key={item._id} className="flex items-center gap-4 p-4 border-b border-gray-200 last:border-b-0">
-            <img 
-              src={item.productId.images[0].url} 
+            <img
+              src={item.productId.images[0].url}
               alt={item.productId.name}
               className="w-20 h-20 object-cover rounded border border-gray-300"
             />
@@ -138,10 +174,10 @@ export default function Checkout() {
             </div>
             <div className="text-right">
               <p className="font-semibold text-gray-800">
-                Rs {((item.productId.discountPrice ? item.productId.discountPrice : item.productId.price )* item.quantity * item.carretValue).toLocaleString()}
+                Rs {((item.productId.discountPrice ? item.productId.discountPrice : item.productId.price) * item.quantity * item.carretValue).toLocaleString()}
               </p>
               <p className="text-sm text-gray-500">
-                Rs {((item.productId.discountPrice ? item.productId.discountPrice : item.productId.price ) * item.carretValue).toLocaleString()} each
+                Rs {((item.productId.discountPrice ? item.productId.discountPrice : item.productId.price) * item.carretValue).toLocaleString()} each
               </p>
             </div>
           </div>
@@ -164,21 +200,21 @@ export default function Checkout() {
           </div>
         </div>
       </div>
-      <div className='flex gap-3'>  
-      <button
-        onClick={() => { navigate('/shop'); openCart();}}
-        className="w-full bg-gray-200 hover:bg-gray-300 cursor-pointer text-gray-800 font-semibold py-3 px-6 rounded-lg transition-colors"
-      >
-        Back to Cart
-      </button>
-      <button
-        onClick={() => setStep(2)}
-        className="w-full bg-blue-600 hover:bg-blue-700 cursor-pointer text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-      >
-        Continue to Address
-      </button>
+      <div className='flex gap-3'>
+        <button
+          onClick={() => { navigate('/shop'); openCart(); }}
+          className="w-full bg-gray-200 hover:bg-gray-300 cursor-pointer text-gray-800 font-semibold py-3 px-6 rounded-lg transition-colors"
+        >
+          Back to Cart
+        </button>
+        <button
+          onClick={() => setStep(2)}
+          className="w-full bg-blue-600 hover:bg-blue-700 cursor-pointer text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+        >
+          Continue to Address
+        </button>
       </div>
-      
+
     </div>
   );
 
@@ -186,7 +222,7 @@ export default function Checkout() {
   const AddressSelection = () => (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-800">Select Delivery Address</h2>
-      
+
       {user.addresses.length === 0 ? (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
           <Package size={48} className="mx-auto text-yellow-600 mb-3" />
@@ -206,18 +242,16 @@ export default function Checkout() {
               <div
                 key={address._id}
                 onClick={() => handleAddressSelection(address._id)}
-                className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
-                  selectedAddress === address._id
+                className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${selectedAddress === address._id
                     ? 'border-blue-600 bg-blue-50'
                     : 'border-gray-200 bg-white hover:border-gray-300'
-                }`}
+                  }`}
               >
                 <div className="flex items-start gap-3">
-                  <div className={`mt-1 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                    selectedAddress === address._id
+                  <div className={`mt-1 w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedAddress === address._id
                       ? 'border-blue-600 bg-blue-600'
                       : 'border-gray-300'
-                  }`}>
+                    }`}>
                     {selectedAddress === address._id && (
                       <div className="w-2 h-2 bg-white rounded-full" />
                     )}
@@ -240,7 +274,7 @@ export default function Checkout() {
 
           <div className="flex gap-3">
             <button
-              onClick={() => { setErrorMsg('') ; setStep(1)}}
+              onClick={() => { setErrorMsg(''); setStep(1) }}
               className="flex-1 bg-gray-200 cursor-pointer hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg transition-colors"
             >
               Back
@@ -261,22 +295,20 @@ export default function Checkout() {
   const PaymentMethod = () => (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-800">Select Payment Method</h2>
-      
+
       <div className="space-y-4">
         <div
           onClick={() => setPaymentMethod('cod')}
-          className={`border-2 rounded-lg p-6 cursor-pointer transition-all ${
-            paymentMethod === 'cod'
+          className={`border-2 rounded-lg p-6 cursor-pointer transition-all ${paymentMethod === 'cod'
               ? 'border-blue-600 bg-blue-50'
               : 'border-gray-200 bg-white hover:border-gray-300'
-          }`}
+            }`}
         >
           <div className="flex items-center gap-4">
-            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-              paymentMethod === 'cod'
+            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'cod'
                 ? 'border-blue-600 bg-blue-600'
                 : 'border-gray-300'
-            }`}>
+              }`}>
               {paymentMethod === 'cod' && (
                 <div className="w-3 h-3 bg-white rounded-full" />
               )}
@@ -289,26 +321,24 @@ export default function Checkout() {
           </div>
           {
             paymentMethod === 'cod' &&
-             <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800 text-sm">
+            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800 text-sm">
               Note: 10% of the total amount will be collected as an advance payment for Cash on Delivery orders.
-             </div>
+            </div>
           }
         </div>
 
         <div
           onClick={() => setPaymentMethod('card')}
-          className={`border-2 rounded-lg p-6 cursor-pointer transition-all ${
-            paymentMethod === 'card'
+          className={`border-2 rounded-lg p-6 cursor-pointer transition-all ${paymentMethod === 'card'
               ? 'border-blue-600 bg-blue-50'
               : 'border-gray-200 bg-white hover:border-gray-300'
-          }`}
+            }`}
         >
           <div className="flex items-center gap-4">
-            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-              paymentMethod === 'card'
+            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'card'
                 ? 'border-blue-600 bg-blue-600'
                 : 'border-gray-300'
-            }`}>
+              }`}>
               {paymentMethod === 'card' && (
                 <div className="w-3 h-3 bg-white rounded-full" />
               )}
@@ -321,9 +351,9 @@ export default function Checkout() {
           </div>
         </div>
         {
-          paymentMethod  === '' && <div className='flex justify-start items-center text-red-500'>{errorMsg}</div>
+          paymentMethod === '' && <div className='flex justify-start items-center text-red-500'>{errorMsg}</div>
         }
-        
+
       </div>
 
       <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
@@ -346,7 +376,7 @@ export default function Checkout() {
 
       <div className="flex gap-3">
         <button
-          onClick={() => { setErrorMsg('') ; setStep(2)}}
+          onClick={() => { setErrorMsg(''); setStep(2) }}
           className="flex-1 bg-gray-200 cursor-pointer hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg transition-colors"
         >
           Back
@@ -366,7 +396,7 @@ export default function Checkout() {
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-3xl mx-auto">
         <StepIndicator />
-        
+
         {step === 1 && <PageWrapper> <CartReview /> </PageWrapper>}
         {step === 2 && <PageWrapper> <AddressSelection /> </PageWrapper>}
         {step === 3 && <PageWrapper> <PaymentMethod /> </PageWrapper>}

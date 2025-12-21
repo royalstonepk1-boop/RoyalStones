@@ -88,7 +88,7 @@ const DeliveryInfo = () => {
                   We offer comfortable and affordable shipping rates across Pakistan:
                 </p>
                 <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-                  <p className="text-gray-700"><strong>Standard Delivery:</strong> Rs 200 - Rs 350 (depending on location)</p>
+                  <p className="text-gray-700"><strong>Standard Delivery:</strong> Rs 300 - Rs 550 (depending on location)</p>
                   <p className="text-gray-700 mt-2"><strong>Cash on Delivery:</strong> Available nationwide</p>
                   <p className="text-green-700 mt-2 font-semibold">
                     <i className="bi bi-gift mr-2"></i>

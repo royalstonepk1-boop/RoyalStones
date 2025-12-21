@@ -26,7 +26,7 @@ async function createOrder(req, res) {
     const totalAmount = orderItems.reduce((s, it) => s + (it.price) * it.carretValue * it.quantity,
     0);
     const SubTotal = totalAmount + deliveryCharges;
-    console.log("Subtotal",typeof(SubTotal) , orderItems);
+    // console.log("Subtotal",typeof(SubTotal) , orderItems);
 
     const order = await Order.create({
       userId: req.user._id,

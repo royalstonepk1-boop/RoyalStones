@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 
 export default function Profile() {
     const user = useAuthStore((s) => s.user);
-    const setUser = useAuthStore((s) => s.setUser);
+    const updateUser = useAuthStore((s) => s.updateUser);
 
     const [activeTab, setActiveTab] = useState("profile");
     const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -15,7 +15,6 @@ export default function Profile() {
     const [profileForm, setProfileForm] = useState({
         name: user.name,
         email: user.email,
-        phone: user.phone
     });
 
     const [addressForm, setAddressForm] = useState({
@@ -39,7 +38,7 @@ export default function Profile() {
     };
 
     const handleSaveProfile = () => {
-        setUser({ ...user, ...profileForm });
+        updateUser(profileForm);
         setIsEditingProfile(false);
         toast.success("Profile updated successfully!", {
             position: "top-right",
@@ -51,8 +50,7 @@ export default function Profile() {
     };
 
     const handleAddAddress = () => {
-        const newAddress = { ...addressForm, _id: Date.now().toString() };
-        setUser({ ...user, addresses: [...user.addresses, newAddress] });
+        updateUser({ addresses: [...user.addresses, addressForm] });
         setAddressForm({
             fullName: "",
             phone: "",
@@ -63,6 +61,10 @@ export default function Profile() {
             country: "Pakistan",
             isDefault: false
         });
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
         setIsAddingAddress(false);
         toast.success("Address added successfully!", {
             position: "top-right",
@@ -83,7 +85,7 @@ export default function Profile() {
         const updatedAddresses = user?.addresses?.map(addr =>
             addr._id === editingAddress ? { ...addressForm, _id: addr._id } : addr
         );
-        setUser({ ...user, addresses: updatedAddresses });
+        updateUser({ ...user, addresses: updatedAddresses });
         setEditingAddress(null);
         setAddressForm({
             fullName: "",
@@ -106,19 +108,44 @@ export default function Profile() {
     };
 
     const handleDeleteAddress = (addressId) => {
-        if (confirm("Are you sure you want to delete this address?")) {
-            const updatedAddresses = user.addresses.filter(addr => addr._id !== addressId);
-            setUser({ ...user, addresses: updatedAddresses });
-            alert("Address deleted successfully!");
-            toast.success("Address deleted successfully!", {
-                position: "top-right",
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: false,
-                draggable: true,
-              });
-
-        }
+        toast.warning(
+            ({ closeToast }) => (
+              <div>
+                <p className="mb-3">Are you sure you want to delete this address?</p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      const updatedAddresses = user.addresses.filter(addr => addr._id !== addressId);
+                      updateUser({ addresses: updatedAddresses });
+                      closeToast();
+                      toast.success("Address deleted successfully!", {
+                        position: "top-right",
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: false,
+                        draggable: true,
+                      });
+                    }}
+                    className="bg-red-500 hover:bg-red-600 cursor-pointer text-white px-4 py-2 rounded-lg text-sm font-semibold"
+                  >
+                    Delete
+                  </button>
+                  <button
+                    onClick={closeToast}
+                    className="bg-gray-500 hover:bg-gray-600 cursor-pointer text-white px-4 py-2 rounded-lg text-sm font-semibold"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ),
+            {
+              position: "top-center",
+              autoClose: false,
+              closeButton: false,
+              draggable: false,
+            }
+          );
     };
 
     const handleSetDefaultAddress = (addressId) => {
@@ -126,7 +153,7 @@ export default function Profile() {
             ...addr,
             isDefault: addr._id === addressId
         }));
-        setUser({ ...user, addresses: updatedAddresses });
+        updateUser({ addresses: updatedAddresses });
         toast.success("Default address updated!", {
             position: "top-right",
             hideProgressBar: false,
@@ -216,7 +243,7 @@ export default function Profile() {
                                 {!isEditingProfile && (
                                     <button
                                         onClick={() => setIsEditingProfile(true)}
-                                        className="bg-amber-500 hover:bg-amber-600 text-gray-900 px-4 py-2 rounded-lg font-medium transition-colors"
+                                        className="bg-amber-500 hover:bg-amber-600 cursor-pointer text-gray-900 px-4 py-2 rounded-lg font-medium transition-colors"
                                     >
                                         <i className="bi bi-pencil mr-2 text-sm"></i>
                                         Edit Profile
@@ -246,20 +273,10 @@ export default function Profile() {
                                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-amber-500 focus:outline-none"
                                         />
                                     </div>
-                                    <div>
-                                        <label className="block text-gray-700 font-semibold mb-2">Phone Number</label>
-                                        <input
-                                            type="tel"
-                                            name="phone"
-                                            value={profileForm.phone}
-                                            onChange={handleProfileChange}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-amber-500 focus:outline-none"
-                                        />
-                                    </div>
                                     <div className="flex gap-3">
                                         <button
                                             onClick={handleSaveProfile}
-                                            className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                                            className="bg-green-500 hover:bg-green-600 cursor-pointer text-white px-6 py-3 rounded-lg font-semibold transition-colors"
                                         >
                                             Save Changes
                                         </button>
@@ -268,7 +285,7 @@ export default function Profile() {
                                                 setIsEditingProfile(false);
                                                 setProfileForm({ name: user?.name, email: user?.email, phone: user?.phone });
                                             }}
-                                            className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                                            className="bg-gray-500 hover:bg-gray-600 cursor-pointer text-white px-6 py-3 rounded-lg font-semibold transition-colors"
                                         >
                                             Cancel
                                         </button>
@@ -286,7 +303,7 @@ export default function Profile() {
                                     </div>
                                     <div className="border border-gray-200 rounded-lg p-4">
                                         <label className="text-gray-500 text-sm">Phone Number</label>
-                                        <p className="text-gray-900 font-semibold text-lg">{user?.phone}</p>
+                                        <p className="text-gray-900 font-semibold text-lg">{user?.addresses?.filter(u => u.isDefault)[0].phone}</p>
                                     </div>
                                     {
                                         user?.role === "admin" &&
@@ -313,7 +330,7 @@ export default function Profile() {
                                     user?.addresses.length < 2 &&
                                     <button
                                         onClick={() => setIsAddingAddress(true)}
-                                        className="bg-amber-500 hover:bg-amber-600 text-gray-900 px-4 py-2 rounded-lg font-semibold transition-colors"
+                                        className="bg-amber-500 hover:bg-amber-600 cursor-pointer text-gray-900 px-4 py-2 rounded-lg font-semibold transition-colors"
                                     >
                                         <i className="bi bi-plus-circle mr-2"></i>
                                         Add New Address
@@ -345,6 +362,7 @@ export default function Profile() {
                                                 name="phone"
                                                 value={addressForm.phone}
                                                 onChange={handleAddressChange}
+                                                maxLength={11}
                                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-amber-500 focus:outline-none"
                                             />
                                         </div>
@@ -398,7 +416,9 @@ export default function Profile() {
                                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:border-amber-500 focus:outline-none"
                                             />
                                         </div>
-                                        <div className="md:col-span-2">
+                                        {
+                                            user?.addresses?.some(u => u.isDefault) ? '' :
+                                            <div className="md:col-span-2">
                                             <label className="flex items-center gap-2 cursor-pointer">
                                                 <input
                                                     type="checkbox"
@@ -410,11 +430,13 @@ export default function Profile() {
                                                 <span className="text-gray-700 font-semibold">Set as default address</span>
                                             </label>
                                         </div>
+                                        }
+                                        
                                     </div>
                                     <div className="flex gap-3 mt-4">
                                         <button
                                             onClick={editingAddress ? handleUpdateAddress : handleAddAddress}
-                                            className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+                                            className="bg-green-500 hover:bg-green-600 cursor-pointer text-white px-6 py-2 rounded-lg font-semibold transition-colors"
                                         >
                                             {editingAddress ? "Update Address" : "Add Address"}
                                         </button>
@@ -433,7 +455,7 @@ export default function Profile() {
                                                     isDefault: false
                                                 });
                                             }}
-                                            className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+                                            className="bg-gray-500 hover:bg-gray-600 cursor-pointer text-white px-6 py-2 rounded-lg font-semibold transition-colors"
                                         >
                                             Cancel
                                         </button>
@@ -467,7 +489,7 @@ export default function Profile() {
                                                 <div className="flex gap-2 mt-4">
                                                     <button
                                                         onClick={() => handleEditAddress(address)}
-                                                        className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-colors"
+                                                        className="flex-1 bg-blue-500 hover:bg-blue-600 cursor-pointer text-white px-3 py-2 rounded-lg text-sm font-semibold transition-colors"
                                                     >
                                                         <i className="bi bi-pencil mr-1"></i>
                                                         Edit
@@ -476,13 +498,13 @@ export default function Profile() {
                                                         <>
                                                             <button
                                                                 onClick={() => handleSetDefaultAddress(address._id)}
-                                                                className="flex-1 bg-amber-500 hover:bg-amber-600 text-gray-900 px-3 py-2 rounded-lg text-sm font-semibold transition-colors"
+                                                                className="flex-1 bg-amber-500 hover:bg-amber-600 cursor-pointer text-gray-900 px-3 py-2 rounded-lg text-sm font-semibold transition-colors"
                                                             >
                                                                 Set Default
                                                             </button>
                                                             <button
                                                                 onClick={() => handleDeleteAddress(address._id)}
-                                                                className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-colors"
+                                                                className="bg-red-500 hover:bg-red-600 text-white cursor-pointer px-3 py-2 rounded-lg text-sm font-semibold transition-colors"
                                                             >
                                                                 <i className="bi bi-trash"></i>
                                                             </button>

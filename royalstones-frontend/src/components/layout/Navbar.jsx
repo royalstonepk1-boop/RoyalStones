@@ -6,6 +6,8 @@ import SubNavBar from "./SubNavBar";
 import CategoryNavBar from "./CategoryNavBar";
 import NavBarLogo from "../../Images/NavBarLogo.png";
 import { toast } from 'react-toastify';
+import SearchModal from '../../pages/SearchModal';
+import { fetchProducts } from '../../api/product.api';
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -17,6 +19,8 @@ export default function Navbar() {
   const openCart = useCartStore((s) => s.openCart);
   const fetchCart = useCartStore((s) => s.fetchCart);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [products, setProducts] = useState([]);
 
   useEffect(() => {
     if(!user){
@@ -25,6 +29,18 @@ export default function Navbar() {
     fetchCart();
 
   }, [user])
+
+  useEffect(() => {
+    const Products = async () => {
+      try {
+        const response = await fetchProducts();
+        setProducts(response.data);
+      } catch (error) {
+        console.error('Failed to fetch products:', error);
+      }
+    };
+    Products();
+  }, []);
 
   const logout= () => {
     logoutUser();
@@ -63,6 +79,7 @@ export default function Navbar() {
             <Link to="/shop" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Gemstones</Link>
             <Link to="/about" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">About Stones</Link>
             <Link to="/contact" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Contact Us</Link>
+            <Link to="/orders" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Orders</Link>
             {user?.role === "admin" && (
               <Link to="/admin" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Admin</Link>
             )} </div>
@@ -72,24 +89,17 @@ export default function Navbar() {
             <Link to="/shop" className="flex flex-col items-center"><i className="bi bi-gem text-lg"></i>Shop</Link>
             <Link to="/about" className="flex flex-col items-center"><i className="bi bi-info-circle text-lg"></i>About</Link>
             <Link to="/contact" className="flex flex-col items-center"><i className="bi bi-telephone text-lg"></i>Contact</Link>
+            <Link to="/orders" className="flex flex-col items-center"><i class="bi bi-box-seam text-lg"></i>Orders</Link>
             {user?.role === "admin" && (
               <Link to="/admin" className="flex flex-col items-center">
                 <i className="bi bi-shield-lock text-lg"></i>Admin</Link>
             )}
           </div>
-
-
-          <div className="hidden md:flex items-center bg-white/70 backdrop-blur-md border border-gray-400 rounded-full px-6 py-2 w-74 xl:w-44">
-            <input
-              type="text"
-              placeholder="Search products..."
-              className="bg-transparent outline-none text-sm text-gray-700 w-full placeholder-gray-400 placeholder:text-[11px]"
-            />
-            <i class="bi bi-search"></i>
-          </div>
+            
 
           {/* Right Side */}
           <div className="flex gap-4 items-center text-sm">
+          <i class="bi bi-search cursor-pointer text-xl" onClick={() => setSearchOpen(true)}></i>
             <button onClick={openCart} className="relative cursor-pointer">
               <div className="bg-[#333333] px-[10px] py-2 sm:p-3 rounded-full text-white flex items-center hover:opacity-55 hover:transform duration-300">
                 <i class="bi bi-cart3 text-[14px]"></i>
@@ -131,26 +141,25 @@ export default function Navbar() {
           </div>
         </div>
       </nav>
-      <div className={`flex items-center md:hidden bg-white/70 backdrop-blur-md border border-gray-400 rounded-full px-6 py-2 my-6 w-[100%] ${location.pathname === '/login' || location.pathname === '/register' ? 'hidden' : ''}`}>
-        <input
-          type="text"
-          placeholder="Search products..."
-          className="bg-transparent outline-none text-sm text-gray-700 w-full placeholder-gray-400"
-        />
-        <i class="bi bi-search"></i>
-      </div>
       {/* Desktop Bottom Nav */}
       <div className={`hidden md:flex xl:hidden gap-6 text-sm justify-center items-center min-h-16 font-medium ${location.pathname === '/login' || location.pathname === '/register' ? 'hidden' : ''}`}>
         <Link to="/" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Home</Link>
         <Link to="/shop" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Gemstones</Link>
         <Link to="/about" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">About Stones</Link>
         <Link to="/contact" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Contact Us</Link>
+        <Link to="/orders" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Orders</Link>
         {user?.role === "admin" && (
           <Link to="/admin" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Admin</Link>
         )} </div>
       <CategoryNavBar
         mobileOpen={mobileOpen}
         setMobileOpen={setMobileOpen}
+      />
+      {/* ✅ Search Modal */}
+      <SearchModal 
+        isOpen={searchOpen} 
+        onClose={() => setSearchOpen(false)}
+        products={products}
       />
     </>
   );
