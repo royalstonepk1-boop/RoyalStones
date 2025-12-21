@@ -4,7 +4,7 @@ const { createOrder, getOrders, getOrder, updateOrderStatus } = require('../cont
 const { authMiddleware, adminOnly } = require('../middleware/auth');
 
 router.post('/', authMiddleware, createOrder);
-router.get('/', authMiddleware, getOrders);
+router.get('/my', authMiddleware, getOrders);
 router.get('/:id', authMiddleware, getOrder);
 router.put('/:id/status', authMiddleware, adminOnly, updateOrderStatus);
 

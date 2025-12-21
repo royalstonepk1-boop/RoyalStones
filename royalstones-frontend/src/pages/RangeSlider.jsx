@@ -13,6 +13,8 @@ export default function RangeSlider({ min = 0, max = 100 ,setCarret }) {
   return (
     <div style={{ width: 300, margin: "50px auto", textAlign: "center" }}>
       <h3>{value} Carret</h3>
+      <div className="flex items-center gap-8">
+      <h4  className="ml-[-20px]">{min}</h4>
       <Slider
         min={min}
         max={max}
@@ -32,6 +34,9 @@ export default function RangeSlider({ min = 0, max = 100 ,setCarret }) {
         // Tooltip on handle
         tipFormatter={(val) => `${val}`}
       />
+      <h4>{max}</h4>
+      </div>
+      
     </div>
   );
 }

@@ -5,11 +5,13 @@ import { useDeliveryStore } from '../store/deliveryStore';
 import { useCartStore } from '../store/cartStore';
 import { useAuthStore } from '../store/authStore';
 import PageWrapper from '../util/PageWrapper';
+import { createOrderApi } from '../api/order.api';
 
 export default function Checkout() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   
   const {cart ,openCart} = useCartStore();
   const {user} = useAuthStore();
@@ -38,15 +40,16 @@ export default function Checkout() {
 
   const proceedToPayment = () => {
     if (!selectedAddress) {
-      alert('Please select a delivery address');
+      setErrorMsg('Please select a delivery address');
       return;
     }
+    setErrorMsg('') ;
     setStep(3);
   };
 
   const handlePayment = async () => {
     if (!paymentMethod) {
-      alert('Please select a payment method');
+      setErrorMsg('Please select a payment method');
       return;
     }
 
@@ -59,10 +62,11 @@ export default function Checkout() {
           billingAddress: user.addresses.find(a => a._id === selectedAddress),
           shippingAddress: user.addresses.find(a => a._id === selectedAddress),
           paymentMethod: 'cod',
-          deliveryCharges
+          deliveryCharges: charges,
         };
         
-        // const response = await createOrder(orderData);
+        const response = await createOrderApi(orderData);
+        // console.log(response.data);
         // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 1000));
         
@@ -117,7 +121,7 @@ export default function Checkout() {
       <h2 className="text-2xl font-bold text-gray-800">Review Your Order</h2>
       
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        {cart.items.map((item) => (
+        {cart?.items?.map((item) => (
           <div key={item._id} className="flex items-center gap-4 p-4 border-b border-gray-200 last:border-b-0">
             <img 
               src={item.productId.images[0].url} 
@@ -229,11 +233,14 @@ export default function Checkout() {
                 </div>
               </div>
             ))}
+            {
+              selectedAddress === null && <div className='flex justify-start items-center text-red-500'>{errorMsg}</div>
+            }
           </div>
 
           <div className="flex gap-3">
             <button
-              onClick={() => setStep(1)}
+              onClick={() => { setErrorMsg('') ; setStep(1)}}
               className="flex-1 bg-gray-200 cursor-pointer hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg transition-colors"
             >
               Back
@@ -280,6 +287,12 @@ export default function Checkout() {
             </div>
             <Package size={32} className="text-gray-400" />
           </div>
+          {
+            paymentMethod === 'cod' &&
+             <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800 text-sm">
+              Note: 10% of the total amount will be collected as an advance payment for Cash on Delivery orders.
+             </div>
+          }
         </div>
 
         <div
@@ -307,6 +320,10 @@ export default function Checkout() {
             <CreditCard size={32} className="text-gray-400" />
           </div>
         </div>
+        {
+          paymentMethod  === '' && <div className='flex justify-start items-center text-red-500'>{errorMsg}</div>
+        }
+        
       </div>
 
       <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
@@ -329,7 +346,7 @@ export default function Checkout() {
 
       <div className="flex gap-3">
         <button
-          onClick={() => setStep(2)}
+          onClick={() => { setErrorMsg('') ; setStep(2)}}
           className="flex-1 bg-gray-200 cursor-pointer hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg transition-colors"
         >
           Back

@@ -15,15 +15,19 @@ const OrderItem = new Schema({
   productId: { type: Schema.Types.ObjectId, ref: 'Product' },
   price: Number,
   quantity: Number,
+  carretValue:Number,
+  fingerSize :Number,
 });
 
 const OrderSchema = new Schema({
   userId: { type: Schema.Types.ObjectId, ref: 'User' },
+  orderNumber:Number,
   status: { type: String, enum: ['pending', 'paid', 'in_transit', 'delivered', 'cancelled'], default: 'pending' },
   billingAddress: AddressSub,
   shippingAddress: AddressSub,
   paymentMethod: { type: String, enum: ['card', 'cod'] },
   totalAmount: Number,
+  deliveryCharges: Number,
   orderItems: [OrderItem],
   createdAt: { type: Date, default: Date.now },
 });

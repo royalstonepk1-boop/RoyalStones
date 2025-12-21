@@ -32,7 +32,7 @@ export default function Navbar() {
       position: "top-right",
       hideProgressBar: false,
       closeOnClick: true,
-      pauseOnHover: true,
+      pauseOnHover: false,
       draggable: true,
     });
     navigate("/");  

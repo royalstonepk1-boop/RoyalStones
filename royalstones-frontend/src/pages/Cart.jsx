@@ -30,7 +30,7 @@ export default function Cart() {
     }
     fetchCharges();
 
-  }, [])
+  }, [cart])
 
 
   useEffect(() => {

@@ -45,7 +45,7 @@ export default function Profile() {
             position: "top-right",
             hideProgressBar: false,
             closeOnClick: true,
-            pauseOnHover: true,
+            pauseOnHover: false,
             draggable: true,
           });
     };
@@ -68,7 +68,7 @@ export default function Profile() {
             position: "top-right",
             hideProgressBar: false,
             closeOnClick: true,
-            pauseOnHover: true,
+            pauseOnHover: false,
             draggable: true,
           });
 
@@ -99,7 +99,7 @@ export default function Profile() {
             position: "top-right",
             hideProgressBar: false,
             closeOnClick: true,
-            pauseOnHover: true,
+            pauseOnHover: false,
             draggable: true,
           });
         
@@ -114,7 +114,7 @@ export default function Profile() {
                 position: "top-right",
                 hideProgressBar: false,
                 closeOnClick: true,
-                pauseOnHover: true,
+                pauseOnHover: false,
                 draggable: true,
               });
 
@@ -131,7 +131,7 @@ export default function Profile() {
             position: "top-right",
             hideProgressBar: false,
             closeOnClick: true,
-            pauseOnHover: true,
+            pauseOnHover: false,
             draggable: true,
           });
     };

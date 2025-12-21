@@ -85,7 +85,7 @@ export default function Shop() {
       .filter((cat) => cat.parentId !== null)
       .map((cat) => {
         const catData = productsByCategory[cat._id] || { items: [], page: 0, finished: false, loading: false };
-        console.log("Category Data for", cat.name, catData);
+        // console.log("Category Data for", cat.name, catData);
         return (
           <section key={cat._id} className="mb-10">
             <div className="flex items-center justify-between mb-4">

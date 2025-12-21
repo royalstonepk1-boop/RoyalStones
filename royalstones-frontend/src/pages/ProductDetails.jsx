@@ -67,7 +67,7 @@ export default function ProductDetails() {
         position: "top-right",
         hideProgressBar: false,
         closeOnClick: true,
-        pauseOnHover: true,
+        pauseOnHover: false,
         draggable: true,
       });
     } catch (error) {
@@ -75,7 +75,7 @@ export default function ProductDetails() {
         position: "top-right",
         hideProgressBar: false,
         closeOnClick: true,
-        pauseOnHover: true,
+        pauseOnHover: false,
         draggable: true,
       });
     } finally {
@@ -102,7 +102,7 @@ export default function ProductDetails() {
         position: "top-right",
         hideProgressBar: false,
         closeOnClick: true,
-        pauseOnHover: true,
+        pauseOnHover: false,
         draggable: true,
       });
     } finally {

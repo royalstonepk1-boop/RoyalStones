@@ -62,7 +62,7 @@ export default function Login() {
       const provider = new GoogleAuthProvider();
       const res = await signInWithPopup(auth, provider);
       const token = await res.user.getIdToken();
-      console.log(res, token)
+      // console.log(res, token)
       setToken(token);
       if (res) {
         const response = await getUserByEmail(res.user.email);
