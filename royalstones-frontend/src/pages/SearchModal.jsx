@@ -23,8 +23,7 @@ export default function SearchModal({ isOpen, onClose, products }) {
     const query = searchQuery.toLowerCase();
     const filtered = products.filter(product => 
       product.name.toLowerCase().includes(query) ||
-      product.category?.toLowerCase().includes(query) ||
-      product.description?.toLowerCase().includes(query)
+      product.categoryId?.name.toLowerCase().includes(query)
     ).slice(0, 8); // Show max 8 results
 
     setFilteredProducts(filtered);
