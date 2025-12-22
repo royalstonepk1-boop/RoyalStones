@@ -56,6 +56,53 @@ async function createOrder(req, res) {
     res.status(500).json({ message: err.message });
   }
 }
+async function cancelOrder(req, res) {
+  try {
+    const { orderID } = req.body;
+    
+    // Find the order
+    const order = await Order.findById(orderID);
+    
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    
+    // Check if the order belongs to the user
+    if (order.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Unauthorized to cancel this order' });
+    }
+    
+    // Check if order can be cancelled (only pending and paid orders)
+    if (!['pending', 'paid'].includes(order.status)) {
+      return res.status(400).json({ 
+        message: `Cannot cancel order with status: ${order.status}` 
+      });
+    }
+    
+    // Restore stock quantities
+    for (const item of order.orderItems) {
+      const product = await Product.findById(item.productId);
+      if (product) {
+        product.stockQuantity += item.quantity;
+        await product.save();
+      }
+    }
+    
+    // Update order status to cancelled
+    order.status = 'cancelled';
+    order.cancelledAt = new Date();
+    await order.save();
+    
+    res.json({ 
+      message: 'Order cancelled successfully', 
+      order 
+    });
+    
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
+}
 
 async function getOrders(req, res) {
   const orders = await Order.find(req.user.role === 'admin' ? {} : { userId: req.user._id }).populate('orderItems.productId');
@@ -75,4 +122,4 @@ async function updateOrderStatus(req, res) {
   res.json(order);
 }
 
-module.exports = { createOrder, getOrders, getOrder, updateOrderStatus };
+module.exports = { createOrder, getOrders, getOrder, updateOrderStatus,cancelOrder };

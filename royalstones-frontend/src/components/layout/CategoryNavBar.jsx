@@ -295,7 +295,7 @@ function Dropdown({ id, title, children, activeDropdown, setActiveDropdown }) {
   useEffect(() => {
     function handleDocClick(e) {
       if (ref.current && !ref.current.contains(e.target)) {
-        setOpen(false);
+        // setOpen(false);
       }
     }
     function handleEsc(e) {

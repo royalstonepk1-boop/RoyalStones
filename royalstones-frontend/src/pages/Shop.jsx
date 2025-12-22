@@ -13,6 +13,7 @@ export default function Shop() {
   const location = useLocation();
   const navigate = useNavigate();
   const hasScrolled = useRef(false);
+  const [priceSort, setPriceSort] = useState(""); 
   
 
   // global products if you still need them for other usage
@@ -62,6 +63,24 @@ export default function Shop() {
       });
   }, [getProductsByCategory]);
 
+  const sortProductsByPrice = (products) => {
+    if (!priceSort) return products;
+    
+    const sorted = [...products].sort((a, b) => {
+      const priceA = a.discountPrice || a.price;
+      const priceB = b.discountPrice || b.price;
+      
+      if (priceSort === "low") {
+        return priceA - priceB; // Low to High
+      } else if (priceSort === "high") {
+        return priceB - priceA; // High to Low
+      }
+      return 0;
+    });
+    
+    return sorted;
+  };
+
   return (
     <PageWrapper>
     <div className="p-6">
@@ -72,7 +91,7 @@ export default function Shop() {
       {/* <div className="mb-4">
         <input value={search} onChange={(e)=>setSearch(e.target.value)} placeholder="Search products..." className="border rounded px-3 py-2 w-full" />
       </div> */}
-
+      
       {/* Render per-category sections */}
       { 
         (!productsByCategory || Object.keys(productsByCategory).length === 0) &&
@@ -85,14 +104,34 @@ export default function Shop() {
       .filter((cat) => cat.parentId !== null)
       .map((cat) => {
         const catData = productsByCategory[cat._id] || { items: [], page: 0, finished: false, loading: false };
+        const sortedProducts = sortProductsByPrice(catData.items);
         // console.log("Category Data for", cat.name, catData);
         return (
           <section key={cat._id} className="mb-10">
+            <div className="flex flex-row justify-between items-center mb-4">
             <div className="flex items-center justify-between mb-4">
               <h2 id={cat._id} className="text-xl md:text-2xl font-semibold scroll-mt-35">{cat.name}</h2>
               {/* optional: link to view all for this category */}
               {/* <a href={`/category/${cat._id}`} className="text-sm text-indigo-600">View all</a> */}
             </div>
+            <div className="mb-6 flex justify-center">
+          <div className="relative">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Sort by Price
+            </label>
+            <select
+              value={priceSort}
+              onChange={(e) => setPriceSort(e.target.value)}
+              className="block w-52 px-4 py-2 pr-8 border cursor-pointer border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="">Default</option>
+              <option value="low">Low to High</option>
+              <option value="high">High to Low</option>
+            </select>
+          </div>
+          </div>
+            </div>
+            
             {
               catData?.loading && catData?.items.length === 0 ? (
                 <div className="text-center">
@@ -100,7 +139,7 @@ export default function Shop() {
                   <p className="mt-4 text-gray-600">Loading product...</p>
                 </div>) :
                 <ProductList
-                  products={catData.items}
+                  products={sortedProducts}
                 />
             }
 

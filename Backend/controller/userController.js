@@ -50,6 +50,15 @@ async function getProfile(req, res) {
   }
 }
 
+async function getAllUsers(req, res) {
+  try {
+    const users = await User.find();
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
 async function getProfileByEmail(req, res) {
   try {
     const { email } = req.query;
@@ -94,4 +103,4 @@ async function updateProfile(req, res) {
   }
 }
 
-module.exports = { registerWithEmail, registerWithGoogle , getProfile, getProfileByEmail, updateProfile };
+module.exports = { registerWithEmail, registerWithGoogle , getProfile, getProfileByEmail, updateProfile ,getAllUsers };

@@ -8,6 +8,7 @@ import NavBarLogo from "../../Images/NavBarLogo.png";
 import { toast } from 'react-toastify';
 import SearchModal from '../../pages/SearchModal';
 import { fetchProducts } from '../../api/product.api';
+import { useMessageStore } from "../../store/messageStore";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ export default function Navbar() {
   const cart = useCartStore((s) => s.cart);
   const openCart = useCartStore((s) => s.openCart);
   const fetchCart = useCartStore((s) => s.fetchCart);
+  const reset = useMessageStore((s) => s.reset);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [products, setProducts] = useState([]);
@@ -44,6 +46,7 @@ export default function Navbar() {
 
   const logout= () => {
     logoutUser();
+    reset();
     toast.success("Logout success!", {
       position: "top-right",
       hideProgressBar: false,
