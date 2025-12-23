@@ -108,6 +108,10 @@ async function getOrders(req, res) {
   const orders = await Order.find(req.user.role === 'admin' ? {} : { userId: req.user._id }).populate('orderItems.productId');
   res.json(orders);
 }
+async function listOrders(req, res) {
+  const orders = await Order.find().populate('orderItems.productId').populate('userId');
+  res.json(orders);
+}
 
 async function getOrder(req, res) {
   const order = await Order.findById(req.params.id).populate('orderItems.productId');
@@ -122,4 +126,4 @@ async function updateOrderStatus(req, res) {
   res.json(order);
 }
 
-module.exports = { createOrder, getOrders, getOrder, updateOrderStatus,cancelOrder };
+module.exports = { createOrder, getOrders, getOrder, updateOrderStatus,cancelOrder ,listOrders };

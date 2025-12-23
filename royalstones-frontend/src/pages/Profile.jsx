@@ -303,7 +303,7 @@ export default function Profile() {
                                     </div>
                                     <div className="border border-gray-200 rounded-lg p-4">
                                         <label className="text-gray-500 text-sm">Phone Number</label>
-                                        <p className="text-gray-900 font-semibold text-lg">{user?.addresses?.filter(u => u.isDefault)[0].phone}</p>
+                                        <p className="text-gray-900 font-semibold text-lg">{user?.addresses?.filter(u => u.isDefault)[0]?.phone}</p>
                                     </div>
                                     {
                                         user?.role === "admin" &&

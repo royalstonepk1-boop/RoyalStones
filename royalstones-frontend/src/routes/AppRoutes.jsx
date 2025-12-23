@@ -6,12 +6,8 @@ import Cart from "../pages/Cart";
 import Checkout from "../pages/Checkout";
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
-import Dashboard from "../pages/admin/Dashboard";
-import ManageProducts from "../pages/admin/ManageProducts";
 import ProtectedRoute from "./ProtectedRoute";
 import Orders from "../pages/Orders";
-import ManageCategories from "../pages/admin/ManageCategories";
-import ManageOrders from "../pages/admin/ManageOrders";
 import About from "../pages/About";
 import Contact from "../pages/Contact";
 import Profile from "../pages/Profile";
@@ -20,6 +16,7 @@ import PrivacyPolicy from "../pages/PrivacyPolicy";
 import Terms from "../pages/Terms";
 import ChatWidget from "../pages/ChatWidget";
 import NotFound from "../pages/NotFound";
+import AdminApp from "../pages/admin/AdminApp";
 
 export default function AppRoutes() {
   return (
@@ -58,11 +55,11 @@ export default function AppRoutes() {
           path="/admin"
           element={
             <ProtectedRoute adminOnly={true}>
-              <Dashboard />
+              <AdminApp />
             </ProtectedRoute>
           }
         />
-        <Route
+        {/* <Route
           path="/admin/products"
           element={
             <ProtectedRoute adminOnly={true}>
@@ -77,7 +74,7 @@ export default function AppRoutes() {
               <ManageOrders />
             </ProtectedRoute>
           }
-        />
+        /> */}
 
         <Route
           path="/checkout"
@@ -96,14 +93,14 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
-        <Route
+        {/* <Route
           path="/admin/categories"
           element={
             <ProtectedRoute adminOnly={true}>
               <ManageCategories />
             </ProtectedRoute>
           }
-        />
+        /> */}
 
         {/* 404 - Catch all unmatched routes */}
         <Route path="*" element={<NotFound />} />
@@ -115,7 +112,7 @@ export default function AppRoutes() {
         href={`https://wa.me/923155066472`}
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-20 right-19 md:bottom-5 md:right-6 bg-green-500 hover:bg-green-600 text-white w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 z-50"
+        className="fixed bottom-20 right-19 md:bottom-6 md:right-22 bg-green-500 hover:bg-green-600 text-white w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 z-50"
         title="Chat on WhatsApp"
       >
         <i className="bi bi-whatsapp text-2xl md:text-3xl"></i>

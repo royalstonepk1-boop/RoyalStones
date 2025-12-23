@@ -42,7 +42,7 @@ export default function ChatWidget() {
     if (isOpen && currentConversationId) {
       const interval = setInterval(() => {
         fetchMessages(currentConversationId);
-      }, 3000);
+      }, 5000);
       return () => clearInterval(interval);
     }
   }, [isOpen, currentConversationId, fetchMessages]);
@@ -82,7 +82,7 @@ export default function ChatWidget() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-20 right-4 md:bottom-5 md:right-22 bg-blue-500 hover:bg-blue-600 text-white w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 z-50"
+          className="fixed bottom-20 right-4 cursor-pointer md:bottom-6 md:right-6 bg-blue-500 hover:bg-blue-600 text-white w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 z-50"
           title="Chat with us"
         >
           <i className="bi bi-chat-dots text-2xl md:text-3xl"></i>

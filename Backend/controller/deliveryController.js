@@ -2,7 +2,7 @@ const Delivery = require('../models/Delivery');
 
 async function updateDeliveryCharges(req, res) {
   const { id ,charges } = req.body;
-  const r = await Delivery.updateOne({_id:id}, { $set: { charges: charges } });
+  const r = await Delivery.findOneAndUpdate({_id:id}, { $set: { charges: charges } });
   res.json(r);
 }
 

@@ -73,7 +73,7 @@ export default function CategoryNavBar({ mobileOpen, setMobileOpen }) {
   const firstFourCategories = parentCategories.slice(0, 4);
 
   return (
-    <div className={`bg-white shadow-sm relative w-full md:sticky md:top-20  ${location.pathname === '/login' || location.pathname === '/register' ? 'hidden' : ''}`} style={{ zIndex: 100 }}>
+    <div className={`bg-white shadow-sm relative w-full md:sticky md:top-20  ${location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/admin' ? 'hidden' : ''}`} style={{ zIndex: 100 }}>
       {/* Overlay */}
       {mobileOpen && (
         <div
@@ -321,7 +321,7 @@ function Dropdown({ id, title, children, activeDropdown, setActiveDropdown }) {
   return (
     <div
       ref={ref}
-      className="relative"
+      className={`relative`}
       onMouseEnter={() => setActiveDropdown(id)}
       onMouseLeave={() => setActiveDropdown(null)}
     >

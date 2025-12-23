@@ -103,6 +103,8 @@ export default function Navbar() {
           {/* Right Side */}
           <div className="flex gap-4 items-center text-sm">
           <i class="bi bi-search cursor-pointer text-xl" onClick={() => setSearchOpen(true)}></i>
+          {
+            user?.role !== "admin" &&
             <button onClick={openCart} className="relative cursor-pointer">
               <div className="bg-[#333333] px-[10px] py-2 sm:p-3 rounded-full text-white flex items-center hover:opacity-55 hover:transform duration-300">
                 <i class="bi bi-cart3 text-[14px]"></i>
@@ -115,6 +117,7 @@ export default function Navbar() {
               </div>
 
             </button>
+          }
 
             {!user ? (
               <>

@@ -1,9 +1,11 @@
 import { create } from "zustand";
 import { fetchProducts, fetchFirst6Products, fetchSingleProduct } from "../api/product.api";
+import { fetchCategories } from "../api/category.api";
 
 export const useProductStore = create((set, get) => ({
   // global list (if you still need it)
   products: [],
+  categories: [],
   // per-category store: { [categoryId]: { items: [], page: 0, finished: false, loading: false } }
   productsByCategory: {},
   product: null,
@@ -17,6 +19,17 @@ export const useProductStore = create((set, get) => ({
       set({ products: res.data || [], loading: false });
     } catch (err) {
       console.error("getProducts error", err);
+      set({ loading: false });
+    }
+  },
+
+  getCategories: async () => {
+    set({ loading: true });
+    try {
+      const res = await fetchCategories();
+      set({ categories: res.data || [], loading: false });
+    } catch (err) {
+      console.error("getCategories error", err);
       set({ loading: false });
     }
   },

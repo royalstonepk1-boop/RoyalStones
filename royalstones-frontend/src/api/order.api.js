@@ -1,5 +1,6 @@
 import api from "./axios";
 
+export const allOrders = () => api.get("/orders");
 export const createOrderApi = (payload) => api.post("/orders", payload);
 export const myOrdersApi = () => api.get("/orders/my");
 export const cancelOrder = (orderId) => api.put(`/orders/:id`,orderId );
