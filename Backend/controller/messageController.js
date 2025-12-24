@@ -67,23 +67,34 @@ async function getMessages(req, res) {
   }
 }
 
-// Mark messages as read (optional feature)
+
 async function markMessagesAsRead(req, res) {
   try {
-    const { conversationId } = req.params;
+    const { id } = req.params; // Get from URL params, not body
+    console.log('Marking messages as read for conversation:', id);
+    const userId = req.user._id;
 
-    await Message.updateMany(
+    // Update all messages in this conversation that:
+    // 1. Were NOT sent by the current user
+    // 2. Are currently unread (isRead: false)
+    const result = await Message.updateMany(
       {
-        conversationId,
-        senderId: { $ne: req.user._id },
-        isRead: false
+        conversationId: id,
+        senderId: { $ne: userId }, // Messages not sent by current user
+        isRead: false // Currently unread
       },
-      { isRead: true }
+      {
+        $set: { isRead: true } // Mark as read
+      }
     );
 
-    res.json({ message: 'Messages marked as read' });
+    res.json({ 
+      success: true, 
+      message: 'Messages marked as read',
+      modifiedCount: result.modifiedCount 
+    });
   } catch (err) {
-    console.error('Mark as read error:', err);
+    console.error('Mark messages as read error:', err);
     res.status(500).json({ message: err.message });
   }
 }

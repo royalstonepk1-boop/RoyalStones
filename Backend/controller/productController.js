@@ -4,7 +4,7 @@ const { uploadToCloudinary } = require('../middleware/upload');
 // create product (supports multipart/form-data images)
 async function createProduct(req, res) {
   try {
-    const { name, slug, description, categoryId, price, discountPrice, stockQuantity } = req.body;
+    const { name, slug, description, categoryId, price, discountPrice, stockQuantity,vedioUrl } = req.body;
     const images = [];
 
     if (req.files && req.files.length) {
@@ -21,6 +21,7 @@ async function createProduct(req, res) {
       price: +price,
       discountPrice: discountPrice ? +discountPrice : undefined,
       stockQuantity: +stockQuantity || 0,
+      vedioUrl :vedioUrl || null,
       images
     });
 

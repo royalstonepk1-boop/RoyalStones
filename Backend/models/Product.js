@@ -12,6 +12,7 @@ const ProductSchema = new Schema({
   discountPrice: Number,
   isActive: { type: Boolean, default: true },
   stockQuantity: { type: Number, default: 0 },
+  vedioUrl: String,
   images: [ImageSchema],
   createdAt: { type: Date, default: Date.now },
 });

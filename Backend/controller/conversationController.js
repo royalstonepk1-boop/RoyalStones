@@ -62,13 +62,15 @@ async function createConversation(req, res) {
 // Get all conversations for logged-in user
 async function listConversations(req, res) {
   try {
+    const userId = req.user._id;
+
     const conversations = await Conversation.find({ 
-      users: req.user._id 
+      users: userId 
     })
     .populate('users')
     .sort({ createdAt: -1 });
 
-    // Optionally, add last message info to each conversation
+    // Add last message and unread messages info to each conversation
     const conversationsWithLastMessage = await Promise.all(
       conversations.map(async (conv) => {
         const lastMessage = await Message.findOne({ 
@@ -77,9 +79,17 @@ async function listConversations(req, res) {
         .sort({ createdAt: -1 })
         .populate('senderId', 'name');
 
+        // Get all unread messages (messages NOT sent by current user AND not read)
+        const unreadMessages = await Message.find({
+          conversationId: conv._id,
+          senderId: { $ne: userId }, // Not sent by the current user
+          isRead: false // Not read yet
+        }).select('_id message createdAt');
+
         return {
           ...conv.toObject(),
-          lastMessage: lastMessage || null
+          lastMessage: lastMessage || null,
+          unreadMessages: unreadMessages // Array of unread message objects
         };
       })
     );
@@ -90,6 +100,8 @@ async function listConversations(req, res) {
     res.status(500).json({ message: err.message });
   }
 }
+
+
 
 // Get specific conversation by ID
 async function getConversationById(req, res) {
@@ -148,5 +160,5 @@ module.exports = {
   createConversation, 
   listConversations, 
   getConversationById,
-  deleteConversation 
+  deleteConversation ,
 };

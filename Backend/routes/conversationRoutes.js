@@ -10,6 +10,6 @@ router.post('/', authMiddleware, createConversation);
 router.get('/', authMiddleware, listConversations);
 
 // Get specific conversation by ID
-router.get('/:id', authMiddleware, getConversationById);
+
 
 module.exports = router;

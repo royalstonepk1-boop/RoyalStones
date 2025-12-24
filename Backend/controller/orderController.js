@@ -105,7 +105,7 @@ async function cancelOrder(req, res) {
 }
 
 async function getOrders(req, res) {
-  const orders = await Order.find(req.user.role === 'admin' ? {} : { userId: req.user._id }).populate('orderItems.productId');
+  const orders = await Order.find({ userId: req.user._id }).populate('orderItems.productId');
   res.json(orders);
 }
 async function listOrders(req, res) {
@@ -121,8 +121,8 @@ async function getOrder(req, res) {
 }
 
 async function updateOrderStatus(req, res) {
-  const { status } = req.body;
-  const order = await Order.findByIdAndUpdate(req.params.id, { status }, { new: true });
+  const { orderID, status } = req.body;
+  const order = await Order.findByIdAndUpdate(orderID, { status }, { new: true });
   res.json(order);
 }
 

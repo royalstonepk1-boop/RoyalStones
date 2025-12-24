@@ -4,7 +4,7 @@ import { useProductStore } from "../../store/productStore";
 import { useOrderStore } from "../../store/orderStore";
 import PageWrapper from "../../util/PageWrapper";
 import { useDeliveryStore } from "../../store/deliveryStore";
-import {toast} from 'react-toastify';
+import { toast } from 'react-toastify';
 
 // Mock API functions - replace with your actual API calls
 const api = {
@@ -25,8 +25,8 @@ const api = {
 
 // Dashboard Component
 function Dashboard() {
-  const {products,categories} = useProductStore();
-  const {orders} = useOrderStore();
+  const { products, categories } = useProductStore();
+  const { orders } = useOrderStore();
 
   const [stats, setStats] = useState({
     totalProducts: products.length,
@@ -39,7 +39,7 @@ function Dashboard() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-8">
         <h1 className="text-xl md:text-2xl font-bold  text-gray-900 mb-8">Admin Dashboard</h1>
-        
+
         {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 md:gap-6 gap-0 mb-8">
           <StatCard title="Total Products" value={stats.totalProducts} color="blue" />
@@ -73,7 +73,7 @@ function StatCard({ title, value, color }) {
 
 // Products Management Component
 function ManageProducts() {
-  const {products ,categories,loading ,getProducts , getCategories} = useProductStore();
+  const { products, categories, loading, getProducts, getCategories, createProduct, updateProduct, deleteProduct } = useProductStore();
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState(null);
@@ -85,6 +85,7 @@ function ManageProducts() {
     price: '',
     discountPrice: '',
     stockQuantity: '',
+    vedioUrl: '',
     images: null
   });
 
@@ -103,9 +104,11 @@ function ManageProducts() {
       });
 
       if (editingProduct) {
-        await api.put(`/products/${editingProduct._id}`, formData);
+        updateProduct(editingProduct._id, formData);
+        toast.success("Product Updated Scucessfully!");
       } else {
-        await api.post('/products', formData);
+        createProduct(formData);
+        toast.success("Product Added Scucessfully!");
       }
 
       resetForm();
@@ -125,20 +128,52 @@ function ManageProducts() {
       price: product.price,
       discountPrice: product.discountPrice || '',
       stockQuantity: product.stockQuantity,
+      vedioUrl: product.vedioUrl,
       images: null
     });
     setShowForm(true);
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this product?')) return;
-    try {
-      await api.delete(`/products/${id}`);
-      getProducts();
-    } catch (error) {
-      console.error('Failed to delete product:', error);
-    }
-  };
+    toast.warning(
+      ({ closeToast }) => (
+        <div>
+          <p className="mb-3">Are you sure you want to delete this product?</p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                deleteProduct(id);
+                getProducts();
+                closeToast();
+                toast.success("Product deleted!", {
+                  position: "top-right",
+                  hideProgressBar: false,
+                  closeOnClick: true,
+                  pauseOnHover: false,
+                  draggable: true,
+                });
+              }}
+              className="bg-red-500 hover:bg-red-600 cursor-pointer text-white px-4 py-2 rounded-lg text-sm font-semibold"
+            >
+              Delete
+            </button>
+            <button
+              onClick={closeToast}
+              className="bg-gray-500 hover:bg-gray-600 cursor-pointer text-white px-4 py-2 rounded-lg text-sm font-semibold"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        position: "top-center",
+        autoClose: false,
+        closeButton: false,
+        draggable: false,
+      }
+    )
+  }
 
   const resetForm = () => {
     setForm({
@@ -149,6 +184,7 @@ function ManageProducts() {
       price: '',
       discountPrice: '',
       stockQuantity: '',
+      vedioUrl: '',
       images: null
     });
     setEditingProduct(null);
@@ -171,43 +207,43 @@ function ManageProducts() {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-xl md:text-2xl font-bold text-gray-900">Manage Products</h1>
           {/* Search Bar */}
-        <div className="mb-6">
-          <div className="relative">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search..."
-              className="w-full px-4 py-3 pl-10 text-md border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-            <svg
-              className="absolute left-3 top-3.5 h-5 w-5 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          <div className="mb-6">
+            <div className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search..."
+                className="w-full px-4 py-3 pl-10 text-md border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
-            </svg>
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-3 cursor-pointer text-gray-400 hover:text-gray-600"
+              <svg
+                className="absolute left-3 top-3.5 h-5 w-5 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                ✕
-              </button>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-3 cursor-pointer text-gray-400 hover:text-gray-600"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+            {searchQuery && (
+              <p className="mt-2 text-sm text-gray-600">
+                Found {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''}
+              </p>
             )}
           </div>
-          {searchQuery && (
-            <p className="mt-2 text-sm text-gray-600">
-              Found {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''}
-            </p>
-          )}
-        </div>
           <button
             onClick={() => setShowForm(!showForm)}
             className="bg-blue-600 text-white cursor-pointer px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
@@ -216,7 +252,7 @@ function ManageProducts() {
           </button>
         </div>
 
-        
+
 
         {showForm && (
           <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
@@ -290,6 +326,7 @@ function ManageProducts() {
                   type="number"
                   required
                   value={form.price}
+                  min={0}
                   onChange={(e) => setForm({ ...form, price: e.target.value })}
                   className="w-full px-4 py-2 outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="0.00"
@@ -303,6 +340,7 @@ function ManageProducts() {
                 <input
                   type="number"
                   value={form.discountPrice}
+                  min={0}
                   onChange={(e) => setForm({ ...form, discountPrice: e.target.value })}
                   className="w-full px-4 py-2 outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="0.00"
@@ -317,9 +355,22 @@ function ManageProducts() {
                   type="number"
                   required
                   value={form.stockQuantity}
+                  min={0}
                   onChange={(e) => setForm({ ...form, stockQuantity: e.target.value })}
                   className="w-full px-4 py-2 outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="0"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Vedio Url (optional)
+                </label>
+                <input
+                  type="text"
+                  value={form.vedioUrl}
+                  onChange={(e) => setForm({ ...form, vedioUrl: e.target.value })}
+                  className="w-full px-4 py-2 outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Please add vedio url"
                 />
               </div>
 
@@ -327,13 +378,26 @@ function ManageProducts() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Product Images
                 </label>
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={(e) => setForm({ ...form, images: e.target.files })}
-                  className="w-full px-4 py-2 outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+                <label className="w-full flex items-center justify-between px-4 py-2 border border-gray-300 rounded-lg cursor-pointer bg-white hover:bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500">
+                  <span className="text-gray-500">
+                    {form.images?.length
+                      ? `${form.images.length} image(s) selected`
+                      : "Select product images"}
+                  </span>
+
+                  <span className="text-sm bg-blue-500 text-white px-3 py-1 rounded-md">
+                    Browse
+                  </span>
+
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={(e) => setForm({ ...form, images: e.target.files })}
+                    className="hidden"
+                  />
+                </label>
+
                 <p className="text-xs text-gray-500 mt-1">You can select multiple images (max 8)</p>
               </div>
 
@@ -381,13 +445,13 @@ function ManageProducts() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {(searchQuery ? filteredProducts : products) ?.map(product => (
+              {(searchQuery ? filteredProducts : products)?.map(product => (
                 <tr key={product._id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       {product.images?.[0]?.url && (
-                        <img 
-                          src={product.images[0].url} 
+                        <img
+                          src={product.images[0].url}
                           alt={product.name}
                           className="w-10 h-10 rounded object-cover mr-3"
                         />
@@ -407,11 +471,10 @@ function ManageProducts() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      product.stockQuantity > 10 ? 'bg-green-100 text-green-800' : 
-                      product.stockQuantity > 0 ? 'bg-yellow-100 text-yellow-800' : 
-                      'bg-red-100 text-red-800'
-                    }`}>
+                    <span className={`px-2 py-1 text-xs rounded-full ${product.stockQuantity > 10 ? 'bg-green-100 text-green-800' :
+                        product.stockQuantity > 0 ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-red-100 text-red-800'
+                      }`}>
                       {product.stockQuantity} units
                     </span>
                   </td>
@@ -439,13 +502,13 @@ function ManageProducts() {
             </div>
           )}
         </div>
-        { 
-        (!products || products.length === 0) &&
-        <div className="text-center pt-10">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900 mx-auto"></div>
-        <p className="mt-4 text-gray-600">Loading product...</p>
-      </div>
-      }
+        {
+          (!products || products.length === 0) &&
+          <div className="text-center pt-10">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading product...</p>
+          </div>
+        }
       </div>
     </div>
   );
@@ -453,7 +516,7 @@ function ManageProducts() {
 
 // Categories Management Component
 function ManageCategories() {
-  const {categories , loading , getCategories} = useProductStore();
+  const { categories, loading, getCategories } = useProductStore();
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState(null);
@@ -533,36 +596,36 @@ function ManageCategories() {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-xl md:text-2xl font-bold text-gray-900">Manage Categories</h1>
           <div className="mb-6">
-          <div className="relative">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search..."
-              className="w-full px-4 py-3 pl-10 text-md border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-            <svg
-              className="absolute left-3 top-3.5 h-5 w-5 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            <div className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search..."
+                className="w-full px-4 py-3 pl-10 text-md border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
-            </svg>
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-3 cursor-pointer text-gray-400 hover:text-gray-600"
+              <svg
+                className="absolute left-3 top-3.5 h-5 w-5 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                ✕
-              </button>
-            )}
-          </div>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-3 cursor-pointer text-gray-400 hover:text-gray-600"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
           </div>
           <button
             onClick={() => setShowForm(!showForm)}
@@ -697,32 +760,39 @@ function ManageCategories() {
 
 // Orders Management Component
 function ManageOrders() {
-  const {orders} = useOrderStore();
+  const { orders, updateOrderStatus, listOrders } = useOrderStore();
   const [filter, setFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState(null);
 
-  const updateOrderStatus = async (orderId, status) => {
+  useEffect(() => {
+    listOrders();
+  }, [orders])
+
+
+  const updateStatus = (orderID, status) => {
     try {
-      await api.put(`/orders/${orderId}/status`, { status });
-    //   loadOrders();
+      updateOrderStatus({ orderID, status });
+      toast.success('Order updated successfully');
+
     } catch (error) {
       console.error('Failed to update order:', error);
+      toast.error('Failed to update order');
     }
   };
 
-  let filteredOrders='';
+  let filteredOrders = '';
 
-  if(searchQuery){
-  filteredOrders = orders.filter(ord => {
-    return (
-      ord.orderNumber.toString().includes(searchQuery)
-    );
-  });
+  if (searchQuery) {
+    filteredOrders = orders.filter(ord => {
+      return (
+        ord.orderNumber.toString().includes(searchQuery)
+      );
+    });
   }
-  else{
-    filteredOrders = filter === 'all' 
-    ? orders 
-    : orders.filter(o => o.status === filter);
+  else {
+    filteredOrders = filter === 'all'
+      ? orders
+      : orders.filter(o => o.status === filter);
 
   }
   const statusColors = {
@@ -768,7 +838,7 @@ function ManageOrders() {
               </button>
             )}
           </div>
-          </div>
+        </div>
 
         {/* Filter Tabs */}
         <div className="bg-white rounded-lg shadow mb-6 p-2 flex gap-2 overflow-x-auto">
@@ -776,11 +846,10 @@ function ManageOrders() {
             <button
               key={status}
               onClick={() => setFilter(status)}
-              className={`px-4 py-2 rounded-lg cursor-pointer whitespace-nowrap transition-colors ${
-                filter === status 
-                  ? 'bg-blue-600 text-white' 
+              className={`px-4 py-2 rounded-lg cursor-pointer whitespace-nowrap transition-colors ${filter === status
+                  ? 'bg-blue-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+                }`}
             >
               {status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')}
             </button>
@@ -794,7 +863,7 @@ function ManageOrders() {
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">
-                    Order #{order.orderNumber}
+                    Order #RSSJ{order.orderNumber}
                   </h3>
                   <p className="text-sm text-gray-500">
                     {new Date(order.createdAt).toLocaleDateString()}
@@ -804,19 +873,19 @@ function ManageOrders() {
                   {order.status.charAt(0).toUpperCase() + order.status.slice(1).replace('_', ' ')}
                 </span>
                 {/* Status Update */}
-              <div className="">
-                <select
-                  value={order.status}
-                  onChange={(e) => updateOrderStatus(order._id, e.target.value)}
-                  className="w-full md:w-64 px-4 py-2 border outline-none cursor-pointer border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="pending">Pending</option>
-                  <option value="paid">Paid</option>
-                  <option value="in_transit">In Transit</option>
-                  <option value="delivered">Delivered</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
-              </div>
+                <div className="">
+                  <select
+                    value={order.status}
+                    onChange={(e) => updateStatus(order._id, e.target.value)}
+                    className="w-full md:w-64 px-4 py-2 border outline-none cursor-pointer border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="paid">Paid</option>
+                    <option value="in_transit">In Transit</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -865,7 +934,7 @@ function ManageOrders() {
                 </div>
               )}
 
-              
+
             </div>
           ))}
         </div>
@@ -882,29 +951,29 @@ function ManageOrders() {
 
 // Delivery Charges Management Component
 function ManageDelivery() {
-  const {chargesResp ,updateCharges,fetchChargesResp, loading} = useDeliveryStore();
+  const { chargesResp, updateCharges, fetchChargesResp, loading } = useDeliveryStore();
   const [newCharges, setNewCharges] = useState(0);
 
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-        updateCharges(chargesResp?._id, parseInt(newCharges));
-        fetchChargesResp();
-        toast.success("Charges Updated Sucessfully!", {
-                position: "top-right",
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: false,
-                draggable: true,
-        });
+      updateCharges(chargesResp?._id, parseInt(newCharges));
+      fetchChargesResp();
+      toast.success("Charges Updated Sucessfully!", {
+        position: "top-right",
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: false,
+        draggable: true,
+      });
     } catch (error) {
-        toast.error(error.message, {
-            position: "top-right",
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: false,
-            draggable: true,
-        });
+      toast.error(error.message, {
+        position: "top-right",
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: false,
+        draggable: true,
+      });
     }
   };
 
@@ -964,9 +1033,9 @@ function ManageDelivery() {
 // Main App Component with Routing
 export default function AdminApp() {
   const [currentPage, setCurrentPage] = useState('dashboard');
-  const {getProducts,getCategories} = useProductStore();
-  const {listOrders} = useOrderStore();
-  const {fetchChargesResp} = useDeliveryStore();
+  const { getProducts, getCategories } = useProductStore();
+  const { listOrders } = useOrderStore();
+  const { fetchChargesResp } = useDeliveryStore();
 
   const renderPage = () => {
     getProducts();
@@ -988,72 +1057,67 @@ export default function AdminApp() {
   };
 
   return (
-  <PageWrapper>
-    <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4">
+    <PageWrapper>
+      <div className="min-h-screen bg-gray-50">
+        {/* Navigation */}
+        <nav className="bg-white shadow-sm border-b">
+          <div className="max-w-7xl mx-auto px-4">
             {/* <div className="flex items-center">
               <h1 className="text-xl font-bold text-gray-900">Royal Stones Admin</h1>
             </div> */}
-            <div className="flex space-x-4 justify-center items-center h-14">
+            <div className="flex space-x-0 md:space-x-4 justify-center items-center flex-wrap h-20 sm:h-14">
               <button
                 onClick={() => setCurrentPage('dashboard')}
-                className={`px-3 py-2 cursor-pointer rounded-md text-sm font-medium ${
-                  currentPage === 'dashboard'
+                className={`px-3 py-2 cursor-pointer rounded-md text-sm font-medium ${currentPage === 'dashboard'
                     ? 'bg-blue-100 text-blue-700'
                     : 'text-gray-700 hover:bg-gray-100'
-                }`}
+                  }`}
               >
                 Dashboard
               </button>
               <button
                 onClick={() => setCurrentPage('products')}
-                className={`px-3 py-2 cursor-pointer rounded-md text-sm font-medium ${
-                  currentPage === 'products'
+                className={`px-3 py-2 cursor-pointer rounded-md text-sm font-medium ${currentPage === 'products'
                     ? 'bg-blue-100 text-blue-700'
                     : 'text-gray-700 hover:bg-gray-100'
-                }`}
+                  }`}
               >
                 Products
               </button>
               <button
                 onClick={() => setCurrentPage('categories')}
-                className={`px-3 py-2 cursor-pointer rounded-md text-sm font-medium ${
-                  currentPage === 'categories'
+                className={`px-3 py-2 cursor-pointer rounded-md text-sm font-medium ${currentPage === 'categories'
                     ? 'bg-blue-100 text-blue-700'
                     : 'text-gray-700 hover:bg-gray-100'
-                }`}
+                  }`}
               >
                 Categories
               </button>
               <button
                 onClick={() => setCurrentPage('orders')}
-                className={`px-3 py-2 cursor-pointer rounded-md text-sm font-medium ${
-                  currentPage === 'orders'
+                className={`px-3 py-2 cursor-pointer rounded-md text-sm font-medium ${currentPage === 'orders'
                     ? 'bg-blue-100 text-blue-700'
                     : 'text-gray-700 hover:bg-gray-100'
-                }`}
+                  }`}
               >
                 Orders
               </button>
               <button
                 onClick={() => setCurrentPage('delivery')}
-                className={`px-3 py-2 cursor-pointer rounded-md text-sm font-medium ${
-                  currentPage === 'delivery'
+                className={`px-3 py-2 cursor-pointer rounded-md text-sm font-medium ${currentPage === 'delivery'
                     ? 'bg-blue-100 text-blue-700'
                     : 'text-gray-700 hover:bg-gray-100'
-                }`}
+                  }`}
               >
                 Delivery
               </button>
             </div>
-        </div>
-      </nav>
+          </div>
+        </nav>
 
-      {/* Page Content */}
-      {renderPage()}
-    </div>
+        {/* Page Content */}
+        {renderPage()}
+      </div>
     </PageWrapper>
   );
 }

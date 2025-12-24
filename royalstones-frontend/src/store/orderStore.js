@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { myOrdersApi ,allOrders } from "../api/order.api";
+import { myOrdersApi ,allOrders ,updateOrder } from "../api/order.api";
 
 export const useOrderStore = create((set) => ({
   orders: [],
@@ -14,5 +14,10 @@ export const useOrderStore = create((set) => ({
     set({ loading: true });
     const res = await allOrders();
     set({ orders: res.data, loading: false });
+  },
+  updateOrderStatus: async (orderID) => {
+    set({ loading: true });
+    const res = await updateOrder(orderID);
+    set({ orders: orders.filter((o)=> o._id === res.data._id ? res.data : o), loading: false });
   },
 }));

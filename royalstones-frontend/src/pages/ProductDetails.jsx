@@ -6,6 +6,7 @@ import { useCartStore } from "../store/cartStore";
 import PageWrapper from "../util/PageWrapper";
 import { toast } from 'react-toastify';
 import RangeSlider from "./RangeSlider";
+import { ProductReviews, RatingSummary  } from './ProductReviews'
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -27,14 +28,14 @@ export default function ProductDetails() {
   useEffect(() => {
     getProductById(id);
   }, [id]);
-  
-  useEffect(() => 
+
+  useEffect(() =>
     setCarret(product?.categoryId?.carretRate?.min || 1)
-  , [product]);
+    , [product]);
 
   const handleChange = (e) => {
     const size = parseFloat(e.target.value);
-    
+
     if (e.target.value === '') {
       setError('');
       return;
@@ -55,14 +56,14 @@ export default function ProductDetails() {
     if (!user) {
       return navigate("/login");
     }
-    if(product?.categoryId?.hasFingerSize && (!fingerSize || fingerSize < 12 || fingerSize > 25 || fingerSize === '')){
+    if (product?.categoryId?.hasFingerSize && (!fingerSize || fingerSize < 12 || fingerSize > 25 || fingerSize === '')) {
       setError('Please enter a valid finger size between 12mm and 25mm');
       return;
     }
     setAddingToCart(true);
     try {
       console.log(carret);
-      await addToCart(product._id, 1 ,fingerSize ,carret);
+      await addToCart(product._id, 1, fingerSize, carret);
       toast.success("Added To Cart!", {
         position: "top-right",
         hideProgressBar: false,
@@ -88,14 +89,14 @@ export default function ProductDetails() {
     if (!user) {
       return navigate("/login");
     }
-    if(product?.categoryId?.hasFingerSize && (!fingerSize || fingerSize < 12 || fingerSize > 25 || fingerSize === '')){
+    if (product?.categoryId?.hasFingerSize && (!fingerSize || fingerSize < 12 || fingerSize > 25 || fingerSize === '')) {
       setError('Please enter a valid finger size between 12mm and 25mm');
       return;
     }
 
     setBuyNow(true);
     try {
-      await addToCart(product._id, 1 ,fingerSize ,carret);
+      await addToCart(product._id, 1, fingerSize, carret);
       openCart();
     } catch (error) {
       toast.error(err.message, {
@@ -138,12 +139,13 @@ export default function ProductDetails() {
       </div>
     );
   }
-  const handleSetCarret=(val)=>{
+  const handleSetCarret = (val) => {
     setCarret(val);
   }
 
   const images = product?.images || [];
   const name = product?.name || "Product Name";
+  const vedioUrl = product?.vedioUrl || null;
   const price = product?.price || 0;
   const discountPrice = product?.discountPrice;
   const stockQuantity = product?.stockQuantity ?? 0;
@@ -268,10 +270,19 @@ export default function ProductDetails() {
               {/* Right Side - Product Info */}
               <div className="space-y-6">
                 {/* Product Title */}
-                <div>
+                <div className="flex gap-4 flex-wrap">
                   <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
                     {name}
                   </h1>
+                  
+                  {
+                    vedioUrl !== null &&
+                    <h1 className="text-sm md:text-md font-bold text-blue-600 mt-2 hover:text-blue-900 hover:transform duration-150 cursor-pointer"
+                      onClick={() => window.open(vedioUrl, '_blank')}>
+                      Click to view vedio
+                    </h1>
+                  }
+
                 </div>
 
                 {/* Price */}
@@ -279,10 +290,10 @@ export default function ProductDetails() {
                   {discountPrice ? (
                     <>
                       <span className="text-3xl font-bold text-gray-900">
-                        Rs {(discountPrice*carret).toLocaleString()}
+                        Rs {(discountPrice * carret).toLocaleString()}
                       </span>
                       <span className="text-xl line-through text-gray-400">
-                        Rs {(price*carret).toLocaleString()}
+                        Rs {(price * carret).toLocaleString()}
                       </span>
                       <span className="bg-red-100 text-red-700 px-2 py-1 rounded text-sm font-semibold">
                         {Math.round(((price - discountPrice) / price) * 100)}% OFF
@@ -290,10 +301,13 @@ export default function ProductDetails() {
                     </>
                   ) : (
                     <span className="text-3xl font-bold text-gray-900">
-                      Rs {(price*carret).toLocaleString()}
+                      Rs {(price * carret).toLocaleString()}
                     </span>
                   )}
                 </div>
+
+                {/* Dynamic Star Rating */}
+                <RatingSummary productId={product._id} /> 
 
                 {/* Stock Status */}
                 <div className="flex items-center gap-2">
@@ -316,19 +330,19 @@ export default function ProductDetails() {
                 {
                   product?.categoryId?.hasFingerSize &&
                   <input
-                  type="number"
-                  value={fingerSize}
-                  onChange={handleChange}
-                  min="14"
-                  max="23"
-                  step="0.5"
-                  placeholder="Please Enter Finger size e.g; 16.5mm"
-                  className={`w-full pl-5 pr-12 py-3 border rounded-lg focus:ring-1 focus:ring-gray-400 focus:border-transparent ${error ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                />
+                    type="number"
+                    value={fingerSize}
+                    onChange={handleChange}
+                    min="14"
+                    max="23"
+                    step="0.5"
+                    placeholder="Please Enter Finger size e.g; 16.5mm"
+                    className={`w-full pl-5 pr-12 py-3 border rounded-lg focus:ring-1 focus:ring-gray-400 focus:border-transparent ${error ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                  />
                 }
                 {
-                      error && <p className="text-red-500 text-sm ">{error}</p>
+                  error && <p className="text-red-500 text-sm ">{error}</p>
                 }
 
                 <RangeSlider min={product?.categoryId?.carretRate?.min} max={product?.categoryId?.carretRate?.max} setCarret={handleSetCarret} />
@@ -427,6 +441,8 @@ export default function ProductDetails() {
                     )}
                   </div>
                 )}
+                {/* Reviews Section */}
+                <ProductReviews productId={product._id} />
 
                 {/* Trust Badges */}
                 <div className="border-t border-gray-400 pt-6">

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { fetchProducts, fetchFirst6Products, fetchSingleProduct } from "../api/product.api";
+import { fetchProducts, fetchFirst6Products, fetchSingleProduct ,createProduct ,updateProduct ,deleteProduct } from "../api/product.api";
 import { fetchCategories } from "../api/category.api";
 
 export const useProductStore = create((set, get) => ({
@@ -85,6 +85,36 @@ export const useProductStore = create((set, get) => ({
     try {
       const res = await fetchSingleProduct(id);
       set({ product: res.data, loading: false });
+    } catch (err) {
+      console.error("getProductById error", err);
+      set({ loading: false });
+    }
+  },
+  createProduct: async (data) => {
+    set({ loading: true });
+    try {
+      const res = await createProduct(data);
+      set({ products: [ res.data, ...products], loading: false });
+    } catch (err) {
+      console.error("getProductById error", err);
+      set({ loading: false });
+    }
+  },
+  updateProduct: async (id,data) => {
+    set({ loading: true });
+    try {
+      const res = await updateProduct(id,data);
+      set({ product:res.data, loading: false });
+    } catch (err) {
+      console.error("getProductById error", err);
+      set({ loading: false });
+    }
+  },
+  deleteProduct: async (id) => {
+    set({ loading: true });
+    try {
+      const res = await deleteProduct(id);
+      set({ product: null, loading: false });
     } catch (err) {
       console.error("getProductById error", err);
       set({ loading: false });

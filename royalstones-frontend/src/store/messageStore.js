@@ -4,7 +4,8 @@ import {
   createConversation as createConversationAPI, 
   getConversations, 
   sendMessage as sendMessageAPI, 
-  getMessages as getMessagesAPI 
+  getMessages as getMessagesAPI ,
+  updateMsgStatus
 } from "../api/message.api";
 
 export const useMessageStore = create((set, get) => ({
@@ -118,6 +119,21 @@ export const useMessageStore = create((set, get) => ({
       console.error("Error fetching conversations:", error);
       set({ error: error.message });
       return [];
+    }
+  },
+
+  updateMessageStatus: async (id) => {
+    try {
+      console.log("Marking message status for conversation:", id);
+      const response = await updateMsgStatus(id);
+      console.log("Message status updated:", response);
+      
+      set({ error: null });
+      return response.data;
+    } catch (error) {
+      console.error("Error updating message status:", error);
+      set({ error: error.message });
+      return null;
     }
   },
 

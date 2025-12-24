@@ -17,8 +17,10 @@ import Terms from "../pages/Terms";
 import ChatWidget from "../pages/ChatWidget";
 import NotFound from "../pages/NotFound";
 import AdminApp from "../pages/admin/AdminApp";
+import { useLocation } from 'react-router-dom';
 
 export default function AppRoutes() {
+  const location = useLocation();
   return (
     <>
       <Routes>
@@ -112,7 +114,7 @@ export default function AppRoutes() {
         href={`https://wa.me/923155066472`}
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-20 right-19 md:bottom-6 md:right-22 bg-green-500 hover:bg-green-600 text-white w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 z-50"
+        className={`${(location.pathname === '/login' || location.pathname === '/register') && 'hidden' } fixed bottom-20 right-19 md:bottom-6 md:right-22 bg-green-500 hover:bg-green-600 text-white w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 z-50`}
         title="Chat on WhatsApp"
       >
         <i className="bi bi-whatsapp text-2xl md:text-3xl"></i>
