@@ -1,13 +1,12 @@
 import { Link } from "react-router-dom";
 import Shop from "./Shop";
-import HomeBgImage from "../Images/Home_BG.png";
 import PageWrapper from "../util/PageWrapper";
 
 export default function Home() {
   return (
     <PageWrapper>
     <div className="relative bg-cover bg-center bg-no-repeat text-white text-center py-24"
-         style={{ backgroundImage: `url(${HomeBgImage})` }}>
+         style={{ backgroundImage: `url(https://res.cloudinary.com/dox58sidi/image/upload/v1766692660/Home_BG_2_nnmkhd.png)` }}>
 
       {/* Overlay - stays behind text */}
       <div className="absolute inset-0 bg-black/60"></div>
