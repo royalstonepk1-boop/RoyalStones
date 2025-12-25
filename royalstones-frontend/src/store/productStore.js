@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { fetchProducts, fetchFirst6Products, fetchSingleProduct ,createProduct ,updateProduct ,deleteProduct } from "../api/product.api";
-import { fetchCategories } from "../api/category.api";
+import { fetchProducts, fetchFirst6Products, fetchSingleProduct ,createProduct ,updateProduct ,deleteProduct, } from "../api/product.api";
+import { fetchCategories,updateSingleCategory, createCategory ,deleteCategory } from "../api/category.api";
 
 export const useProductStore = create((set, get) => ({
   // global list (if you still need it)
@@ -120,4 +120,28 @@ export const useProductStore = create((set, get) => ({
       set({ loading: false });
     }
   },
+  deleteCategory: async (id) => {
+    set({ loading: true });
+    try {
+      const res = await deleteCategory(id);
+      console.log(res);
+      set((state)=>({ categories: state.categories.filter((c)=> c._id !== id ), loading: false }));
+    } catch (err) {
+      console.error("getProductById error", err);
+      set({ loading: false });
+    }
+  },
+    updateCateoryByID: async (id,data) => {
+      set({ loading: true });
+      const res = await updateSingleCategory(id,data);
+      set((state)=>({ categories: state.categories.filter((c)=> c._id === res.data._id ? res.data : c), loading: false }));
+    },
+    createCategory: async (data) => {
+      set({ loading: true });
+      const res = await createCategory(data);
+      set((state) => ({ 
+        categories: [res.data, ...state.categories], 
+        loading: false 
+      }));
+    },
 }));

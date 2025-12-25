@@ -17,6 +17,7 @@ const OrderItem = new Schema({
   quantity: Number,
   carretValue:Number,
   fingerSize :Number,
+  msgNote: String,
 });
 
 const OrderSchema = new Schema({

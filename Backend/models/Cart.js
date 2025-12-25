@@ -6,6 +6,7 @@ const CartItem = new Schema({
   quantity: { type: Number, default: 1 },
   fingerSize:{ type: Number, default: 1},
   carretValue:{ type: Number, default: 1},
+  msgNote:{ type: String, default: ''},
 });
 
 const CartSchema = new Schema({

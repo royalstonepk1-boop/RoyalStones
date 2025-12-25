@@ -1,15 +1,16 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-    apiKey: "AIzaSyB6zKzm56AxjOo_5QHq-4YfoX4tTZxVFWo",
-    authDomain: "royalstones-ab4f1.firebaseapp.com",
-    projectId: "royalstones-ab4f1",
-    storageBucket: "royalstones-ab4f1.firebasestorage.app",
-    messagingSenderId: "531876340256",
-    appId: "1:531876340256:web:789b15ce70512922c21245",
-    measurementId: "G-BBZ3VS6YGW"
-  };
+  apiKey: "AIzaSyDFtfVyvfq0sJRuiETkiaK2BsPugOmUfQE",
+  authDomain: "royalstonespk.firebaseapp.com",
+  projectId: "royalstonespk",
+  storageBucket: "royalstonespk.firebasestorage.app",
+  messagingSenderId: "1051477025670",
+  appId: "1:1051477025670:web:3dd576d8744a4f9b298207",
+  measurementId: "G-BN57BHQ1Z2"
+};
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);

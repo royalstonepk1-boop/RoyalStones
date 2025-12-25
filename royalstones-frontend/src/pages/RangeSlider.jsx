@@ -19,7 +19,7 @@ export default function RangeSlider({ min = 0, max = 100 ,setCarret }) {
         min={min}
         max={max}
         value={value}
-        step={0.1}
+        step={0.5}
         onChange={handleChange}
         trackStyle={{ backgroundColor: "#4caf50", height: 10 }}
         handleStyle={{

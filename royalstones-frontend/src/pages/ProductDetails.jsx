@@ -23,6 +23,7 @@ export default function ProductDetails() {
   const [isZoomed, setIsZoomed] = useState(false);
   const [error, setError] = useState('');
   const [fingerSize, setFingerSize] = useState('');
+  const [msgNote, setMsgNote] = useState('');
   const [carret, setCarret] = useState(product?.categoryId?.carretRate?.min || 1);
 
   useEffect(() => {
@@ -63,7 +64,7 @@ export default function ProductDetails() {
     setAddingToCart(true);
     try {
       console.log(carret);
-      await addToCart(product._id, 1, fingerSize, carret);
+      await addToCart(product._id, 1, fingerSize, carret , msgNote);
       toast.success("Added To Cart!", {
         position: "top-right",
         hideProgressBar: false,
@@ -82,6 +83,7 @@ export default function ProductDetails() {
     } finally {
       setAddingToCart(false);
       setFingerSize('');
+      setMsgNote('');
     }
   };
 
@@ -96,7 +98,7 @@ export default function ProductDetails() {
 
     setBuyNow(true);
     try {
-      await addToCart(product._id, 1, fingerSize, carret);
+      await addToCart(product._id, 1, fingerSize, carret , msgNote);
       openCart();
     } catch (error) {
       toast.error(err.message, {
@@ -109,6 +111,7 @@ export default function ProductDetails() {
     } finally {
       setBuyNow(false);
       setFingerSize('');
+      setMsgNote('');
     }
   };
 
@@ -159,7 +162,7 @@ export default function ProductDetails() {
       {/* Zoom Modal */}
       {isZoomed && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-95 z-60 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black bg-opacity-95 z-100 flex items-center justify-center p-4"
           onClick={() => setIsZoomed(false)}
         >
           <button
@@ -346,6 +349,16 @@ export default function ProductDetails() {
                 }
 
                 <RangeSlider min={product?.categoryId?.carretRate?.min} max={product?.categoryId?.carretRate?.max} setCarret={handleSetCarret} />
+
+
+                <input
+                    type="text"
+                    value={msgNote}
+                    onChange={(e) => setMsgNote(e.target.value)}
+                    placeholder="Enter instructions or message(optional)"
+                    className={`w-full pl-5 pr-12 py-3 border rounded-lg focus:ring-1 focus:ring-gray-400 focus:border-transparent ${error ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                  />
 
                 {/* Action Buttons */}
                 <div className="space-y-3">

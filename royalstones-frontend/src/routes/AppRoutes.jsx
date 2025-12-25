@@ -18,6 +18,8 @@ import ChatWidget from "../pages/ChatWidget";
 import NotFound from "../pages/NotFound";
 import AdminApp from "../pages/admin/AdminApp";
 import { useLocation } from 'react-router-dom';
+import PaymentSuccess from "../pages/PaymentSuccess";
+import PaymentCancel from "../pages/PaymentCancel";
 
 export default function AppRoutes() {
   const location = useLocation();
@@ -44,9 +46,25 @@ export default function AppRoutes() {
         <Route
           path="/profile"
           element={
-            // <ProtectedRoute>
+            <ProtectedRoute>
             <Profile />
-            // </ProtectedRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/checkout-success"
+          element={
+            <ProtectedRoute>
+            <PaymentSuccess />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cancel"
+          element={
+            <ProtectedRoute>
+            <PaymentCancel />
+            </ProtectedRoute>
           }
         />
 

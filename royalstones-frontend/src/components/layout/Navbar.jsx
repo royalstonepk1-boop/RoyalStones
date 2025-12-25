@@ -73,7 +73,7 @@ export default function Navbar() {
           </div>
           {/* Logo */}
           <Link to="/" className="text-2xl font-bold tracking-wide">
-            <img src={NavBarLogo} alt="logo" className="min-w-[150px] max-h-[70px]" />
+            <img src={NavBarLogo} alt="logo" className="min-w-[100px] max-h-[60px]" />
           </Link>
 
           {/* Desktop Bottom Nav */}

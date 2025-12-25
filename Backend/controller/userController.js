@@ -58,6 +58,14 @@ async function getAllUsers(req, res) {
     res.status(500).json({ message: err.message });
   }
 }
+async function getAdmin(req, res) {
+  try {
+    const users = await User.find({ role: 'admin' });
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
 
 async function getProfileByEmail(req, res) {
   try {
@@ -103,4 +111,4 @@ async function updateProfile(req, res) {
   }
 }
 
-module.exports = { registerWithEmail, registerWithGoogle , getProfile, getProfileByEmail, updateProfile ,getAllUsers };
+module.exports = { registerWithEmail, registerWithGoogle , getProfile, getProfileByEmail, updateProfile ,getAllUsers ,getAdmin };

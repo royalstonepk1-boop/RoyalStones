@@ -2,6 +2,7 @@ import api from "./axios";
 
 // Get all users (to find admin)
 export const getUsers = () => api.get("/users");
+export const getAdmin = () => api.get("/users/getAdmin");
 
 // Conversation APIs
 export const createConversation = (data) => api.post("/conversations", data);

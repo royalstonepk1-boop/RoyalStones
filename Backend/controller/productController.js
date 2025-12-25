@@ -90,5 +90,13 @@ async function deleteProduct(req, res) {
   await Product.findByIdAndDelete(req.params.id);
   res.json({ message: 'Deleted' });
 }
+async function countByCategory(req, res) {
+  try {
+    const count = await Product.countDocuments({ categoryId: req.params.categoryId });
+    res.json({ count });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
 
-module.exports = { createProduct, listProducts, listProductsForNavBar,getProduct, updateProduct, deleteProduct };
+module.exports = { createProduct, listProducts, listProductsForNavBar,getProduct, updateProduct, deleteProduct ,countByCategory };

@@ -5,6 +5,8 @@ import { useOrderStore } from "../../store/orderStore";
 import PageWrapper from "../../util/PageWrapper";
 import { useDeliveryStore } from "../../store/deliveryStore";
 import { toast } from 'react-toastify';
+import { countByCategory } from "../../api/product.api";
+import { useAuthStore } from '../../store/authStore'
 
 // Mock API functions - replace with your actual API calls
 const api = {
@@ -472,8 +474,8 @@ function ManageProducts() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 py-1 text-xs rounded-full ${product.stockQuantity > 10 ? 'bg-green-100 text-green-800' :
-                        product.stockQuantity > 0 ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'
+                      product.stockQuantity > 0 ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
                       }`}>
                       {product.stockQuantity} units
                     </span>
@@ -514,33 +516,47 @@ function ManageProducts() {
   );
 }
 
-// Categories Management Component
 function ManageCategories() {
-  const { categories, loading, getCategories } = useProductStore();
+  const { categories, getCategories, loading, createCategory, updateCateoryByID, deleteCategory } = useProductStore();
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
-  const [searchQuery, setSearchQuery] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [expandedCategories, setExpandedCategories] = useState(new Set());
   const [form, setForm] = useState({
     name: '',
+    parentId: null,
     hasFingerSize: false,
     carretRateMin: '',
     carretRateMax: ''
   });
 
+  useEffect(() => {
+    getCategories();
+  }, []);
+
   const handleSubmit = async (e) => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     e.preventDefault();
     try {
       const payload = {
         name: form.name,
+        parentId: form.parentId || null,
         hasFingerSize: form.hasFingerSize,
-        carretRateMin: parseFloat(form.carretRateMin) || 0,
-        carretRateMax: parseFloat(form.carretRateMax) || 0
+        carretRate: {
+          min: parseFloat(form.carretRateMin) || 0,
+          max: parseFloat(form.carretRateMax) || 0
+        }
       };
 
       if (editingCategory) {
-        await api.put(`/categories/${editingCategory._id}`, payload);
+        console.log(payload);
+        const resp = await updateCateoryByID(editingCategory._id, payload);
+        toast.success("Category Updated!");
+
       } else {
-        await api.post('/categories', payload);
+        const resp = await createCategory(payload);
+        toast.success("Category Added!");
+
       }
 
       resetForm();
@@ -554,26 +570,81 @@ function ManageCategories() {
     setEditingCategory(category);
     setForm({
       name: category.name,
+      parentId: category.parentId || null,
       hasFingerSize: category.hasFingerSize || false,
       carretRateMin: category.carretRate?.min || 0,
       carretRateMax: category.carretRate?.max || 0
     });
     setShowForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this category?')) return;
-    try {
-      await api.delete(`/categories/${id}`);
-      getCategories();
-    } catch (error) {
-      console.error('Failed to delete category:', error);
+    const category = categories.find(c => c._id === id);
+    const hasSubcategories = categories.some(c => c.parentId === id);
+
+    if (hasSubcategories) {
+      toast.error('Cannot delete category with subcategories. Delete subcategories first.');
+      return;
     }
+
+    // Check if category has products
+    try {
+      const productsCheck = await countByCategory(id);
+      if (productsCheck.data.count > 0) {
+        toast.error(`Cannot delete "${category.name}". It has ${productsCheck.data.count} products associated with it. Please reassign or delete the products first.`);
+        return;
+      }
+    } catch (error) {
+      console.error('Error checking products:', error);
+      return;
+    }
+
+    toast.warning(
+      ({ closeToast }) => (
+        <div>
+          <p className="mb-3">{`Are you sure you want to delete "${category.name}"?`}</p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                deleteCategory(id);
+                getCategories();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                closeToast();
+                toast.success("Category deleted!", {
+                  position: "top-right",
+                  hideProgressBar: false,
+                  closeOnClick: true,
+                  pauseOnHover: false,
+                  draggable: true,
+                });
+              }}
+              className="bg-red-500 hover:bg-red-600 cursor-pointer text-white px-4 py-2 rounded-lg text-sm font-semibold"
+            >
+              Delete
+            </button>
+            <button
+              onClick={closeToast}
+              className="bg-gray-500 hover:bg-gray-600 cursor-pointer text-white px-4 py-2 rounded-lg text-sm font-semibold"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        position: "top-center",
+        autoClose: false,
+        closeButton: false,
+        draggable: false,
+      }
+    )
   };
 
   const resetForm = () => {
     setForm({
       name: '',
+      parentId: null,
       hasFingerSize: false,
       carretRateMin: '',
       carretRateMax: ''
@@ -582,30 +653,50 @@ function ManageCategories() {
     setShowForm(false);
   };
 
-  // Filter products based on search query
-  const filteredCategories = categories.filter(cat => {
-    const query = searchQuery?.toLowerCase();
-    return (
-      cat.name.toLowerCase().includes(query)
-    );
-  });
+  const toggleCategory = (categoryId) => {
+    const newExpanded = new Set(expandedCategories);
+    if (newExpanded.has(categoryId)) {
+      newExpanded.delete(categoryId);
+    } else {
+      newExpanded.add(categoryId);
+    }
+    setExpandedCategories(newExpanded);
+  };
+
+  // Get parent categories (those with parentId === null)
+  const parentCategories = categories.filter(cat => !cat.parentId);
+
+  // Get subcategories for a given parent
+  const getSubcategories = (parentId) => {
+    return categories.filter(cat => cat.parentId === parentId);
+  };
+
+  // Filter categories based on search
+  const filterCategories = (cats) => {
+    if (!searchQuery) return cats;
+    const query = searchQuery.toLowerCase();
+    return cats.filter(cat => cat.name.toLowerCase().includes(query));
+  };
+
+  const filteredParentCategories = filterCategories(parentCategories);
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <h1 className="text-xl md:text-2xl font-bold text-gray-900">Manage Categories</h1>
-          <div className="mb-6">
-            <div className="relative">
+
+          <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+            <div className="relative flex-1 md:w-64">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search..."
-                className="w-full px-4 py-3 pl-10 text-md border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Search categories..."
+                className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <svg
-                className="absolute left-3 top-3.5 h-5 w-5 text-gray-400"
+                className="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -620,19 +711,20 @@ function ManageCategories() {
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-3 cursor-pointer text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-2.5 cursor-pointer text-gray-400 hover:text-gray-600"
                 >
                   ✕
                 </button>
               )}
             </div>
+
+            <button
+              onClick={() => setShowForm(!showForm)}
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg cursor-pointer hover:bg-blue-700 transition-colors whitespace-nowrap"
+            >
+              {showForm ? 'Cancel' : '+ Add Category'}
+            </button>
           </div>
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg cursor-pointer hover:bg-blue-700 transition-colors"
-          >
-            {showForm ? 'Cancel' : '+ Add Category'}
-          </button>
         </div>
 
         {showForm && (
@@ -655,6 +747,27 @@ function ManageCategories() {
                 />
               </div>
 
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Parent Category (Optional - leave empty for main category)
+                  </label>
+                  <select
+                    value={form.parentId || ''}
+                    onChange={(e) => setForm({ ...form, parentId: e.target.value || null })}
+                    className="w-full px-4 py-2 outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">None (Main Category)</option>
+                    {parentCategories
+                      .filter(cat => cat._id !== editingCategory?._id)
+                      .map(cat => (
+                        <option key={cat._id} value={cat._id}>
+                          {cat.name}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+
+
               <div className="flex items-center">
                 <input
                   type="checkbox"
@@ -668,7 +781,7 @@ function ManageCategories() {
                 </label>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Caret Rate Min
@@ -718,38 +831,113 @@ function ManageCategories() {
 
         {/* Categories List */}
         <div className="bg-white rounded-lg shadow">
-          <div className="divide-y divide-gray-200">
-            {(searchQuery ? filteredCategories : categories).map(category => (
-              <div key={category._id} className="p-4 hover:bg-gray-50 flex justify-between items-center">
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900">{category.name}</h3>
-                  <div className="mt-1 flex gap-4 text-sm text-gray-500">
-                    <span>Finger Size: {category.hasFingerSize ? 'Yes' : 'No'}</span>
-                    {category.carretRate && (
-                      <span>Caret Rate: {category.carretRate.min} - {category.carretRate.max}</span>
+          {loading ? (
+            <div className="text-center py-12 text-gray-500">Loading...</div>
+          ) : filteredParentCategories.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
+              {searchQuery ? 'No categories found matching your search.' : 'No categories found. Add your first category!'}
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-200">
+              {filteredParentCategories.map(category => {
+                const subcategories = getSubcategories(category._id);
+                const filteredSubcategories = filterCategories(subcategories);
+                const isExpanded = expandedCategories.has(category._id);
+                const hasSubcategories = subcategories.length > 0;
+
+                return (
+                  <div key={category._id}>
+                    {/* Parent Category */}
+                    <div className="p-4 hover:bg-gray-50">
+                      <div className="flex justify-between items-start">
+                        <div className="flex items-start gap-2 flex-1">
+                          {hasSubcategories && (
+                            <button
+                              onClick={() => toggleCategory(category._id)}
+                              className="mt-1 text-gray-500 hover:text-gray-700 cursor-pointer"
+                            >
+                              <svg
+                                className={`w-5 h-5 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                              </svg>
+                            </button>
+                          )}
+                          <div className={hasSubcategories ? '' : 'ml-7'}>
+                            <h3 className="text-lg font-semibold text-gray-900">{category.name}</h3>
+                            <div className="mt-1 flex flex-wrap gap-3 text-sm text-gray-500">
+                              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">Main Category</span>
+                              <span>Finger Size: {category.hasFingerSize ? 'Yes' : 'No'}</span>
+                              {category.carretRate && (category.carretRate.min > 0 || category.carretRate.max > 0) && (
+                                <span>Caret Rate: {category.carretRate.min} - {category.carretRate.max}</span>
+                              )}
+                              {hasSubcategories && (
+                                <span className="text-blue-600 font-medium">{subcategories.length} subcategories</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEdit(category)}
+                            className="text-blue-600 hover:bg-blue-50 rounded-lg px-3 py-1.5 cursor-pointer transition-colors text-sm font-medium"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(category._id)}
+                            className="text-red-600 hover:bg-red-50 rounded-lg px-3 py-1.5 cursor-pointer transition-colors text-sm font-medium"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Subcategories */}
+                    {isExpanded && hasSubcategories && (
+                      <div className="bg-gray-50 border-t border-gray-200">
+                        {filteredSubcategories.map(subcat => (
+                          <div key={subcat._id} className="p-4 pl-16 hover:bg-gray-100 border-b border-gray-200 last:border-b-0">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <h4 className="text-base font-medium text-gray-800">
+                                  <span className="text-gray-400 mr-2">↳</span>
+                                  {subcat.name}
+                                </h4>
+                                <div className="mt-1 flex flex-wrap gap-3 text-sm text-gray-500">
+                                  <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Subcategory</span>
+                                  <span>Finger Size: {subcat.hasFingerSize ? 'Yes' : 'No'}</span>
+                                  {subcat.carretRate && (subcat.carretRate.min > 0 || subcat.carretRate.max > 0) && (
+                                    <span>Caret Rate: {subcat.carretRate.min} - {subcat.carretRate.max}</span>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => handleEdit(subcat)}
+                                  className="text-blue-600 hover:bg-blue-50 rounded-lg px-3 py-1.5 cursor-pointer transition-colors text-sm font-medium"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={() => handleDelete(subcat._id)}
+                                  className="text-red-600 hover:bg-red-50 rounded-lg px-3 py-1.5 cursor-pointer transition-colors text-sm font-medium"
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </div>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleEdit(category)}
-                    className="text-blue-600 bg-gray-300 rounded-[10px] p-2 cursor-pointer"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(category._id)}
-                    className="text-red-600 bg-gray-300 rounded-[10px] p-2 cursor-pointer"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-          {categories.length === 0 && (
-            <div className="text-center py-12 text-gray-500">
-              No categories found. Add your first category!
+                );
+              })}
             </div>
           )}
         </div>
@@ -847,8 +1035,8 @@ function ManageOrders() {
               key={status}
               onClick={() => setFilter(status)}
               className={`px-4 py-2 rounded-lg cursor-pointer whitespace-nowrap transition-colors ${filter === status
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
               {status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')}
@@ -858,7 +1046,9 @@ function ManageOrders() {
 
         {/* Orders List */}
         <div className="space-y-4">
-          {filteredOrders.map(order => (
+          {filteredOrders
+          .reverse()
+          .map(order => (
             <div key={order._id} className="bg-white rounded-lg border-gray-500 border-1 shadow p-6">
               <div className="flex justify-between items-start mb-4">
                 <div>
@@ -914,6 +1104,12 @@ function ManageOrders() {
                   {order.orderItems?.map((item, idx) => (
                     <div key={idx} className="flex justify-between text-sm">
                       <span>{item.productId?.name || 'Product'} × {item.quantity}</span>
+                      {
+                            item.msgNote !== '' &&
+                            <span className="text-gray-600 max-w-200px md:max-w-300px text-wrap">
+                            ({item.msgNote})
+                          </span>
+                          }
                       <span className="font-medium">Rs {item.price * item.quantity * item.carretValue}</span>
                     </div>
                   ))}
@@ -941,7 +1137,7 @@ function ManageOrders() {
 
         {filteredOrders.length === 0 && (
           <div className="bg-white rounded-lg shadow p-12 text-center text-gray-500">
-            No orders found in this category.
+            No orders found.
           </div>
         )}
       </div>
@@ -1029,6 +1225,218 @@ function ManageDelivery() {
     </div>
   );
 }
+function ManageUsers() {
+  const { allUsers, getAllUsers } = useAuthStore();
+  const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterRole, setFilterRole] = useState('all'); // all, admin, user
+
+  useEffect(() => {
+    getAllUsers();
+  }, []);
+
+
+
+  // Filter users based on search and role
+  const filteredUsers = allUsers.filter(user => {
+    const matchesSearch = searchQuery
+      ? user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchQuery.toLowerCase())
+      : true;
+
+    const matchesRole = filterRole === 'all' ? true : user.role === filterRole;
+
+    return matchesSearch && matchesRole;
+  });
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="mb-6">
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-4">
+            Users Management
+          </h1>
+
+          {/* Filters */}
+          <div className="flex flex-col md:flex-row gap-4">
+            {/* Search Bar */}
+            <div className="relative flex-1">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search by name or email..."
+                className="w-full px-4 py-2 pl-10 text-sm border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <svg
+                className="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-2.5 cursor-pointer text-gray-400 hover:text-gray-600"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* Role Filter */}
+            <select
+              value={filterRole}
+              onChange={(e) => setFilterRole(e.target.value)}
+              className="px-4 py-2 border border-gray-300 cursor-pointer rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="all">All Roles</option>
+              <option value="admin">Admins</option>
+              <option value="user">Users</option>
+            </select>
+          </div>
+
+          {/* Stats */}
+          <div className="mt-4 flex flex-wrap gap-4 text-sm text-gray-600">
+            <span className="bg-white px-4 py-2 rounded-lg shadow">
+              Total Users: <strong>{allUsers?.length}</strong>
+            </span>
+            <span className="bg-white px-4 py-2 rounded-lg shadow">
+              Admins: <strong>{allUsers?.filter(u => u.role === 'admin').length}</strong>
+            </span>
+            <span className="bg-white px-4 py-2 rounded-lg shadow">
+              Regular Users: <strong>{allUsers?.filter(u => u.role === 'user').length}</strong>
+            </span>
+          </div>
+        </div>
+
+        {/* Users List */}
+        {loading ? (
+          <div className="bg-white rounded-lg shadow p-12 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading users...</p>
+          </div>
+        ) : filteredUsers.length === 0 ? (
+          <div className="bg-white rounded-lg shadow p-12 text-center text-gray-500">
+            {searchQuery || filterRole !== 'all'
+              ? 'No users found matching your filters.'
+              : 'No users found.'}
+          </div>
+        ) : (
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden md:block bg-white rounded-lg shadow overflow-hidden">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      User
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Email
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Role
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Joined
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredUsers.map((user) => (
+                    <tr key={user._id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="h-10 w-10 flex-shrink-0">
+                            <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
+                              {user.name?.charAt(0).toUpperCase() || 'U'}
+                            </div>
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">
+                              {user.name || 'No name'}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              ID: {user._id.slice(-6)}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{user.email}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${user.role === 'admin'
+                            ? 'bg-purple-300 text-purple-800'
+                            : 'bg-green-100 text-green-800'
+                          }`}>
+                          {user.role || 'user'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {formatDate(user.createdAt)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-4">
+              {filteredUsers.map((user) => (
+                <div key={user._id} className="bg-white rounded-lg shadow p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="h-12 w-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-lg">
+                        {user.name?.charAt(0).toUpperCase() || 'U'}
+                      </div>
+                      <div>
+                        <h3 className="text-base font-semibold text-gray-900">
+                          {user.name || 'No name'}
+                        </h3>
+                        <p className="text-sm text-gray-500">{user.email}</p>
+                      </div>
+                    </div>
+                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${user.role === 'admin'
+                        ? 'bg-purple-100 text-purple-800'
+                        : 'bg-green-100 text-green-800'
+                      }`}>
+                      {user.role || 'user'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-xs text-gray-500">
+                    <span>ID: {user._id.slice(-8)}</span>
+                    <span>{formatDate(user.createdAt)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
 
 // Main App Component with Routing
 export default function AdminApp() {
@@ -1044,15 +1452,17 @@ export default function AdminApp() {
     fetchChargesResp();
     switch (currentPage) {
       case 'products':
-        return <PageWrapper> <ManageProducts /> </PageWrapper>;
+        return <ManageProducts />;
       case 'categories':
-        return <PageWrapper> <ManageCategories /> </PageWrapper>;
+        return <ManageCategories />;
       case 'orders':
-        return <PageWrapper> <ManageOrders /> </PageWrapper>;
+        return <ManageOrders />;
       case 'delivery':
-        return <PageWrapper> <ManageDelivery /> </PageWrapper>;
+        return <ManageDelivery />;
+      case 'users':
+        return <ManageUsers />;
       default:
-        return <PageWrapper> <Dashboard /> </PageWrapper>;
+        return <Dashboard />;
     }
   };
 
@@ -1069,8 +1479,8 @@ export default function AdminApp() {
               <button
                 onClick={() => setCurrentPage('dashboard')}
                 className={`px-3 py-2 cursor-pointer rounded-md text-sm font-medium ${currentPage === 'dashboard'
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-700 hover:bg-gray-100'
+                  ? 'bg-blue-100 text-blue-700'
+                  : 'text-gray-700 hover:bg-gray-100'
                   }`}
               >
                 Dashboard
@@ -1078,8 +1488,8 @@ export default function AdminApp() {
               <button
                 onClick={() => setCurrentPage('products')}
                 className={`px-3 py-2 cursor-pointer rounded-md text-sm font-medium ${currentPage === 'products'
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-700 hover:bg-gray-100'
+                  ? 'bg-blue-100 text-blue-700'
+                  : 'text-gray-700 hover:bg-gray-100'
                   }`}
               >
                 Products
@@ -1087,8 +1497,8 @@ export default function AdminApp() {
               <button
                 onClick={() => setCurrentPage('categories')}
                 className={`px-3 py-2 cursor-pointer rounded-md text-sm font-medium ${currentPage === 'categories'
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-700 hover:bg-gray-100'
+                  ? 'bg-blue-100 text-blue-700'
+                  : 'text-gray-700 hover:bg-gray-100'
                   }`}
               >
                 Categories
@@ -1096,8 +1506,8 @@ export default function AdminApp() {
               <button
                 onClick={() => setCurrentPage('orders')}
                 className={`px-3 py-2 cursor-pointer rounded-md text-sm font-medium ${currentPage === 'orders'
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-700 hover:bg-gray-100'
+                  ? 'bg-blue-100 text-blue-700'
+                  : 'text-gray-700 hover:bg-gray-100'
                   }`}
               >
                 Orders
@@ -1105,11 +1515,20 @@ export default function AdminApp() {
               <button
                 onClick={() => setCurrentPage('delivery')}
                 className={`px-3 py-2 cursor-pointer rounded-md text-sm font-medium ${currentPage === 'delivery'
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-700 hover:bg-gray-100'
+                  ? 'bg-blue-100 text-blue-700'
+                  : 'text-gray-700 hover:bg-gray-100'
                   }`}
               >
                 Delivery
+              </button>
+              <button
+                onClick={() => setCurrentPage('users')}
+                className={`px-3 py-2 cursor-pointer rounded-md text-sm font-medium ${currentPage === 'users'
+                  ? 'bg-blue-100 text-blue-700'
+                  : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+              >
+                Users
               </button>
             </div>
           </div>

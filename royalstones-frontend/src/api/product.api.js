@@ -25,4 +25,7 @@ export const updateProduct = (id,data) => {
 export const deleteProduct = (id) => {
   return api.delete(`/products/${id}`);
 };
+export const countByCategory = (id) => {
+  return api.get(`/products/count-by-category/${id}`)
+};
 

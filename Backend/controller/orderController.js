@@ -1,6 +1,8 @@
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
+const { image, url } = require('../config/cloudinary');
+const striptest = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 async function createOrder(req, res) {
   try {
@@ -16,12 +18,14 @@ async function createOrder(req, res) {
       const lastOrderNumber = parseInt(lastOrder.orderNumber);
       orderNumber = lastOrderNumber + 1;
     }
+    console.log(cart);
     const orderItems = cart?.items?.map(i => ({
       productId: i.productId._id,
       price: i.productId.discountPrice || i.productId.price,
       quantity: i.quantity,
       carretValue: i.carretValue,
       fingerSize: i.fingerSize,
+      msgNote: i.msgNote,
     }));
     const totalAmount = orderItems.reduce((s, it) => s + (it.price) * it.carretValue * it.quantity,
     0);
@@ -126,4 +130,45 @@ async function updateOrderStatus(req, res) {
   res.json(order);
 }
 
-module.exports = { createOrder, getOrders, getOrder, updateOrderStatus,cancelOrder ,listOrders };
+async function paymentCheckOutSession(req,res){
+  const {products ,deliveryCharges} = req.body;
+  console.log(products);
+  const lineItems = products.map((item)=>({
+      price_data: {
+        currency: 'pkr',
+        product_data: {
+          name: item.productId.name,
+          description: item.productId.description,
+          images: [item.productId.images[0].url]
+        },
+        unit_amount: Math.round(((item.productId.discountPrice ? item.productId.discountPrice :item.productId.price) * item.carretValue)*100),
+      },
+      quantity: item.quantity,
+    }));
+
+    // Add delivery charges as a separate line item
+    if (deliveryCharges && deliveryCharges > 0) {
+      lineItems.push({
+        price_data: {
+          currency: "pkr",
+          product_data: {
+            name: "Delivery Charges",
+            description: "Shipping / Delivery Fee",
+          },
+          unit_amount: Math.round(deliveryCharges * 100), // in paisa
+        },
+        quantity: 1,
+      });
+    }
+  const session = await striptest.checkout.sessions.create({
+    payment_method_types: ['card'],
+    line_items: lineItems,
+    mode: 'payment',
+    success_url: `${process.env.CORS_ORIGIN}/checkout-success`,
+    cancel_url: `${process.env.CORS_ORIGIN}/cancel`,
+  });
+  res.json({ url: session.url });
+
+}
+
+module.exports = { createOrder, getOrders, getOrder, updateOrderStatus,cancelOrder ,listOrders ,paymentCheckOutSession };

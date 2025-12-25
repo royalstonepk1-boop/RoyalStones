@@ -5,7 +5,8 @@ import {
   getConversations, 
   sendMessage as sendMessageAPI, 
   getMessages as getMessagesAPI ,
-  updateMsgStatus
+  updateMsgStatus,
+  getAdmin
 } from "../api/message.api";
 
 export const useMessageStore = create((set, get) => ({
@@ -19,14 +20,14 @@ export const useMessageStore = create((set, get) => ({
   // Fetch admin user ID
   fetchAdminId: async () => {
     try {
-      const response = await getUsers();
+      const response = await getAdmin();
       const users = response.data;
-      const admin = users.find((user) => user.role === "admin");
+      console.log("Fetched users:", users[0]._id);
       
       
-      if (admin) {
-        set({ adminId: admin._id });
-        return admin._id;
+      if (users) {
+        set({ adminId: users[0]._id });
+        return users[0]._id;
       } else {
         set({ error: "No admin found" });
         return null;
@@ -42,7 +43,7 @@ export const useMessageStore = create((set, get) => ({
   createConversation: async (userId) => {
     try {
       set({ loading: true, error: null });
-      
+      console.log( get().adminId);
       let adminId = get().adminId;
       
       if (!adminId) {

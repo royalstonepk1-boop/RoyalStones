@@ -2,8 +2,8 @@ const Category = require('../models/Category');
 
 async function createCategory(req, res) {
   try {
-    const { name, parentId ,hasFingerSize,carretRateMin ,carretRateMax } = req.body;
-    const cat = await Category.create({ name, parentId: parentId || null ,hasFingerSize:hasFingerSize, carretRate: { min: carretRateMin || 0, max: carretRateMax || 0 } });
+    const { name, parentId ,hasFingerSize,carretRate } = req.body;
+    const cat = await Category.create({ name, parentId: parentId || null ,hasFingerSize:hasFingerSize, carretRate: { min: carretRate.min || 0, max: carretRate.max || 0 } });
     res.json(cat);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -28,8 +28,10 @@ async function updateCategory(req, res) {
 }
 
 async function deleteCategory(req, res) {
-  await Category.findByIdAndDelete(req.params.id);
-  res.json({ message: 'Deleted' });
+  console.log(req.params.id);
+  const resp = await Category.findByIdAndDelete(req.params.id);
+  console.log(resp);
+  res.json(resp);
 }
 
 module.exports = { createCategory, listCategories, getCategory, updateCategory, deleteCategory };

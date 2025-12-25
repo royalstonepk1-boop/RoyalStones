@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { createProduct, listProducts,listProductsForNavBar, getProduct, updateProduct, deleteProduct } = require('../controller/productController');
+const { createProduct, listProducts,listProductsForNavBar, getProduct, updateProduct, deleteProduct ,countByCategory } = require('../controller/productController');
 const { authMiddleware, adminOnly } = require('../middleware/auth');
 const { upload } = require('../middleware/upload');
 
@@ -13,5 +13,7 @@ router.get('/:id', getProduct);
 router.post('/', authMiddleware, adminOnly, upload.array('images', 8), createProduct);
 router.put('/:id', authMiddleware, adminOnly, upload.array('images', 8), updateProduct);
 router.delete('/:id', authMiddleware, adminOnly, deleteProduct);
+// Get product count by category
+router.get('/count-by-category/:categoryId',authMiddleware, adminOnly,  countByCategory);
 
 module.exports = router;

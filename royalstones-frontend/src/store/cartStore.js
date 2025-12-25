@@ -24,10 +24,10 @@ export const useCartStore = create((set) => ({
   },
 
   // ✅ Add to cart - backend returns updated cart
-  addToCart: async (productId, quantity = 1 ,fingerSize ,carretValue) => {
+  addToCart: async (productId, quantity = 1 ,fingerSize ,carretValue ,msgNote) => {
     set({ loading: true });
     try {
-      const res = await addToCartApi(productId, quantity ,fingerSize, carretValue);
+      const res = await addToCartApi(productId, quantity ,fingerSize, carretValue,msgNote);
       set({ cart: res.data, loading: false });
     } catch (error) {
       set({ loading: false });

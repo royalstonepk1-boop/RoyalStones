@@ -19,14 +19,14 @@ async function getCart(req, res) {
 // ✅ Optimized - single save + return updated cart
 async function addToCart(req, res) {
   try {
-    const { productId, quantity = 1 , fingerSize ,carretValue } = req.body;
+    const { productId, quantity = 1 , fingerSize ,carretValue, msgNote } = req.body;
     
     let cart = await Cart.findOne({ userId: req.user._id });
     
     if (!cart) {
       cart = new Cart({ 
         userId: req.user._id, 
-        items: [{ productId, quantity, fingerSize,carretValue }] 
+        items: [{ productId, quantity, fingerSize,carretValue,msgNote }] 
       });
     } else {
       const idx = cart.items.findIndex(
@@ -40,7 +40,7 @@ async function addToCart(req, res) {
         cart.items[idx].fingerSize = fingerSize;
         cart.items[idx].carretValue = carretValue;
       } else {
-        cart.items.push({ productId, quantity, fingerSize ,carretValue });
+        cart.items.push({ productId, quantity, fingerSize ,carretValue ,msgNote });
       }
     }
     

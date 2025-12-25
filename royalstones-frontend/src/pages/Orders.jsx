@@ -159,6 +159,12 @@ export default function Orders() {
                           <span className="text-gray-700">
                             {item.name || item.productId?.name || 'Product'} x {item.quantity || 1} ({(item.carretValue || 0)} Carret { item.fingerSize && `, Finger Size: ${item.fingerSize || 'N/A'}`})
                           </span>
+                          {
+                            item.msgNote !== '' &&
+                            <span className="text-gray-600">
+                            ({item.msgNote.length>30 ? item.msgNote.slice(0,30)+'...' : item.msgNote})
+                          </span>
+                          }
                           <span className="text-gray-900 font-medium">
                             Rs {((item.price || 0) * (item.quantity || 1) * (item.carretValue || 1)).toLocaleString()}
                           </span>
@@ -236,6 +242,13 @@ export default function Orders() {
                           <span className="text-gray-700">
                             {item.name || item.productId?.name || 'Product'} x {item.quantity || 1} ({(item.carretValue || 0)} Carret { item.fingerSize && `, Finger Size: ${item.fingerSize || 'N/A'}`})
                           </span>
+                          {
+                            item.msgNote !== '' &&
+                            <span className="text-gray-600">
+                            ({item.msgNote.length>30 ? item.msgNote.slice(0,30)+'...' : item.msgNote})
+                          </span>
+                          }
+                          
                           <span className="text-gray-900 font-medium">
                             Rs {((item.price || 0) * (item.quantity || 1) * (item.carretValue || 1)).toLocaleString()}
                           </span>

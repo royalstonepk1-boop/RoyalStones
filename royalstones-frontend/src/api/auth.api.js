@@ -1,6 +1,7 @@
 import api from "./axios";
 
 export const getProfile = () => api.get("/users/me");
+export const getUsers = () => api.get("/users/");
 export const getUserByEmail = (email) =>
     api.get("/users/email", {
         params: { email },
