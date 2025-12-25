@@ -164,8 +164,8 @@ async function paymentCheckOutSession(req,res){
     payment_method_types: ['card'],
     line_items: lineItems,
     mode: 'payment',
-    success_url: `${process.env.CORS_ORIGIN}/checkout-success`,
-    cancel_url: `${process.env.CORS_ORIGIN}/cancel`,
+    success_url: `${process.env.FRONTEND_URL}/checkout-success`,
+    cancel_url: `${process.env.FRONTEND_URL}/cancel`,
   });
   res.json({ url: session.url });
 
