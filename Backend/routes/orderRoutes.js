@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const striptest = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const { createOrder, getOrders, getOrder, updateOrderStatus ,cancelOrder ,listOrders ,paymentCheckOutSession } = require('../controller/orderController');
+const { createOrder, getOrders, getOrder, updateOrderStatus ,cancelOrder ,listOrders ,paymentCheckOutSession,lemonSqueezyWebhook } = require('../controller/orderController');
 const { authMiddleware, adminOnly } = require('../middleware/auth');
 
 router.post('/', authMiddleware, createOrder);
@@ -12,6 +12,7 @@ router.put('/:id', authMiddleware, cancelOrder);
 router.put('/:id/status', authMiddleware, adminOnly, updateOrderStatus);
 
 router.post('/create-checkout-session', authMiddleware, paymentCheckOutSession);
+router.post('/lemonsqueezy-webhook', express.raw({ type: 'application/json' }), lemonSqueezyWebhook);
 
 
 module.exports = router;

@@ -413,14 +413,14 @@ export default function ChatWidget() {
           </div>
 
           <div className="p-4 border-t border-gray-200 bg-white rounded-b-lg">
-            <div className="flex gap-2">
+            <div className="flex gap-2 max-w-[100%]">
               <input
                 type="text"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Type your message..."
-                className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 border border-gray-300 rounded-lg px-0 py-2 sm:px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 disabled={loading || !currentConversationId}
               />
               <button

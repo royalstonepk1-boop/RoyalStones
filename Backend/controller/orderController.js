@@ -3,6 +3,7 @@ const Cart = require('../models/Cart');
 const Product = require('../models/Product');
 const { image, url } = require('../config/cloudinary');
 const striptest = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const crypto = require('crypto');
 
 async function createOrder(req, res) {
   try {
@@ -130,45 +131,254 @@ async function updateOrderStatus(req, res) {
   res.json(order);
 }
 
-async function paymentCheckOutSession(req,res){
-  const {products ,deliveryCharges} = req.body;
-  console.log(products);
-  const lineItems = products.map((item)=>({
-      price_data: {
-        currency: 'pkr',
-        product_data: {
-          name: item.productId.name,
-          description: item.productId.description,
-          images: [item.productId.images[0].url]
-        },
-        unit_amount: Math.round(((item.productId.discountPrice ? item.productId.discountPrice :item.productId.price) * item.carretValue)*100),
-      },
-      quantity: item.quantity,
-    }));
+async function paymentCheckOutSession(req, res) {
+  try {
+    const { products, deliveryCharges } = req.body;
+    const userId = req.user._id;
 
-    // Add delivery charges as a separate line item
-    if (deliveryCharges && deliveryCharges > 0) {
-      lineItems.push({
-        price_data: {
-          currency: "pkr",
-          product_data: {
-            name: "Delivery Charges",
-            description: "Shipping / Delivery Fee",
-          },
-          unit_amount: Math.round(deliveryCharges * 100), // in paisa
-        },
-        quantity: 1,
-      });
+    console.log('🔍 Creating checkout for user:', userId);
+    console.log('📦 Products count:', products?.length);
+
+    // Validate required data
+    if (!products || products.length === 0) {
+      return res.status(400).json({ error: 'No products in cart' });
     }
-  const session = await striptest.checkout.sessions.create({
-    payment_method_types: ['card'],
-    line_items: lineItems,
-    mode: 'payment',
-    success_url: `${process.env.FRONTEND_URL}/checkout-success`,
-    cancel_url: `${process.env.FRONTEND_URL}/cancel`,
-  });
-  res.json({ url: session.url });
 
+    // Validate environment variables
+    if (!process.env.LEMONSQUEEZY_API_KEY) {
+      throw new Error('Missing LEMONSQUEEZY_API_KEY');
+    }
+    if (!process.env.LEMONSQUEEZY_STORE_ID) {
+      throw new Error('Missing LEMONSQUEEZY_STORE_ID');
+    }
+    if (!process.env.LEMONSQUEEZY_VARIANT_ID) {
+      throw new Error('Missing LEMONSQUEEZY_VARIANT_ID');
+    }
+
+    // Calculate total amount
+    let totalAmount = 0;
+    products.forEach((item) => {
+      const price = item.productId?.discountPrice || item.productId?.price || 0;
+      const carretValue = item.carretValue || 1;
+      const quantity = item.quantity || 1;
+      totalAmount += price * carretValue * quantity;
+    });
+
+    if (deliveryCharges && deliveryCharges > 0) {
+      totalAmount += deliveryCharges;
+    }
+
+    console.log('💵 Total amount:', totalAmount);
+
+    // Prepare product list for description
+    const productList = products
+      .slice(0, 3)
+      .map(p => p.productId?.name || 'Product')
+      .join(', ');
+    
+    const description = products.length > 3 
+      ? `${productList} and ${products.length - 3} more` 
+      : productList;
+
+    // Prepare custom data - ALL VALUES MUST BE STRINGS
+    const customData = {
+      user_id: userId.toString(),
+      order_items: JSON.stringify(products.map(item => ({
+        product_id: item.productId?._id?.toString() || '',
+        product_name: item.productId?.name || '',
+        quantity: item.quantity || 1,
+        unit_price: item.productId?.discountPrice || item.productId?.price || 0,
+        caret_value: item.carretValue || 1,
+      }))),
+      delivery_charges: String(deliveryCharges || 0),
+      total_amount: String(totalAmount),
+      timestamp: String(Date.now()),
+    };
+
+    console.log('📦 Custom data prepared');
+
+    // Create checkout data
+    const checkoutData = {
+      data: {
+        type: 'checkouts',
+        attributes: {
+          checkout_data: {
+            custom: customData, // All values are now strings
+          },
+          product_options: {
+            name: `Order - ${products.length} item${products.length > 1 ? 's' : ''}`,
+            description: description,
+            redirect_url: `${process.env.FRONTEND_URL}/checkout-success`,
+          },
+          checkout_options: {
+            button_color: '#2563eb',
+          },
+          custom_price: Math.round(totalAmount * 100), // in cents
+        },
+        relationships: {
+          store: {
+            data: {
+              type: 'stores',
+              id: String(process.env.LEMONSQUEEZY_STORE_ID),
+            },
+          },
+          variant: {
+            data: {
+              type: 'variants',
+              id: String(process.env.LEMONSQUEEZY_VARIANT_ID),
+            },
+          },
+        },
+      },
+    };
+
+    console.log('📤 Sending request to Lemon Squeezy...');
+
+    const response = await fetch('https://api.lemonsqueezy.com/v1/checkouts', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/vnd.api+json',
+        'Content-Type': 'application/vnd.api+json',
+        'Authorization': `Bearer ${process.env.LEMONSQUEEZY_API_KEY}`,
+      },
+      body: JSON.stringify(checkoutData),
+    });
+
+    const result = await response.json();
+
+    console.log('📥 Response status:', response.status);
+
+    if (!response.ok) {
+      console.error('❌ Lemon Squeezy error response:', JSON.stringify(result, null, 2));
+      const errorDetail = result.errors?.[0]?.detail || result.errors?.[0]?.title || 'Checkout creation failed';
+      throw new Error(errorDetail);
+    }
+
+    console.log('✅ Checkout created successfully');
+    console.log('🔗 Checkout URL:', result.data.attributes.url);
+
+    res.json({ url: result.data.attributes.url });
+  } catch (error) {
+    console.error('❌ Lemon Squeezy error:', error.message);
+    res.status(500).json({ 
+      error: 'Failed to create checkout',
+      details: error.message 
+    });
+  }
 }
 
-module.exports = { createOrder, getOrders, getOrder, updateOrderStatus,cancelOrder ,listOrders ,paymentCheckOutSession };
+async function lemonSqueezyWebhook(req, res) {
+  try {
+    const signature = req.headers['x-signature'];
+    const rawBody = req.body;
+
+    if (!signature) {
+      console.error('❌ No signature provided');
+      return res.status(401).json({ error: 'No signature' });
+    }
+
+    // Verify the signature
+    const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
+    const hmac = crypto.createHmac('sha256', secret);
+    const digest = Buffer.from(hmac.update(rawBody).digest('hex'), 'utf8');
+    const signatureBuffer = Buffer.from(signature, 'utf8');
+
+    if (!crypto.timingSafeEqual(digest, signatureBuffer)) {
+      console.error('❌ Invalid signature');
+      return res.status(401).json({ error: 'Invalid signature' });
+    }
+
+    // Parse the verified body
+    const payload = JSON.parse(rawBody.toString());
+    const eventName = payload.meta.event_name;
+
+    console.log('✅ Webhook received:', eventName);
+    console.log('📦 Order ID:', payload.data.id);
+
+    // Handle different events
+    switch (eventName) {
+      case 'order_created':
+        await handleOrderCreated(payload);
+        break;
+      
+      case 'order_refunded':
+        await handleOrderRefunded(payload);
+        break;
+      
+      default:
+        console.log('ℹ️  Unhandled event:', eventName);
+    }
+
+    res.json({ received: true });
+  } catch (error) {
+    console.error('❌ Webhook error:', error);
+    res.status(400).json({ error: 'Webhook processing failed' });
+  }
+}
+
+async function handleOrderCreated(payload) {
+  try {
+    const orderAttributes = payload.data.attributes;
+    
+    // Get custom data from meta (it's stored differently)
+    const customData = payload.meta.custom_data || {};
+
+    console.log('📦 Processing order...');
+    console.log('💰 Total:', orderAttributes.total_formatted);
+    console.log('📧 Customer email:', orderAttributes.user_email);
+
+    // Parse the stringified data back to objects
+    const userId = customData.user_id;
+    const orderItems = customData.order_items ? JSON.parse(customData.order_items) : [];
+    const deliveryCharges = parseFloat(customData.delivery_charges || 0);
+    const totalAmount = parseFloat(customData.total_amount || 0);
+
+    console.log('👤 User ID:', userId);
+    console.log('📦 Order items:', orderItems.length);
+    console.log('🚚 Delivery charges:', deliveryCharges);
+
+    // TODO: Update your database
+    // Example (uncomment and adjust to your Order model):
+    const Order = require('../models/Order');
+    
+    await Order.findOneAndUpdate(
+      { 
+        userId: userId,
+        paymentStatus: 'pending',
+        createdAt: { $gte: new Date(Date.now() - 1 * 60 * 1000) } // Last 1 mins
+      },
+      { 
+        paymentStatus: 'paid',
+      },
+      { sort: { createdAt: -1 } }
+    );
+    
+    console.log('✅ Order updated in database');
+
+    console.log('✅ Order webhook processed successfully');
+  } catch (error) {
+    console.error('❌ Error handling order creation:', error);
+    throw error;
+  }
+}
+
+async function handleOrderRefunded(payload) {
+  console.log('💸 Order refunded:', payload.data.id);
+  
+  // TODO: Update order status to refunded
+  /*
+  const Order = require('../models/Order');
+  
+  await Order.findOneAndUpdate(
+    { lemonSqueezyOrderId: payload.data.id },
+    { 
+      paymentStatus: 'refunded',
+      refundedAt: new Date()
+    }
+  );
+  */
+}
+
+module.exports = { paymentCheckOutSession, lemonSqueezyWebhook };
+
+module.exports = { createOrder, getOrders, getOrder, updateOrderStatus,cancelOrder ,listOrders ,paymentCheckOutSession  ,lemonSqueezyWebhook};

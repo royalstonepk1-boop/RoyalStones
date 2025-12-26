@@ -115,37 +115,47 @@ Total: Rs ${order.totalAmount.toLocaleString()}
         navigate('/orders');
       } else if (paymentMethod === 'card') {
         // Redirect to Stripe
-        const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
-        const body = {products:cart.items , deliveryCharges: charges };
-        const headers ={ 'Content-Type': 'application/json',
+        const body = {
+          products: cart.items,
+          deliveryCharges: charges
+        };
+        
+        const headers = {
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
-         };
-
-        const response = await fetch(`${BACKEND_URL}/orders/create-checkout-session`, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify(body),
-        });
+        };
+  
+        const response = await fetch(
+          `${BACKEND_URL}/orders/create-checkout-session`,
+          {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(body),
+          }
+        );
+  
+        if (!response.ok) {
+          throw new Error('Failed to create checkout session');
+        }
+  
         const session = await response.json();
-
+  
+        // Create order record before redirecting
         const orderData = {
           billingAddress: user.addresses.find(a => a._id === selectedAddress),
           shippingAddress: user.addresses.find(a => a._id === selectedAddress),
           paymentMethod: 'card',
           deliveryCharges: charges,
         };
-
+  
         await createOrderApi(orderData);
-
+  
+        // Redirect to Lemon Squeezy checkout
         window.location.href = session.url;
-
-        // // Simulate redirect
-        // toast.info('Redirecting to Stripe...');
-        // setTimeout(() => navigate('/orders'), 2000);
       }
     } catch (error) {
       console.error('Payment error:', error);
-      toast.error('Payment failed. Please try again.');
+      toast.error(error.message || 'Payment failed. Please try again.');
     } finally {
       setLoading(false);
     }

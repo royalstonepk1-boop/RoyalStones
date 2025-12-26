@@ -111,9 +111,9 @@ export default function Orders() {
         </div>
       ) : (
         <div className="space-y-4">
-          {statusFilter !== '' ? orders
+          {statusFilter !== '' ?
+          orders.reverse()
           .filter(order => order.status === statusFilter)
-          .reverse()
           .map((order) => (
             <div key={order._id} className={`${order.status === 'cancelled' && 'opacity-50'} bg-white rounded-lg shadow-sm border border-gray-300 overflow-hidden hover:shadow-md transition-shadow`}>
               <div className="p-6">
