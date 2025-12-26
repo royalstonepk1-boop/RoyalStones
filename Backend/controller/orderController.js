@@ -19,7 +19,7 @@ async function createOrder(req, res) {
       const lastOrderNumber = parseInt(lastOrder.orderNumber);
       orderNumber = lastOrderNumber + 1;
     }
-    console.log(cart);
+    //console.log(cart);
     const orderItems = cart?.items?.map(i => ({
       productId: i.productId._id,
       price: i.productId.discountPrice || i.productId.price,
@@ -136,8 +136,8 @@ async function paymentCheckOutSession(req, res) {
     const { products, deliveryCharges } = req.body;
     const userId = req.user._id;
 
-    console.log('🔍 Creating checkout for user:', userId);
-    console.log('📦 Products count:', products?.length);
+    //console.log('🔍 Creating checkout for user:', userId);
+    //console.log('📦 Products count:', products?.length);
 
     // Validate required data
     if (!products || products.length === 0) {
@@ -168,7 +168,7 @@ async function paymentCheckOutSession(req, res) {
       totalAmount += deliveryCharges;
     }
 
-    console.log('💵 Total amount:', totalAmount);
+    //console.log('💵 Total amount:', totalAmount);
 
     // Prepare product list for description
     const productList = products
@@ -195,7 +195,7 @@ async function paymentCheckOutSession(req, res) {
       timestamp: String(Date.now()),
     };
 
-    console.log('📦 Custom data prepared');
+    //console.log('📦 Custom data prepared');
 
     // Create checkout data
     const checkoutData = {
@@ -232,7 +232,7 @@ async function paymentCheckOutSession(req, res) {
       },
     };
 
-    console.log('📤 Sending request to Lemon Squeezy...');
+    //console.log('📤 Sending request to Lemon Squeezy...');
 
     const response = await fetch('https://api.lemonsqueezy.com/v1/checkouts', {
       method: 'POST',
@@ -246,7 +246,7 @@ async function paymentCheckOutSession(req, res) {
 
     const result = await response.json();
 
-    console.log('📥 Response status:', response.status);
+    //console.log('📥 Response status:', response.status);
 
     if (!response.ok) {
       console.error('❌ Lemon Squeezy error response:', JSON.stringify(result, null, 2));
@@ -254,8 +254,8 @@ async function paymentCheckOutSession(req, res) {
       throw new Error(errorDetail);
     }
 
-    console.log('✅ Checkout created successfully');
-    console.log('🔗 Checkout URL:', result.data.attributes.url);
+    //console.log('✅ Checkout created successfully');
+    //console.log('🔗 Checkout URL:', result.data.attributes.url);
 
     res.json({ url: result.data.attributes.url });
   } catch (error) {
@@ -305,8 +305,8 @@ async function lemonSqueezyWebhook(req, res) {
     const payload = JSON.parse(rawBody.toString());
     const eventName = payload.meta.event_name;
 
-    console.log('✅ Webhook verified and received:', eventName);
-    console.log('📦 Order ID:', payload.data.id);
+    //console.log('✅ Webhook verified and received:', eventName);
+    //console.log('📦 Order ID:', payload.data.id);
 
     // Handle different events
     switch (eventName) {
@@ -319,7 +319,7 @@ async function lemonSqueezyWebhook(req, res) {
         break;
       
       default:
-        console.log('ℹ️  Unhandled event:', eventName);
+        //console.log('ℹ️  Unhandled event:', eventName);
     }
 
     res.json({ received: true });
@@ -340,9 +340,9 @@ async function handleOrderCreated(payload) {
     // Get custom data from meta
     const customData = payload.meta.custom_data || {};
 
-    console.log('📦 Processing order...');
-    console.log('💰 Total:', orderAttributes.total_formatted);
-    console.log('📧 Customer email:', orderAttributes.user_email);
+    //console.log('📦 Processing order...');
+    //console.log('💰 Total:', orderAttributes.total_formatted);
+    //console.log('📧 Customer email:', orderAttributes.user_email);
 
     // Parse the stringified data back to objects
     const userId = customData.user_id;
@@ -350,9 +350,9 @@ async function handleOrderCreated(payload) {
     const deliveryCharges = parseFloat(customData.delivery_charges || 0);
     const totalAmount = parseFloat(customData.total_amount || 0);
 
-    console.log('👤 User ID:', userId);
-    console.log('📦 Order items:', orderItems.length);
-    console.log('🚚 Delivery charges:', deliveryCharges);
+    //console.log('👤 User ID:', userId);
+    //console.log('📦 Order items:', orderItems.length);
+    //console.log('🚚 Delivery charges:', deliveryCharges);
 
     // Update your database
     const Order = require('../models/Order');
@@ -375,12 +375,12 @@ async function handleOrderCreated(payload) {
     );
     
     if (updatedOrder) {
-      console.log('✅ Order updated in database:', updatedOrder._id);
+      //console.log('✅ Order updated in database:', updatedOrder._id);
     } else {
       console.warn('⚠️  No pending order found for user:', userId);
     }
 
-    console.log('✅ Order webhook processed successfully');
+    //console.log('✅ Order webhook processed successfully');
   } catch (error) {
     console.error('❌ Error handling order creation:', error);
     throw error;
@@ -388,7 +388,7 @@ async function handleOrderCreated(payload) {
 }
 
 async function handleOrderRefunded(payload) {
-  console.log('💸 Order refunded:', payload.data.id);
+  //console.log('💸 Order refunded:', payload.data.id);
   
   try {
     const Order = require('../models/Order');
@@ -401,7 +401,7 @@ async function handleOrderRefunded(payload) {
       }
     );
     
-    console.log('✅ Order refund processed');
+    //console.log('✅ Order refund processed');
   } catch (error) {
     console.error('❌ Error handling refund:', error);
     throw error;

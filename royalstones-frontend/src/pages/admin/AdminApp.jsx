@@ -549,7 +549,7 @@ function ManageCategories() {
       };
 
       if (editingCategory) {
-        console.log(payload);
+        //console.log(payload);
         const resp = await updateCateoryByID(editingCategory._id, payload);
         toast.success("Category Updated!");
 

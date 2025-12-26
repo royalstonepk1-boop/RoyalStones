@@ -22,7 +22,7 @@ export const useMessageStore = create((set, get) => ({
     try {
       const response = await getAdmin();
       const users = response.data;
-      console.log("Fetched users:", users[0]._id);
+      //console.log("Fetched users:", users[0]._id);
       
       
       if (users) {
@@ -43,7 +43,7 @@ export const useMessageStore = create((set, get) => ({
   createConversation: async (userId) => {
     try {
       set({ loading: true, error: null });
-      console.log( get().adminId);
+      //console.log( get().adminId);
       let adminId = get().adminId;
       
       if (!adminId) {
@@ -125,9 +125,9 @@ export const useMessageStore = create((set, get) => ({
 
   updateMessageStatus: async (id) => {
     try {
-      console.log("Marking message status for conversation:", id);
+      //console.log("Marking message status for conversation:", id);
       const response = await updateMsgStatus(id);
-      console.log("Message status updated:", response);
+      //console.log("Message status updated:", response);
       
       set({ error: null });
       return response.data;

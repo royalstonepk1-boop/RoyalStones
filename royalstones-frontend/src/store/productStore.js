@@ -124,7 +124,7 @@ export const useProductStore = create((set, get) => ({
     set({ loading: true });
     try {
       const res = await deleteCategory(id);
-      console.log(res);
+      //console.log(res);
       set((state)=>({ categories: state.categories.filter((c)=> c._id !== id ), loading: false }));
     } catch (err) {
       console.error("getProductById error", err);

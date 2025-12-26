@@ -16,7 +16,7 @@ async function listCategories(req, res) {
 }
 
 async function getCategory(req, res) {
-  console.log("triggered");
+  // //console.log("triggered");
   const cat = await Category.findById(req.params.id);
   if (!cat) return res.status(404).json({ message: 'Not found' });
   res.json(cat);
@@ -28,9 +28,9 @@ async function updateCategory(req, res) {
 }
 
 async function deleteCategory(req, res) {
-  console.log(req.params.id);
+  //console.log(req.params.id);
   const resp = await Category.findByIdAndDelete(req.params.id);
-  console.log(resp);
+  //console.log(resp);
   res.json(resp);
 }
 

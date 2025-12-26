@@ -71,7 +71,7 @@ async function getMessages(req, res) {
 async function markMessagesAsRead(req, res) {
   try {
     const { id } = req.params; // Get from URL params, not body
-    console.log('Marking messages as read for conversation:', id);
+    //console.log('Marking messages as read for conversation:', id);
     const userId = req.user._id;
 
     // Update all messages in this conversation that:

@@ -63,7 +63,7 @@ export default function ProductDetails() {
     }
     setAddingToCart(true);
     try {
-      console.log(carret);
+      //console.log(carret);
       await addToCart(product._id, 1, fingerSize, carret , msgNote);
       toast.success("Added To Cart!", {
         position: "top-right",

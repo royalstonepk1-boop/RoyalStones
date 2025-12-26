@@ -34,7 +34,7 @@ export default function ChatWidget() {
   // Mark messages as read
   const markMessagesAsRead = async (conversationId) => {
     try {
-      console.log('Marking messages as read for conversation:', conversationId);
+      //console.log('Marking messages as read for conversation:', conversationId);
       await updateMessageStatus(conversationId);
     } catch (err) {
       console.error('Error marking messages as read:', err);

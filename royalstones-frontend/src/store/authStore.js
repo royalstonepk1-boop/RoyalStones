@@ -14,7 +14,7 @@ export const useAuthStore = create(
 
       updateUser: async (updates) => {
         try {
-          console.log(updates);
+          //console.log(updates);
           const resp = await updateProfile(updates); // Send only updates
           if (resp) {
             set({ user: resp.data });
