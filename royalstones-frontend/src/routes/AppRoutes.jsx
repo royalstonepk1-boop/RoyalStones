@@ -54,9 +54,9 @@ export default function AppRoutes() {
         <Route
           path="/checkout-success"
           element={
-            // <ProtectedRoute>
+            <ProtectedRoute>
             <PaymentSuccess />
-            // </ProtectedRoute>
+            </ProtectedRoute>
           }
         />
         <Route
