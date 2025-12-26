@@ -10,6 +10,12 @@ const PORT = process.env.PORT || 4000;
 // connect DB
 connectDB();
 
+
+app.use('/api/orders/lemonsqueezy-webhook', 
+    express.raw({ type: 'application/json' }), 
+    require('./routes/orderRoutes')
+  );
+  
 // middleware
 // app.use(cors({ origin: process.env.CORS_ORIGIN || true }));
 app.use(cors({ origin: "*" || true }));

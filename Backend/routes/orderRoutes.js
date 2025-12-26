@@ -12,7 +12,7 @@ router.put('/:id', authMiddleware, cancelOrder);
 router.put('/:id/status', authMiddleware, adminOnly, updateOrderStatus);
 
 router.post('/create-checkout-session', authMiddleware, paymentCheckOutSession);
-router.post('/lemonsqueezy-webhook', express.raw({ type: 'application/json' }), lemonSqueezyWebhook);
+router.post('/lemonsqueezy-webhook', lemonSqueezyWebhook);
 
 
 module.exports = router;

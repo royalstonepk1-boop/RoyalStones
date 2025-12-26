@@ -270,21 +270,34 @@ async function paymentCheckOutSession(req, res) {
 async function lemonSqueezyWebhook(req, res) {
   try {
     const signature = req.headers['x-signature'];
-    const rawBody = req.body;
-
+    
     if (!signature) {
       console.error('❌ No signature provided');
       return res.status(401).json({ error: 'No signature' });
     }
 
+    // Get raw body - it should be a Buffer when using express.raw()
+    let rawBody;
+    if (Buffer.isBuffer(req.body)) {
+      rawBody = req.body;
+    } else if (typeof req.body === 'string') {
+      rawBody = Buffer.from(req.body);
+    } else {
+      // If body was already parsed as JSON, we need to stringify it back
+      rawBody = Buffer.from(JSON.stringify(req.body));
+    }
+
     // Verify the signature
     const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
     const hmac = crypto.createHmac('sha256', secret);
-    const digest = Buffer.from(hmac.update(rawBody).digest('hex'), 'utf8');
-    const signatureBuffer = Buffer.from(signature, 'utf8');
+    hmac.update(rawBody);
+    const digest = hmac.digest('hex');
 
-    if (!crypto.timingSafeEqual(digest, signatureBuffer)) {
+    // Compare signatures
+    if (digest !== signature) {
       console.error('❌ Invalid signature');
+      console.error('Expected:', digest);
+      console.error('Received:', signature);
       return res.status(401).json({ error: 'Invalid signature' });
     }
 
@@ -292,7 +305,7 @@ async function lemonSqueezyWebhook(req, res) {
     const payload = JSON.parse(rawBody.toString());
     const eventName = payload.meta.event_name;
 
-    console.log('✅ Webhook received:', eventName);
+    console.log('✅ Webhook verified and received:', eventName);
     console.log('📦 Order ID:', payload.data.id);
 
     // Handle different events
@@ -312,7 +325,11 @@ async function lemonSqueezyWebhook(req, res) {
     res.json({ received: true });
   } catch (error) {
     console.error('❌ Webhook error:', error);
-    res.status(400).json({ error: 'Webhook processing failed' });
+    console.error('Error stack:', error.stack);
+    res.status(400).json({ 
+      error: 'Webhook processing failed',
+      details: error.message 
+    });
   }
 }
 
@@ -320,7 +337,7 @@ async function handleOrderCreated(payload) {
   try {
     const orderAttributes = payload.data.attributes;
     
-    // Get custom data from meta (it's stored differently)
+    // Get custom data from meta
     const customData = payload.meta.custom_data || {};
 
     console.log('📦 Processing order...');
@@ -337,23 +354,31 @@ async function handleOrderCreated(payload) {
     console.log('📦 Order items:', orderItems.length);
     console.log('🚚 Delivery charges:', deliveryCharges);
 
-    // TODO: Update your database
-    // Example (uncomment and adjust to your Order model):
+    // Update your database
     const Order = require('../models/Order');
     
-    await Order.findOneAndUpdate(
+    const updatedOrder = await Order.findOneAndUpdate(
       { 
         userId: userId,
         paymentStatus: 'pending',
-        createdAt: { $gte: new Date(Date.now() - 1 * 60 * 1000) } // Last 1 mins
+        createdAt: { $gte: new Date(Date.now() - 5 * 60 * 1000) } // Last 5 mins (increased window)
       },
       { 
         paymentStatus: 'paid',
+        lemonSqueezyOrderId: payload.data.id,
+        paidAt: new Date(),
       },
-      { sort: { createdAt: -1 } }
+      { 
+        sort: { createdAt: -1 },
+        new: true
+      }
     );
     
-    console.log('✅ Order updated in database');
+    if (updatedOrder) {
+      console.log('✅ Order updated in database:', updatedOrder._id);
+    } else {
+      console.warn('⚠️  No pending order found for user:', userId);
+    }
 
     console.log('✅ Order webhook processed successfully');
   } catch (error) {
@@ -365,18 +390,22 @@ async function handleOrderCreated(payload) {
 async function handleOrderRefunded(payload) {
   console.log('💸 Order refunded:', payload.data.id);
   
-  // TODO: Update order status to refunded
-  /*
-  const Order = require('../models/Order');
-  
-  await Order.findOneAndUpdate(
-    { lemonSqueezyOrderId: payload.data.id },
-    { 
-      paymentStatus: 'refunded',
-      refundedAt: new Date()
-    }
-  );
-  */
+  try {
+    const Order = require('../models/Order');
+    
+    await Order.findOneAndUpdate(
+      { lemonSqueezyOrderId: payload.data.id },
+      { 
+        paymentStatus: 'refunded',
+        refundedAt: new Date()
+      }
+    );
+    
+    console.log('✅ Order refund processed');
+  } catch (error) {
+    console.error('❌ Error handling refund:', error);
+    throw error;
+  }
 }
 
 module.exports = { paymentCheckOutSession, lemonSqueezyWebhook };
