@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const connectDB = require('./config/mongo');
+const { lemonSqueezyWebhook } = require('./controller/orderController');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -11,10 +12,10 @@ const PORT = process.env.PORT || 4000;
 connectDB();
 
 
-app.use('/api/orders/lemonsqueezy-webhook', 
-    express.raw({ type: 'application/json' }), 
-    require('./routes/orderRoutes')
-  );
+app.post('/api/orders/lemonsqueezy-webhook', 
+  express.raw({ type: 'application/json' }), 
+  lemonSqueezyWebhook  // <-- Direct function call, no router
+);
   
 // middleware
 // app.use(cors({ origin: process.env.CORS_ORIGIN || true }));

@@ -360,11 +360,11 @@ async function handleOrderCreated(payload) {
     const updatedOrder = await Order.findOneAndUpdate(
       { 
         userId: userId,
-        paymentStatus: 'pending',
+        status: 'pending',
         createdAt: { $gte: new Date(Date.now() - 5 * 60 * 1000) } // Last 5 mins (increased window)
       },
       { 
-        paymentStatus: 'paid',
+        status: 'paid',
         lemonSqueezyOrderId: payload.data.id,
         paidAt: new Date(),
       },
