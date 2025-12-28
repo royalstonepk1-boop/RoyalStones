@@ -85,7 +85,7 @@ export default function CategoryNavBar({ mobileOpen, setMobileOpen }) {
 
       {/* Left Drawer */}
       <div
-        className={`fixed top-0 left-0 h-full w-[50%] bg-white transform transition-transform duration-300
+        className={`fixed top-0 left-0 h-full max-w-[50%] bg-white transform transition-transform duration-300
             ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
         style={{ zIndex: 99 }}
       >
