@@ -872,7 +872,7 @@ function ManageCategories() {
                               </svg>
                             </button>
                           )}
-                          <div className={`${hasSubcategories ? '' : 'ml-7'} w-60`}>
+                          <div className={`${hasSubcategories ? '' : 'ml-7'} w-30 sm:w-60`}>
                             <h3 className="text-lg font-semibold text-gray-900 break-words">{category.name}</h3>
                             <div className="mt-1 flex flex-wrap gap-3 text-sm text-gray-500">
                               <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">Main Category</span>
@@ -909,7 +909,7 @@ function ManageCategories() {
                         {filteredSubcategories.map(subcat => (
                           <div key={subcat._id} className="p-4 pl-16 hover:bg-gray-100 border-b border-gray-200 last:border-b-0">
                             <div className="flex justify-between items-start">
-                              <div className='w-60'>
+                              <div className='w-30 sm:w-60'>
                                 <h4 className="text-base font-medium text-gray-800 break-words">
                                   <span className="text-gray-400 mr-2 ">↳</span>
                                   {subcat.name}
