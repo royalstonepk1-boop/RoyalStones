@@ -1109,10 +1109,10 @@ function ManageOrders() {
                   <div className="space-y-2">
                     {order.orderItems?.map((item, idx) => (
                       <div key={idx} className="flex justify-between text-sm">
-                        <span>{item.productId?.name || 'Product'} × {item.quantity}</span>
+                        <span className='break-words w-[40%]'>{item.productId?.name || 'Product'} × {item.quantity}</span>
                         {
                           item.msgNote !== '' &&
-                          <span className="text-gray-600 max-w-200px md:max-w-300px text-wrap">
+                          <span className="text-gray-600 max-w-200px break-words w-[40%] md:max-w-300px text-wrap">
                             ({item.msgNote})
                           </span>
                         }

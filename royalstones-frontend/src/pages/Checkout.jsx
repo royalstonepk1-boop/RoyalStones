@@ -197,8 +197,8 @@ Total: Rs ${order.totalAmount.toLocaleString()}
               alt={item.productId.name}
               className="w-20 h-20 object-cover rounded border border-gray-300"
             />
-            <div className="flex-1">
-              <h3 className="font-semibold text-gray-800">{item.productId.name}</h3>
+            <div className="flex-1 w-[60%]">
+              <h3 className="font-semibold break-words text-gray-800">{item.productId.name}</h3>
               <div className="text-sm text-gray-600 mt-1">
                 <p>Quantity: {item.quantity}</p>
                 {item.carretValue && <p>Carret: {item.carretValue}Carret</p>}

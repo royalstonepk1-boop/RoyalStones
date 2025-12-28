@@ -104,8 +104,8 @@ export default function Cart() {
                   className="w-20 h-20 object-cover rounded-lg border border-gray-400"
                 />
 
-                <div className="flex-1">
-                  <h3 className="font-semibold text-sm md:text-md mb-1">{item?.productId?.name}</h3>
+                <div className="flex-1 w-[60%]">
+                  <h3 className="font-semibold text-sm break-words w-[100%] md:text-md mb-1">{item?.productId?.name}</h3>
                   <p className=" text-sm md:text-md font-bold">Rs {((item?.productId?.discountPrice ? item?.productId?.discountPrice : item?.productId?.price) * item?.carretValue).toLocaleString()}</p>
                   <p className='flex gap-1'>
                   {

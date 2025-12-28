@@ -414,9 +414,9 @@ export default function ProductDetails() {
                 <div className="border-t border-gray-400 pt-6">
                   <div className="space-y-3">
                     {product?.categoryId && (
-                      <div className="flex justify-between py-2 border-b border-gray-400">
+                      <div className="flex justify-between py-2 border-b border-gray-400 whitespace-normal">
                         <span className="text-gray-600">Category:</span>
-                        <span className="font-medium">
+                        <span className="font-medium break-words w-[85%] pl-2 mr-4">
                           {typeof product.categoryId === 'object' ? product.categoryId.name : product.categoryId}
                         </span>
                       </div>
