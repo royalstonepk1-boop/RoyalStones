@@ -467,8 +467,8 @@ function ManageProducts() {
                     </div>
                   </td>
 
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{product.categoryId?.name || 'N/A'}</div>
+                  <td className="px-6 py-4 whitespace-normal max-w-md">
+                    <div className="text-sm text-gray-900 break-words w-[100%] pr-4">{product.categoryId?.name || 'N/A'}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">
