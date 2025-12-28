@@ -98,12 +98,12 @@ export default function SearchModal({ isOpen, onClose, products }) {
                         alt={product.name}
                         className="w-16 h-16 object-cover rounded-lg border"
                       />
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900">
+                      <div className="flex-1 w-[40%]">
+                        <h3 className="font-semibold text-gray-900 break-words">
                           {product.name}
                         </h3>
-                        <p className="text-sm text-gray-500">
-                          {product.category}
+                        <p className="text-sm text-gray-500 break-words">
+                          {product.categoryId?.name}
                         </p>
                         <p className="text-sm font-bold text-gray-900 mt-1">
                           Rs {product.discountPrice || product.price}
