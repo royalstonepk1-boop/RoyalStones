@@ -109,8 +109,8 @@ export default function Shop() {
         return (
           <section key={cat._id} className="mb-10">
             <div className="flex flex-row justify-between items-center mb-4">
-            <div className="flex items-center justify-between mb-4 w-[50%]">
-              <h2 id={cat._id} className="text-md sm:text-2xl font-semibold scroll-mt-35 break-words w-[100%] pr-2">{cat.name.length>30 ? cat.name.slice(0,30)+'...' : cat.name}</h2>
+            <div className="flex items-center justify-between mb-4 w-[40%]">
+              <h2 id={cat._id} className="text-md sm:text-2xl font-semibold scroll-mt-35 break-words text-wrap w-[100%]">{cat.name.length>30 ? cat.name.slice(0,30)+'...' : cat.name}</h2>
               {/* optional: link to view all for this category */}
               {/* <a href={`/category/${cat._id}`} className="text-sm text-indigo-600">View all</a> */}
             </div>
@@ -122,7 +122,7 @@ export default function Shop() {
             <select
               value={priceSort}
               onChange={(e) => setPriceSort(e.target.value)}
-              className="block w-52 px-4 py-2 pr-8 border cursor-pointer border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="block w-22 sm:w-52 px-4 py-2 pr-8 border cursor-pointer border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             >
               <option value="">Default</option>
               <option value="low">Low to High</option>
