@@ -66,7 +66,7 @@ export default function Navbar() {
           <div className="flex md:hidden justify-between items-center px-4 py-3">
             <button
               onClick={() => setMobileOpen(true)}
-              className="text-2xl"
+              className="text-2xl cursor-pointer"
             >
               <i className="bi bi-list"></i>
             </button>

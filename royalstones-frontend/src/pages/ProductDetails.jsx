@@ -274,8 +274,8 @@ export default function ProductDetails() {
               <div className="space-y-6">
                 {/* Product Title */}
                 <div className="flex gap-4 flex-wrap">
-                  <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-                    {name}
+                  <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2 break-words whitespace-normal w-[100%]">
+                  {name}
                   </h1>
                   
                   {
@@ -439,7 +439,7 @@ export default function ProductDetails() {
                       <i className={`bi bi-chevron-${showFullDescription ? 'up' : 'down'} text-xl`}></i>
                     </button>
 
-                    <div className={`text-gray-700 leading-relaxed whitespace-pre-line ${showFullDescription ? '' : 'line-clamp-4'
+                    <div className={`text-gray-700 leading-relaxed whitespace-pre-line break-words w-[100%] ${showFullDescription ? '' : 'line-clamp-4'
                       }`}>
                       {description}
                     </div>

@@ -113,6 +113,7 @@ const ReviewForm = ({ productId, existingReview, onClose }) => {
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           rows={4}
+          maxLength={170}
           placeholder="Share your experience with this product..."
           className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
           required
@@ -232,7 +233,7 @@ const ReviewItem = ({ review, isUserReview, productId, onEdit }) => {
         )}
       </div>
 
-      <p className="text-gray-700 leading-relaxed">{review.comment}</p>
+      <p className="text-gray-700 leading-relaxed break-words w-[100%]">{review.comment}</p>
     </div>
   );
 };

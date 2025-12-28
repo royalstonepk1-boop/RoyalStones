@@ -85,14 +85,14 @@ export default function CategoryNavBar({ mobileOpen, setMobileOpen }) {
 
       {/* Left Drawer */}
       <div
-        className={`fixed top-0 left-0 h-full w-[40%] bg-white transform transition-transform duration-300
+        className={`fixed top-0 left-0 h-full w-[70%] bg-white transform transition-transform duration-300
             ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
         style={{ zIndex: 99 }}
       >
         <div className="p-4 border-b flex justify-between items-center">
           <span className="font-semibold">Menu</span>
           <button onClick={() => setMobileOpen(false)}>
-            <i className="bi bi-x-lg"></i>
+            <i className="bi bi-x-lg cursor-pointer"></i>
           </button>
         </div>
 
@@ -104,9 +104,9 @@ export default function CategoryNavBar({ mobileOpen, setMobileOpen }) {
                 key={cat._id}
                 href={`#${cat._id}`}
                 onClick={(e) => { setMobileOpen(false); handleCategoryClick(e, cat._id) }}
-                className="block px-4 py-2 hover:bg-gray-200 hover:border-l-4 border-gray-800 hover:transform duration-200"
+                className="block px-4 py-2 break-words hover:bg-gray-200 hover:border-l-4 border-gray-800 hover:transform duration-200"
               >
-                {cat.name}
+                {cat.name.length > 30 ? cat.name.slice(0,30)+'...' : cat.name}
               </a>
             ))}
         </div>
@@ -150,7 +150,7 @@ export default function CategoryNavBar({ mobileOpen, setMobileOpen }) {
                       onClick={(e) => { handleCategoryClick(e, child._id) }}
                       className="block px-4 py-2 hover:bg-gray-100 hover:border-l-4 border-gray-800 transition duration-200"
                     >
-                      {child.name}
+                      {child.name.length > 20 ? child.name.slice(0,20)+'...' : child.name}
                     </a>
                   ))}
                 </NestedMenuItem>
@@ -171,7 +171,7 @@ export default function CategoryNavBar({ mobileOpen, setMobileOpen }) {
               key={parent._id}
               title={
                 <span className="flex items-center gap-1">
-                  {parent.name}
+                  {parent.name.length > 15 ? parent.name.slice(0,15)+'...' : parent.name}
                   <i className="bi bi-chevron-down"></i>
                 </span>
               }
@@ -195,14 +195,14 @@ export default function CategoryNavBar({ mobileOpen, setMobileOpen }) {
                         key={prod._id}
                         to={`/product/${prod._id}`}
                         onMouseDown={(e) => e.stopPropagation()}
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-gray-100 transition duration-150 hover:border-l-4 border-gray-800"
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-gray-100 transition duration-150 hover:border-l-4 border-gray-800 max-w-[200px]"
                       >
                         <img
                           src={prod.images?.[0]?.url}
                           alt={prod.name}
                           className="w-12 h-12 rounded object-cover flex-shrink-0"
                         />
-                        <span className="text-sm">{prod.name}</span>
+                        <span className="text-sm break-words min-w-[70%]">{prod.name.length > 20 ? prod.name.slice(0,20)+'...' : prod.name}</span>
                       </Link>
                     ))}
                   </NestedMenuItem>
@@ -219,7 +219,7 @@ export default function CategoryNavBar({ mobileOpen, setMobileOpen }) {
                       alt={prod.name}
                       className="w-12 h-12 rounded object-cover flex-shrink-0"
                     />
-                    <span className="text-sm">{prod.name}</span>
+                    <span className="text-sm break-words min-w-[70%]">{prod.name.length > 20 ? prod.name.slice(0,20)+'...' : prod.name}</span>
                   </Link>
                 ))
               )}
@@ -261,7 +261,7 @@ function NestedMenuItem({
         className="block px-4 py-2 font-semibold cursor-pointer
                    hover:bg-gray-200 hover:border-l-4 border-gray-800"
       >
-        {label}
+        {label.length > 20 ? label.slice(0,20)+'...' : label}
       </div>
 
       {hasNested && activeNested === id &&

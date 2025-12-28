@@ -317,7 +317,7 @@ export default function ChatWidget() {
                     onChange={(e) => setNewMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder={selectedUser ? "Type message..." : "Select user..."}
-                    className="flex-1 border border-gray-300 rounded-lg px-2 md:px-4 py-2 text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 border border-gray-300 rounded-lg px-2 max-w-[150px] sm:max-w-[100%] md:px-4 py-2 text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     disabled={loading || !selectedConversationId || !selectedUser}
                   />
                   <button
@@ -420,7 +420,7 @@ export default function ChatWidget() {
                 onChange={(e) => setNewMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Type your message..."
-                className="flex-1 border border-gray-300 rounded-lg px-0 py-2 sm:px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 border border-gray-300 rounded-lg px-0 py-2 max-w-[150px] sm:max-w-[100%] sm:px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 disabled={loading || !currentConversationId}
               />
               <button

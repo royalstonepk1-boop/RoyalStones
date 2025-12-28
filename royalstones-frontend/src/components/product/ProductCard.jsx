@@ -103,7 +103,10 @@ export default function ProductCard({ product }) {
         </div>
 
         <div className="p-3">
-          <h3 className="text-sm md:text-base font-medium line-clamp-2">{name}</h3>
+          <h3 className="text-sm md:text-base font-medium whitespace-normal break-words">
+            {name.length > 55 ? name.slice(0, 55) + "..." : name}
+          </h3>
+
 
           <div className="mt-2 flex items-baseline gap-2">
             {discount ? (

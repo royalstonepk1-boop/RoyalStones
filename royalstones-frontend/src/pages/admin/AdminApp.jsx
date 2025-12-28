@@ -314,8 +314,10 @@ function ManageProducts() {
                   className="w-full px-4 py-2 outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">Select a category</option>
-                  {categories.map(cat => (
-                    <option key={cat._id} value={cat._id}>{cat.name}</option>
+                  {categories
+                  .filter(c=>c.parentId !==null)
+                  .map(cat => (
+                    <option key={cat._id} value={cat._id}>{cat.name.length > 30 ? cat.name.slice(0,30)+'...' : cat.name}</option>
                   ))}
                 </select>
               </div>
@@ -425,7 +427,7 @@ function ManageProducts() {
 
 
         {/* Products Table */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="bg-white rounded-lg shadow overflow-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
@@ -449,18 +451,22 @@ function ManageProducts() {
             <tbody className="bg-white divide-y divide-gray-200">
               {(searchQuery ? filteredProducts : products)?.map(product => (
                 <tr key={product._id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
+                  <td className="px-6 py-4 whitespace-normal max-w-md">
+                    <div className="flex items-start gap-3">
                       {product.images?.[0]?.url && (
                         <img
                           src={product.images[0].url}
                           alt={product.name}
-                          className="w-10 h-10 rounded object-cover mr-3"
+                          className="w-10 h-10 rounded object-cover shrink-0"
                         />
                       )}
-                      <div className="text-sm font-medium text-gray-900">{product.name}</div>
+
+                      <div className="text-sm font-medium text-gray-900 break-words w-[100%] pr-4">
+                        {product.name}
+                      </div>
                     </div>
                   </td>
+
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">{product.categoryId?.name || 'N/A'}</div>
                   </td>
@@ -747,25 +753,25 @@ function ManageCategories() {
                 />
               </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Parent Category (Optional - leave empty for main category)
-                  </label>
-                  <select
-                    value={form.parentId || ''}
-                    onChange={(e) => setForm({ ...form, parentId: e.target.value || null })}
-                    className="w-full px-4 py-2 outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">None (Main Category)</option>
-                    {parentCategories
-                      .filter(cat => cat._id !== editingCategory?._id)
-                      .map(cat => (
-                        <option key={cat._id} value={cat._id}>
-                          {cat.name}
-                        </option>
-                      ))}
-                  </select>
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Parent Category (Optional - leave empty for main category)
+                </label>
+                <select
+                  value={form.parentId || ''}
+                  onChange={(e) => setForm({ ...form, parentId: e.target.value || null })}
+                  className="w-full px-4 py-2 outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">None (Main Category)</option>
+                  {parentCategories
+                    .filter(cat => cat._id !== editingCategory?._id)
+                    .map(cat => (
+                      <option key={cat._id} value={cat._id}>
+                        {cat.name.length > 30 ? cat.name.substring(0, 27) + '...' : cat.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
 
 
               <div className="flex items-center">
@@ -866,8 +872,8 @@ function ManageCategories() {
                               </svg>
                             </button>
                           )}
-                          <div className={hasSubcategories ? '' : 'ml-7'}>
-                            <h3 className="text-lg font-semibold text-gray-900">{category.name}</h3>
+                          <div className={`${hasSubcategories ? '' : 'ml-7'} w-60`}>
+                            <h3 className="text-lg font-semibold text-gray-900 break-words">{category.name}</h3>
                             <div className="mt-1 flex flex-wrap gap-3 text-sm text-gray-500">
                               <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">Main Category</span>
                               <span>Finger Size: {category.hasFingerSize ? 'Yes' : 'No'}</span>
@@ -903,9 +909,9 @@ function ManageCategories() {
                         {filteredSubcategories.map(subcat => (
                           <div key={subcat._id} className="p-4 pl-16 hover:bg-gray-100 border-b border-gray-200 last:border-b-0">
                             <div className="flex justify-between items-start">
-                              <div>
-                                <h4 className="text-base font-medium text-gray-800">
-                                  <span className="text-gray-400 mr-2">↳</span>
+                              <div className='w-60'>
+                                <h4 className="text-base font-medium text-gray-800 break-words">
+                                  <span className="text-gray-400 mr-2 ">↳</span>
                                   {subcat.name}
                                 </h4>
                                 <div className="mt-1 flex flex-wrap gap-3 text-sm text-gray-500">
@@ -1047,92 +1053,92 @@ function ManageOrders() {
         {/* Orders List */}
         <div className="space-y-4">
           {filteredOrders
-          .reverse()
-          .map(order => (
-            <div key={order._id} className="bg-white rounded-lg border-gray-500 border-1 shadow p-6">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Order #RSSJ{order.orderNumber}
-                  </h3>
-                  <p className="text-sm text-gray-500">
-                    {new Date(order.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[order.status]}`}>
-                  {order.status.charAt(0).toUpperCase() + order.status.slice(1).replace('_', ' ')}
-                </span>
-                {/* Status Update */}
-                <div className="">
-                  <select
-                    value={order.status}
-                    onChange={(e) => updateStatus(order._id, e.target.value)}
-                    className="w-full md:w-64 px-4 py-2 border outline-none cursor-pointer border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="paid">Paid</option>
-                    <option value="in_transit">In Transit</option>
-                    <option value="delivered">Delivered</option>
-                    <option value="cancelled">Cancelled</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <p className="text-sm text-gray-600">Customer</p>
-                  <p className="font-medium">{order.userId?.email || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Payment Method</p>
-                  <p className="font-medium">{order.paymentMethod?.toUpperCase()}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Total Amount</p>
-                  <p className="font-medium text-lg">Rs {order.totalAmount}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Delivery Charges</p>
-                  <p className="font-medium">Rs {order.deliveryCharges}</p>
-                </div>
-              </div>
-
-              {/* Order Items */}
-              <div className="border-t pt-4 mb-4">
-                <p className="text-sm font-medium text-gray-700 mb-2">Order Items:</p>
-                <div className="space-y-2">
-                  {order.orderItems?.map((item, idx) => (
-                    <div key={idx} className="flex justify-between text-sm">
-                      <span>{item.productId?.name || 'Product'} × {item.quantity}</span>
-                      {
-                            item.msgNote !== '' &&
-                            <span className="text-gray-600 max-w-200px md:max-w-300px text-wrap">
-                            ({item.msgNote})
-                          </span>
-                          }
-                      <span className="font-medium">Rs {item.price * item.quantity * item.carretValue}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Shipping Address */}
-              {order.shippingAddress && (
-                <div className="border-t pt-4 mb-4">
-                  <p className="text-sm font-medium text-gray-700 mb-2">Shipping Address:</p>
-                  <div className="text-sm text-gray-600">
-                    <p>{order.shippingAddress.fullName}</p>
-                    <p>{order.shippingAddress.address}</p>
-                    <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.postalCode}</p>
-                    <p>{order.shippingAddress.country}</p>
-                    <p>Phone: {order.shippingAddress.phone}</p>
+            .reverse()
+            .map(order => (
+              <div key={order._id} className="bg-white rounded-lg border-gray-500 border-1 shadow p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Order #RSSJ{order.orderNumber}
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      {new Date(order.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[order.status]}`}>
+                    {order.status.charAt(0).toUpperCase() + order.status.slice(1).replace('_', ' ')}
+                  </span>
+                  {/* Status Update */}
+                  <div className="">
+                    <select
+                      value={order.status}
+                      onChange={(e) => updateStatus(order._id, e.target.value)}
+                      className="w-full md:w-64 px-4 py-2 border outline-none cursor-pointer border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="paid">Paid</option>
+                      <option value="in_transit">In Transit</option>
+                      <option value="delivered">Delivered</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
                   </div>
                 </div>
-              )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <p className="text-sm text-gray-600">Customer</p>
+                    <p className="font-medium">{order.userId?.email || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Payment Method</p>
+                    <p className="font-medium">{order.paymentMethod?.toUpperCase()}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Total Amount</p>
+                    <p className="font-medium text-lg">Rs {order.totalAmount}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Delivery Charges</p>
+                    <p className="font-medium">Rs {order.deliveryCharges}</p>
+                  </div>
+                </div>
+
+                {/* Order Items */}
+                <div className="border-t pt-4 mb-4">
+                  <p className="text-sm font-medium text-gray-700 mb-2">Order Items:</p>
+                  <div className="space-y-2">
+                    {order.orderItems?.map((item, idx) => (
+                      <div key={idx} className="flex justify-between text-sm">
+                        <span>{item.productId?.name || 'Product'} × {item.quantity}</span>
+                        {
+                          item.msgNote !== '' &&
+                          <span className="text-gray-600 max-w-200px md:max-w-300px text-wrap">
+                            ({item.msgNote})
+                          </span>
+                        }
+                        <span className="font-medium">Rs {item.price * item.quantity * item.carretValue}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Shipping Address */}
+                {order.shippingAddress && (
+                  <div className="border-t pt-4 mb-4">
+                    <p className="text-sm font-medium text-gray-700 mb-2">Shipping Address:</p>
+                    <div className="text-sm text-gray-600">
+                      <p>{order.shippingAddress.fullName}</p>
+                      <p>{order.shippingAddress.address}</p>
+                      <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.postalCode}</p>
+                      <p>{order.shippingAddress.country}</p>
+                      <p>Phone: {order.shippingAddress.phone}</p>
+                    </div>
+                  </div>
+                )}
 
 
-            </div>
-          ))}
+              </div>
+            ))}
         </div>
 
         {filteredOrders.length === 0 && (
@@ -1386,8 +1392,8 @@ function ManageUsers() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${user.role === 'admin'
-                            ? 'bg-purple-300 text-purple-800'
-                            : 'bg-green-100 text-green-800'
+                          ? 'bg-purple-300 text-purple-800'
+                          : 'bg-green-100 text-green-800'
                           }`}>
                           {user.role || 'user'}
                         </span>
@@ -1418,8 +1424,8 @@ function ManageUsers() {
                       </div>
                     </div>
                     <span className={`px-2 py-1 text-xs font-semibold rounded-full ${user.role === 'admin'
-                        ? 'bg-purple-100 text-purple-800'
-                        : 'bg-green-100 text-green-800'
+                      ? 'bg-purple-100 text-purple-800'
+                      : 'bg-green-100 text-green-800'
                       }`}>
                       {user.role || 'user'}
                     </span>
