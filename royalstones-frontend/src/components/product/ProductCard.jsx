@@ -69,9 +69,9 @@ export default function ProductCard({ product }) {
             />
           ) : null}
 
-          {discount ? (
+          {/* {discount ? (
             <span className="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded">Sale</span>
-          ) : null}
+          ) : null} */}
 
           {/* Hover overlay with buttons */}
           <div

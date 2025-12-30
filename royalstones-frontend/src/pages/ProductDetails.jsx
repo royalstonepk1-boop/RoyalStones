@@ -226,13 +226,14 @@ export default function ProductDetails() {
                   <img
                     src={currentImage}
                     alt={name}
-                    className="w-full h-full object-cover border-1 border-gray-400 rounded-[15px]"
+                    onClick={() => setIsZoomed(true)}
+                    className="w-full h-full object-cover border-1 cursor-pointer border-gray-400 rounded-[15px]"
                   />
-                  {discountPrice && (
+                  {/* {discountPrice && (
                     <span className="absolute top-4 left-4 bg-red-600 text-white px-3 py-1 rounded-md font-semibold">
                       Sale
                     </span>
-                  )}
+                  )} */}
                   {isOutOfStock && (
                     <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                       <span className="bg-red-600 text-white px-6 py-3 rounded-lg font-bold text-xl">
@@ -240,13 +241,13 @@ export default function ProductDetails() {
                       </span>
                     </div>
                   )}
-                  <button
+                  {/* <button
                     onClick={() => setIsZoomed(true)}
                     className="absolute top-4 right-4 bg-white  rounded-[50%] min-w-[50px] min-h-[50px] shadow-md hover:bg-gray-100 transition-colors cursor-pointer"
                     aria-label="Zoom image"
                   >
                     <i className="bi bi-arrows-fullscreen text-sm"></i>
-                  </button>
+                  </button> */}
                 </div>
 
                 {/* Thumbnail Gallery */}
