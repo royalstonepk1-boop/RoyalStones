@@ -366,7 +366,7 @@ export default function ProductDetails() {
                   {/* Action Buttons */}
                   <div className="space-y-3">
                     {
-                      user.role !== 'admin' &&
+                      user?.role !== 'admin' &&
                       <div className="flex gap-3">
                         <button
                           onClick={handleAddToCart}
