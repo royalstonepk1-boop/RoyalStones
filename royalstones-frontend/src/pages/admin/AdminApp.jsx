@@ -88,35 +88,61 @@ function ManageProducts() {
     discountPrice: '',
     stockQuantity: '',
     vedioUrl: '',
-    images: null
+    carretRateMin: '',
+    carretRateMax: '',
+    images: null,
+    certificateImage: null
   });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const formData = new FormData();
-      Object.keys(form).forEach(key => {
-        if (key === 'images' && form[key]) {
-          Array.from(form[key]).forEach(file => {
-            formData.append('images', file);
-          });
-        } else if (form[key]) {
-          formData.append(key, form[key]);
-        }
-      });
+      
+      // Add regular fields
+      formData.append('name', form.name);
+      formData.append('slug', form.slug);
+      formData.append('description', form.description);
+      formData.append('categoryId', form.categoryId);
+      formData.append('price', form.price);
+      formData.append('discountPrice', form.discountPrice);
+      formData.append('stockQuantity', form.stockQuantity);
+      formData.append('vedioUrl', form.vedioUrl);
+      
+      // Add carretRate as JSON string
+      if (form.carretRateMin || form.carretRateMax) {
+        const carretRate = {
+          min: parseFloat(form.carretRateMin) || 1,
+          max: parseFloat(form.carretRateMax) || 1
+        };
+        formData.append('carretRate', JSON.stringify(carretRate));
+      }
+
+      // Add product images
+      if (form.images) {
+        Array.from(form.images).forEach(file => {
+          formData.append('images', file);
+        });
+      }
+
+      // Add certificate image
+      if (form.certificateImage) {
+        formData.append('certificateImage', form.certificateImage);
+      }
 
       if (editingProduct) {
         updateProduct(editingProduct._id, formData);
-        toast.success("Product Updated Scucessfully!");
+        toast.success("Product Updated Successfully!");
       } else {
         createProduct(formData);
-        toast.success("Product Added Scucessfully!");
+        toast.success("Product Added Successfully!");
       }
 
       resetForm();
       getProducts();
     } catch (error) {
       console.error('Failed to save product:', error);
+      toast.error("Failed to save product!");
     }
   };
 
@@ -130,8 +156,11 @@ function ManageProducts() {
       price: product.price,
       discountPrice: product.discountPrice || '',
       stockQuantity: product.stockQuantity,
-      vedioUrl: product.vedioUrl,
-      images: null
+      vedioUrl: product.vedioUrl || '',
+      carretRateMin: product.carretRate?.min || '',
+      carretRateMax: product.carretRate?.max || '',
+      images: null,
+      certificateImage: null
     });
     setShowForm(true);
   };
@@ -187,7 +216,10 @@ function ManageProducts() {
       discountPrice: '',
       stockQuantity: '',
       vedioUrl: '',
-      images: null
+      carretRateMin: '',
+      carretRateMax: '',
+      images: null,
+      certificateImage: null
     });
     setEditingProduct(null);
     setShowForm(false);
@@ -253,8 +285,6 @@ function ManageProducts() {
             {showForm ? 'Cancel' : '+ Add Product'}
           </button>
         </div>
-
-
 
         {showForm && (
           <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
@@ -331,6 +361,7 @@ function ManageProducts() {
                   required
                   value={form.price}
                   min={0}
+                  step="0.01"
                   onChange={(e) => setForm({ ...form, price: e.target.value })}
                   className="w-full px-4 py-2 outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="0.00"
@@ -345,6 +376,7 @@ function ManageProducts() {
                   type="number"
                   value={form.discountPrice}
                   min={0}
+                  step="0.01"
                   onChange={(e) => setForm({ ...form, discountPrice: e.target.value })}
                   className="w-full px-4 py-2 outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="0.00"
@@ -365,16 +397,50 @@ function ManageProducts() {
                   placeholder="0"
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Vedio Url (optional)
+                  Video URL (optional)
                 </label>
                 <input
                   type="text"
                   value={form.vedioUrl}
                   onChange={(e) => setForm({ ...form, vedioUrl: e.target.value })}
                   className="w-full px-4 py-2 outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Please add vedio url"
+                  placeholder="Please add video url"
+                />
+              </div>
+
+              {/* Carret Rate Fields */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Carret Rate Min *
+                </label>
+                <input
+                  type="number"
+                  required
+                  value={form.carretRateMin}
+                  min={0}
+                  step="0.1"
+                  onChange={(e) => setForm({ ...form, carretRateMin: e.target.value })}
+                  className="w-full px-4 py-2 outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g., 0.5"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Carret Rate Max *
+                </label>
+                <input
+                  type="number"
+                  required
+                  value={form.carretRateMax}
+                  min={0}
+                  step="0.1"
+                  onChange={(e) => setForm({ ...form, carretRateMax: e.target.value })}
+                  className="w-full px-4 py-2 outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g., 10.4"
                 />
               </div>
 
@@ -405,6 +471,33 @@ function ManageProducts() {
                 <p className="text-xs text-gray-500 mt-1">You can select multiple images (max 8)</p>
               </div>
 
+              {/* Certificate Image */}
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Certificate Image (optional)
+                </label>
+                <label className="w-full flex items-center justify-between px-4 py-2 border border-gray-300 rounded-lg cursor-pointer bg-white hover:bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500">
+                  <span className="text-gray-500">
+                    {form.certificateImage
+                      ? form.certificateImage.name
+                      : "Select certificate image"}
+                  </span>
+
+                  <span className="text-sm bg-green-500 text-white px-3 py-1 rounded-md">
+                    Browse
+                  </span>
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setForm({ ...form, certificateImage: e.target.files[0] })}
+                    className="hidden"
+                  />
+                </label>
+
+                <p className="text-xs text-gray-500 mt-1">Upload certificate of authenticity</p>
+              </div>
+
               <div className="md:col-span-2 flex gap-3">
                 <button
                   type="submit"
@@ -424,8 +517,6 @@ function ManageProducts() {
           </div>
         )}
 
-
-
         {/* Products Table */}
         <div className="bg-white rounded-lg shadow overflow-auto">
           <table className="min-w-full divide-y divide-gray-200">
@@ -441,7 +532,13 @@ function ManageProducts() {
                   Price
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Certificate
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Stock
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Carret Rate
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
@@ -478,6 +575,19 @@ function ManageProducts() {
                       )}
                     </div>
                   </td>
+                  <td className="px-6 py-4 whitespace-nowrap max-w-md">
+                    <div className="text-sm text-gray-900">
+                      {
+                        product.certificateImage ?
+                        <img
+                          src={product.certificateImage}
+                          alt={product.name}
+                          className="w-10 h-10 rounded object-cover shrink-0"
+                        />: 'N/A'
+                      }
+                    
+                    </div>
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 py-1 text-xs rounded-full ${product.stockQuantity > 10 ? 'bg-green-100 text-green-800' :
                       product.stockQuantity > 0 ? 'bg-yellow-100 text-yellow-800' :
@@ -485,6 +595,15 @@ function ManageProducts() {
                       }`}>
                       {product.stockQuantity} units
                     </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">
+                      {product.carretRate ? (
+                        <span>{product.carretRate.min} - {product.carretRate.max}</span>
+                      ) : (
+                        <span className="text-gray-400">N/A</span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
@@ -532,8 +651,6 @@ function ManageCategories() {
     name: '',
     parentId: null,
     hasFingerSize: false,
-    carretRateMin: '',
-    carretRateMax: ''
   });
 
   useEffect(() => {
@@ -548,10 +665,6 @@ function ManageCategories() {
         name: form.name,
         parentId: form.parentId || null,
         hasFingerSize: form.hasFingerSize,
-        carretRate: {
-          min: parseFloat(form.carretRateMin) || 0,
-          max: parseFloat(form.carretRateMax) || 0
-        }
       };
 
       if (editingCategory) {
@@ -578,8 +691,6 @@ function ManageCategories() {
       name: category.name,
       parentId: category.parentId || null,
       hasFingerSize: category.hasFingerSize || false,
-      carretRateMin: category.carretRate?.min || 0,
-      carretRateMax: category.carretRate?.max || 0
     });
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -652,8 +763,6 @@ function ManageCategories() {
       name: '',
       parentId: null,
       hasFingerSize: false,
-      carretRateMin: '',
-      carretRateMax: ''
     });
     setEditingCategory(null);
     setShowForm(false);
@@ -787,7 +896,7 @@ function ManageCategories() {
                 </label>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Caret Rate Min
@@ -814,7 +923,7 @@ function ManageCategories() {
                     placeholder="0.00"
                   />
                 </div>
-              </div>
+              </div> */}
 
               <div className="flex gap-3">
                 <button
@@ -877,9 +986,9 @@ function ManageCategories() {
                             <div className="mt-1 flex flex-wrap gap-3 text-sm text-gray-500">
                               <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">Main Category</span>
                               <span>Finger Size: {category.hasFingerSize ? 'Yes' : 'No'}</span>
-                              {category.carretRate && (category.carretRate.min > 0 || category.carretRate.max > 0) && (
+                              {/* {category.carretRate && (category.carretRate.min > 0 || category.carretRate.max > 0) && (
                                 <span>Caret Rate: {category.carretRate.min} - {category.carretRate.max}</span>
-                              )}
+                              )} */}
                               {hasSubcategories && (
                                 <span className="text-blue-600 font-medium">{subcategories.length} subcategories</span>
                               )}
@@ -917,9 +1026,9 @@ function ManageCategories() {
                                 <div className="mt-1 flex flex-wrap gap-3 text-sm text-gray-500">
                                   <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Subcategory</span>
                                   <span>Finger Size: {subcat.hasFingerSize ? 'Yes' : 'No'}</span>
-                                  {subcat.carretRate && (subcat.carretRate.min > 0 || subcat.carretRate.max > 0) && (
+                                  {/* {subcat.carretRate && (subcat.carretRate.min > 0 || subcat.carretRate.max > 0) && (
                                     <span>Caret Rate: {subcat.carretRate.min} - {subcat.carretRate.max}</span>
-                                  )}
+                                  )} */}
                                 </div>
                               </div>
                               <div className="flex gap-2">

@@ -21,7 +21,7 @@ export default function Checkout() {
 
   const { charges } = useDeliveryStore();
   const [selectedAddress, setSelectedAddress] = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('cod');
 
   // Calculate totals
   const subtotal = cart?.items.reduce(
@@ -98,7 +98,7 @@ Phone: ${orderData.shippingAddress.phone}
 🛍️ *Order Items:*
 ${cart.items.map((item, i) =>
           `${i + 1}. ${item.productId.name}
-   Qty: ${item.quantity} × Rs ${(item.productId.discountPrice || item.productId.price).toLocaleString()}`
+   Qty: ${item.quantity} × Rs ${(item.productId.discountPrice * item.carretValue || item.productId.price * item.carretValue).toLocaleString()}`
         ).join('\n')}
 
 📊 *Order Summary:*
@@ -361,8 +361,8 @@ Total: Rs ${order.totalAmount.toLocaleString()}
         </div>
 
         <div
-          onClick={() => setPaymentMethod('card')}
-          className={`border-2 rounded-lg p-6 cursor-pointer transition-all ${paymentMethod === 'card'
+          // onClick={() => setPaymentMethod('card')}
+          className={`border-2 rounded-lg p-6 opacity-40 cursor-pointer transition-all ${paymentMethod === 'card'
               ? 'border-blue-600 bg-blue-50'
               : 'border-gray-200 bg-white hover:border-gray-300'
             }`}
@@ -378,7 +378,8 @@ Total: Rs ${order.totalAmount.toLocaleString()}
             </div>
             <div className="flex-1">
               <h3 className="font-semibold text-gray-800">Card Payment (Stripe)</h3>
-              <p className="text-sm text-gray-600 mt-1">Pay securely with your credit/debit card</p>
+              {/* <p className="text-sm text-gray-600 mt-1">Pay securely with your credit/debit card</p> */}
+              <p className="text-sm text-gray-600 mt-1">Coming Soon</p>
             </div>
             <CreditCard size={32} className="text-gray-400" />
           </div>

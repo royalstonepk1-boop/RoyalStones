@@ -2,8 +2,8 @@ const Category = require('../models/Category');
 
 async function createCategory(req, res) {
   try {
-    const { name, parentId ,hasFingerSize,carretRate } = req.body;
-    const cat = await Category.create({ name, parentId: parentId || null ,hasFingerSize:hasFingerSize, carretRate: { min: carretRate.min || 0, max: carretRate.max || 0 } });
+    const { name, parentId ,hasFingerSize } = req.body;
+    const cat = await Category.create({ name, parentId: parentId || null ,hasFingerSize:hasFingerSize});
     res.json(cat);
   } catch (err) {
     res.status(500).json({ message: err.message });

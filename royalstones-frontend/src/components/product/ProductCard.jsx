@@ -8,7 +8,7 @@ export default function ProductCard({ product }) {
   const price = typeof product.price === "number" ? product.price : product.price || "—";
   const discount = product.discountPrice;
   const stock = product.stockQuantity ?? 0;
-  const carret = product.categoryId?.carretRate?.min || 1;
+  const carret = product.carretRate?.min || 1;
 
   const [hovered, setHovered] = useState(false);
   const [secondaryLoaded, setSecondaryLoaded] = useState(false);

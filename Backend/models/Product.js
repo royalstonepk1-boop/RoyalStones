@@ -13,6 +13,11 @@ const ProductSchema = new Schema({
   isActive: { type: Boolean, default: true },
   stockQuantity: { type: Number, default: 0 },
   vedioUrl: String,
+  carretRate: {
+    min: { type: Number, default: 0 },
+    max: { type: Number, default: 0 },
+  },
+  certificateImage: String,
   images: [ImageSchema],
   createdAt: { type: Date, default: Date.now },
 });

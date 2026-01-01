@@ -7,12 +7,8 @@ const CategorySchema = new Schema({
 
   // New fields
   hasFingerSize: { type: Boolean, default: false }, // true/false
-  carretRate: {
-    min: { type: Number, default: 0 },
-    max: { type: Number, default: 0 },
-  },
 
   createdAt: { type: Date, default: Date.now },
-});
+}); 
 
 module.exports = mongoose.model('Category', CategorySchema);

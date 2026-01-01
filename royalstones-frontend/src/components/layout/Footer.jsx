@@ -83,7 +83,19 @@ export default function Footer() {
           <p className="text-sm text-gray-400">royalstonepk1@gmail.com</p>
         </div>
       </div>
-
+      
+      {/* Map Section */}
+      <div className="w-full h-64 my-4 relative overflow-hidden">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d207.34397053054454!2d73.18327763868763!3d33.74765196628845!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38dfc3695a61e0b9%3A0x5ea18dfc495f35ab!2sRaj%20Royal%20jeweller!5e0!3m2!1sen!2s!4v1765623602400!5m2!1sen!2s"
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen=""
+                    loading="lazy"
+                    className="opacity-100"
+                ></iframe>
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-gray-900/80"></div>
+            </div>
       <div className="text-center text-xs py-3 text-gray-500">
         © {new Date().getFullYear()} Royal Stones. All rights reserved.
       </div>

@@ -10,8 +10,16 @@ router.get('/', listProducts);
 router.get('/:id', getProduct);
 
 // admin
-router.post('/', authMiddleware, adminOnly, upload.array('images', 8), createProduct);
-router.put('/:id', authMiddleware, adminOnly, upload.array('images', 8), updateProduct);
+router.post('/', authMiddleware, adminOnly, upload.fields([
+    { name: 'images', maxCount: 8 },
+    { name: 'certificateImage', maxCount: 1 }
+  ]), createProduct);
+
+router.put('/:id', authMiddleware, adminOnly, upload.fields([
+    { name: 'images', maxCount: 8 },
+    { name: 'certificateImage', maxCount: 1 }
+  ]), updateProduct);
+  
 router.delete('/:id', authMiddleware, adminOnly, deleteProduct);
 // Get product count by category
 router.get('/count-by-category/:categoryId',authMiddleware, adminOnly,  countByCategory);
