@@ -4,10 +4,12 @@ import { fetchCategories } from "../../api/category.api";
 import { fetchFirst6Products } from "../../api/product.api";
 import { Link } from "react-router-dom";
 import { createPortal } from "react-dom";
+import { useProductStore } from "../../store/productStore";
 
 export default function CategoryNavBar({ mobileOpen, setMobileOpen }) {
   const [categories, setCategories] = useState([]);
-  const [productsByCategory, setProductsByCategory] = useState({});
+  const {productsByCategory} =useProductStore();
+  const [productsByCategory1, setProductsByCategory1] = useState({});
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [activeNested, setActiveNested] = useState(null);
 
@@ -44,7 +46,7 @@ export default function CategoryNavBar({ mobileOpen, setMobileOpen }) {
           for (const sub of subCats) {
             try {
               const res = await fetchFirst6Products(sub._id);
-              setProductsByCategory((prev) => ({
+              setProductsByCategory1((prev) => ({
                 ...prev,
                 [sub._id]: res.data,
               }));
@@ -55,7 +57,7 @@ export default function CategoryNavBar({ mobileOpen, setMobileOpen }) {
         } else {
           try {
             const res = await fetchFirst6Products(cat._id);
-            setProductsByCategory((prev) => ({
+            setProductsByCategory1((prev) => ({
               ...prev,
               [cat._id]: res.data,
             }));
@@ -99,6 +101,12 @@ export default function CategoryNavBar({ mobileOpen, setMobileOpen }) {
         <div className="p-4 space-y-3 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 80px)' }}>
           {categories
             .filter(cat => cat.parentId !== null)
+            .filter((cat) => productsByCategory[cat._id]?.items?.length > 0) // Only show categories with loaded products
+          .sort((a, b) => {
+            const aCount = (productsByCategory[a._id]?.items || []).length;
+            const bCount = (productsByCategory[b._id]?.items || []).length;
+            return bCount - aCount;
+          })
             .map((cat) => (
               <a
                 key={cat._id}
@@ -186,11 +194,11 @@ export default function CategoryNavBar({ mobileOpen, setMobileOpen }) {
                     label={sub.name}
                     href={`#${sub._id}`}
                     onClick={(e) => handleCategoryClick(e, sub._id)}
-                    hasNested={productsByCategory[sub._id]?.length > 0}
+                    hasNested={productsByCategory1[sub._id]?.length > 0}
                     activeNested={activeNested}
                     setActiveNested={setActiveNested}
                   >
-                    {productsByCategory[sub._id]?.map(prod => (
+                    {productsByCategory1[sub._id]?.map(prod => (
                       <Link
                         key={prod._id}
                         to={`/product/${prod._id}`}
@@ -208,7 +216,7 @@ export default function CategoryNavBar({ mobileOpen, setMobileOpen }) {
                   </NestedMenuItem>
                 ))
               ) : (
-                productsByCategory[parent._id]?.map(prod => (
+                productsByCategory1[parent._id]?.map(prod => (
                   <Link
                     key={prod._id}
                     to={`/product/${prod._id}`}
