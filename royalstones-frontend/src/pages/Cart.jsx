@@ -122,7 +122,7 @@ export default function Cart() {
                     item?.carretValue &&
                     <input
                       type="text"
-                      value={item?.carretValue ? item.carretValue + " Carret" : ""}
+                      value={item?.carretValue ? item.carretValue + " Carat" : ""}
                       step="0.5"
                       readOnly
                       className={`w-full py-1 border-none outline-none rounded-lg text-[12px]`}

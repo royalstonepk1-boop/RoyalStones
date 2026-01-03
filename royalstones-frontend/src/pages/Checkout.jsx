@@ -98,7 +98,7 @@ Phone: ${orderData.shippingAddress.phone}
 🛍️ *Order Items:*
 ${cart.items.map((item, i) =>
           `${i + 1}. ${item.productId.name}
-   Qty: ${item.quantity} × Rs ${(item.productId.discountPrice * item.carretValue || item.productId.price * item.carretValue).toLocaleString()}`
+   Qty: ${item.quantity} × Rs ${(item.productId.discountPrice * item.carretValue || item.productId.price * item.carretValue) .toLocaleString()} ${item.carretValue ? `(${item.carretValue} Carat)` : ''}`
         ).join('\n')}
 
 📊 *Order Summary:*
@@ -201,7 +201,7 @@ Total: Rs ${order.totalAmount.toLocaleString()}
               <h3 className="font-semibold break-words text-gray-800">{item.productId.name}</h3>
               <div className="text-sm text-gray-600 mt-1">
                 <p>Quantity: {item.quantity}</p>
-                {item.carretValue && <p>Carret: {item.carretValue}Carret</p>}
+                {item.carretValue && <p>Carat: {item.carretValue} Carat</p>}
                 {item.fingerSize && <p>Finger Size: {item.fingerSize}mm</p>}
               </div>
             </div>

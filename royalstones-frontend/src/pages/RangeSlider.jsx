@@ -12,7 +12,7 @@ export default function RangeSlider({ min = 0, max = 100 ,setCarret }) {
 
   return (
     <div style={{ width: 300, margin: "50px auto", textAlign: "center" }}>
-      <h3>{value} Carret</h3>
+      <h3>{value} Carat</h3>
       <div className="flex items-center gap-8">
       <h4  className="ml-[-20px]">{min}</h4>
       <Slider

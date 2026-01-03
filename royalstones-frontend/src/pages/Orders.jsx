@@ -157,7 +157,7 @@ export default function Orders() {
                       {order.orderItems.map((item, idx) => (
                         <div key={idx} className="flex justify-between items-center text-sm">
                           <span className="text-gray-700 break-words w-[40%]">
-                            {item.name || item.productId?.name || 'Product'} x {item.quantity || 1} ({(item.carretValue || 0)} Carret { item.fingerSize && `, Finger Size: ${item.fingerSize || 'N/A'}`})
+                            {item.name || item.productId?.name || 'Product'} x {item.quantity || 1} ({(item.carretValue || 0)} Carat { item.fingerSize && `, Finger Size: ${item.fingerSize || 'N/A'}`})
                           </span>
                           {
                             item.msgNote !== '' &&
@@ -240,7 +240,7 @@ export default function Orders() {
                       {order.orderItems.map((item, idx) => (
                         <div key={idx} className="flex justify-between items-center text-sm">
                           <span className="text-gray-700  break-words w-[40%]">
-                            {item.name || item.productId?.name || 'Product'} x {item.quantity || 1} ({(item.carretValue || 0)} Carret { item.fingerSize && `, Finger Size: ${item.fingerSize || 'N/A'}`})
+                            {item.name || item.productId?.name || 'Product'} x {item.quantity || 1} ({(item.carretValue || 0)} Carat { item.fingerSize && `, Finger Size: ${item.fingerSize || 'N/A'}`})
                           </span>
                           {
                             item.msgNote !== '' &&

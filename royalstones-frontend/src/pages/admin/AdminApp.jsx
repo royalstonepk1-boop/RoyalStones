@@ -359,11 +359,11 @@ function ManageProducts() {
                   type="number"
                   required
                   value={form.price}
-                  min={0}
-                  step="0.01"
+                  min={1}
+                  step="10"
                   onChange={(e) => setForm({ ...form, price: e.target.value })}
                   className="w-full px-4 py-2 outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="0.00"
+                  placeholder="Enter Price in Rs"
                 />
               </div>
 
@@ -375,10 +375,10 @@ function ManageProducts() {
                   type="number"
                   value={form.discountPrice}
                   min={0}
-                  step="0.01"
+                  step="10"
                   onChange={(e) => setForm({ ...form, discountPrice: e.target.value })}
                   className="w-full px-4 py-2 outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="0.00"
+                  placeholder="Enter Price in Rs"
                 />
               </div>
 
@@ -393,7 +393,7 @@ function ManageProducts() {
                   min={1}
                   onChange={(e) => setForm({ ...form, stockQuantity: e.target.value })}
                   className="w-full px-4 py-2 outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="0"
+                  placeholder="1"
                 />
               </div>
 
@@ -413,14 +413,14 @@ function ManageProducts() {
               {/* Carret Rate Fields */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Carret Rate Min *
+                 Carat Rate Min *
                 </label>
                 <input
                   type="number"
                   required
                   value={form.carretRateMin}
                   min={0}
-                  step="0.1"
+                  step="0.5"
                   onChange={(e) => setForm({ ...form, carretRateMin: e.target.value })}
                   className="w-full px-4 py-2 outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="e.g., 0.5"
@@ -429,14 +429,14 @@ function ManageProducts() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Carret Rate Max *
+                Carat Rate Max *
                 </label>
                 <input
                   type="number"
                   required
                   value={form.carretRateMax}
                   min={0}
-                  step="0.1"
+                  step="0.5"
                   onChange={(e) => setForm({ ...form, carretRateMax: e.target.value })}
                   className="w-full px-4 py-2 outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="e.g., 10.4"
@@ -537,7 +537,7 @@ function ManageProducts() {
                   Stock
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Carret Rate
+                Carat Rate
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
@@ -1217,7 +1217,7 @@ function ManageOrders() {
                   <div className="space-y-2">
                     {order.orderItems?.map((item, idx) => (
                       <div key={idx} className="flex justify-between text-sm">
-                        <span className='break-words w-[40%]'>{item.productId?.name || 'Product'} × {item.quantity}</span>
+                        <span className='break-words w-[40%]'>{item.productId?.name || 'Product'} × {item.quantity} ({item.carretValue ? item.carretValue+' Carat' :''})</span>
                         {
                           item.msgNote !== '' &&
                           <span className="text-gray-600 max-w-200px break-words w-[40%] md:max-w-300px text-wrap">
