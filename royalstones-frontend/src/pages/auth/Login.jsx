@@ -6,7 +6,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { getUserByEmail } from "../../api/auth.api";
 import PageWrapper from "../../util/PageWrapper";
 import { toast } from 'react-toastify';
-import { inAppBrowser, openInExternalBrowser } from "../../utils/inAppBrowserDetector";
+import { inAppBrowser, openInExternalBrowser } from "../../util/inAppBrowserDetector";
 import InAppBrowserBanner from "../../components/InAppBrowserBanner";
 
 export default function Login() {

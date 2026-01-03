@@ -7,7 +7,7 @@ import { addProfileWithEmail, addProfileWithGoogle } from "../../api/auth.api";
 import PageWrapper from "../../util/PageWrapper";
 import { useAuthStore } from "../../store/authStore";
 import { toast } from 'react-toastify';
-import { inAppBrowser, openInExternalBrowser } from "../../utils/inAppBrowserDetector";
+import { inAppBrowser, openInExternalBrowser } from "../../util/inAppBrowserDetector";
 import InAppBrowserBanner from "../../components/InAppBrowserBanner";
 
 export default function Register() {
