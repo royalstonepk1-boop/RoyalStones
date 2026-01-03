@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { auth } from "../../firebase/firebase";
 import { signInWithEmailAndPassword, signInWithPopup,signInWithRedirect,getRedirectResult, GoogleAuthProvider } from "firebase/auth";
 import { useAuthStore } from "../../store/authStore";
@@ -43,7 +43,7 @@ export default function Login() {
   
     handleRedirect();
   }, []);
-  
+
   const login = async () => {
     if (!email || !password) {
       setErrorMessage("Please fill in all fields");
