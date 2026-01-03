@@ -1,4 +1,4 @@
-import { detectSpecificPlatform } from "../utils/inAppBrowserDetector";
+import { detectSpecificPlatform } from "../util/inAppBrowserDetector";
 
 export default function InAppBrowserBanner({ onClose }) {
   const platform = detectSpecificPlatform();
