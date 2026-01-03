@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { auth } from "../../firebase/firebase";
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { useAuthStore } from "../../store/authStore";
@@ -6,6 +6,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { getUserByEmail } from "../../api/auth.api";
 import PageWrapper from "../../util/PageWrapper";
 import { toast } from 'react-toastify';
+import {inAppBrowser} from "../../util/inAppBrowser";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -17,6 +18,13 @@ export default function Login() {
   const setUser = useAuthStore((s) => s.setUser);
   const setToken = useAuthStore((s) => s.setToken);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (inAppBrowser()) {
+      const url = window.location.href.replace(/https?:\/\//, '');
+      window.location.href = "intent://" + url + "#Intent;scheme=https;package=com.royalstones.app;end";  
+    }
+  }, []);
 
   const login = async () => {
     if (!email || !password) {
