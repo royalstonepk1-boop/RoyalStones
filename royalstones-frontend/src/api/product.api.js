@@ -17,10 +17,20 @@ export const fetchSingleProduct = (id) => {
 };
 
 export const createProduct = (data) => {
-  return api.post(`/products`, data);
+  // Now sending JSON, not FormData
+  return api.post(`/products`, data, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
 };
-export const updateProduct = (id,data) => {
-  return api.put(`/products/${id}`, data);
+
+export const updateProduct = (id, data) => {
+  return api.put(`/products/${id}`, data, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
 };
 export const deleteProduct = (id) => {
   return api.delete(`/products/${id}`);

@@ -8,6 +8,9 @@ import { toast } from 'react-toastify';
 import { countByCategory } from "../../api/product.api";
 import { useAuthStore } from '../../store/authStore'
 
+const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+
 // Mock API functions - replace with your actual API calls
 const api = {
   get: async (url) => {
@@ -73,12 +76,57 @@ function StatCard({ title, value, color }) {
 }
 
 
+const uploadToCloudinary = async (file, onProgress) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+  formData.append('folder', 'products');
+  
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    
+    // Track upload progress
+    if (onProgress) {
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+          const percent = Math.round((e.loaded / e.total) * 100);
+          onProgress(percent);
+        }
+      });
+    }
+    
+    xhr.addEventListener('load', () => {
+      if (xhr.status === 200) {
+        const response = JSON.parse(xhr.responseText);
+        resolve({
+          url: response.secure_url,
+          publicId: response.public_id
+        });
+      } else {
+        reject(new Error(`Upload failed: ${xhr.statusText}`));
+      }
+    });
+    
+    xhr.addEventListener('error', () => {
+      reject(new Error('Network error during upload'));
+    });
+    
+    xhr.addEventListener('abort', () => {
+      reject(new Error('Upload cancelled'));
+    });
+    
+    xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`);
+    xhr.send(formData);
+  });
+};
+
 // Products Management Component
 function ManageProducts() {
   const { products, categories, loading, getProducts, getCategories, createProduct, updateProduct, deleteProduct } = useProductStore();
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState(null);
+  const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState({
     name: '',
     slug: '',
@@ -96,57 +144,113 @@ function ManageProducts() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setUploading(true);
+  
     try {
-      const formData = new FormData();
-
-      // Add regular fields
-      formData.append('name', form.name);
-      formData.append('slug', form.slug);
-      formData.append('description', form.description);
-      formData.append('categoryId', form.categoryId);
-      formData.append('price', form.price);
-      formData.append('discountPrice', form.discountPrice);
-      formData.append('stockQuantity', form.stockQuantity);
-      formData.append('vedioUrl', form.vedioUrl);
-
-      // Add carretRate as JSON string
-      if (form.carretRateMin || form.carretRateMax) {
-        const carretRate = {
-          min: parseFloat(form.carretRateMin) || 1,
-          max: parseFloat(form.carretRateMax) || 1
-        };
-        formData.append('carretRate', JSON.stringify(carretRate));
-      }
-
-      // Add product images
-      if (form.images) {
-        Array.from(form.images).forEach(file => {
-          formData.append('images', file);
+      let uploadedImages = [];
+      let uploadedCertificate = null;
+  
+      /* ================= IMAGE UPLOAD ================= */
+      if (form.images && form.images.length > 0) {
+        const toastId = toast.info('Preparing to upload images...', { autoClose: false });
+  
+        for (let i = 0; i < form.images.length; i++) {
+          const file = form.images[i];
+  
+          toast.update(toastId, {
+            render: `Uploading image ${i + 1}/${form.images.length}...`,
+          });
+  
+          const result = await uploadToCloudinary(file, (progress) => {
+            toast.update(toastId, {
+              render: `Uploading image ${i + 1}/${form.images.length}: ${progress}%`,
+            });
+          });
+  
+          uploadedImages.push({
+            url: result.url,
+            isPrimary: i === 0,
+          });
+        }
+  
+        toast.dismiss(toastId);
+        toast.success(`${form.images.length} image(s) uploaded successfully!`, {
+          autoClose: 2000,
         });
       }
-
-      // Add certificate image
-      if (form.certificateImage) {
-        formData.append('certificateImage', form.certificateImage);
+  
+      /* ================= CERTIFICATE UPLOAD ================= */
+      if (form.certificateImage instanceof File) {
+        const toastId = toast.info('Uploading certificate...', { autoClose: false });
+  
+        const certResult = await uploadToCloudinary(form.certificateImage, (progress) => {
+          toast.update(toastId, {
+            render: `Uploading certificate: ${progress}%`,
+          });
+        });
+  
+        uploadedCertificate = certResult.url;
+        toast.dismiss(toastId);
+        toast.success('Certificate uploaded successfully!', { autoClose: 2000 });
       }
-
+  
+      /* ================= BASE PAYLOAD ================= */
+      const payload = {
+        name: form.name,
+        slug: form.slug,
+        description: form.description,
+        categoryId: form.categoryId,
+        price: form.price,
+        discountPrice: form.discountPrice,
+        stockQuantity: form.stockQuantity,
+        vedioUrl: form.vedioUrl,
+        carretRate: {
+          min: parseFloat(form.carretRateMin) || 1,
+          max: parseFloat(form.carretRateMax) || 1,
+        },
+      };
+  
+      /* ================= CONDITIONAL FIELDS ================= */
+      // ✅ Images sirf tab bhejo jab naye upload hon
+      if (uploadedImages.length > 0) {
+        payload.images = uploadedImages;
+      }
+  
+      // ✅ Certificate sirf tab bhejo jab update hua ho
+      if (uploadedCertificate) {
+        payload.certificateImage = uploadedCertificate;
+      }
+  
+      /* ================= API CALL ================= */
       if (editingProduct) {
-        updateProduct(editingProduct._id, formData);
-        toast.success("Product Updated Successfully!");
+        await updateProduct(editingProduct._id, payload);
+        toast.success('Product Updated Successfully!');
       } else {
-        createProduct(formData);
-        toast.success("Product Added Successfully!");
+        await createProduct({
+          ...payload,
+          images: uploadedImages,
+          certificateImage: uploadedCertificate || '',
+        });
+        toast.success('Product Added Successfully!');
       }
-
+  
       resetForm();
-      getProducts();
+      await getProducts();
+  
     } catch (error) {
       console.error('Failed to save product:', error);
-      toast.error("Failed to save product!");
+      toast.error(`Failed to save product: ${error.message}`);
+    } finally {
+      setUploading(false);
     }
   };
+  
 
   const handleEdit = (product) => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
     setEditingProduct(product);
     setForm({
       name: product.name,
@@ -498,19 +602,19 @@ function ManageProducts() {
               <div className="md:col-span-2 flex gap-3">
                 <button
                   type="submit"
-                  disabled={loading}
-                  className={`bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors ${loading
+                  disabled={loading || uploading}
+                  className={`bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors ${(loading || uploading)
                       ? 'bg-gray-400 cursor-not-allowed'
                       : 'hover:bg-blue-700 cursor-pointer'
                     }`}
                 >
-                  {loading ? (
+                  {(loading || uploading) ? (
                     <span className="flex items-center gap-2">
                       <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                       </svg>
-                      {editingProduct ? 'Updating...' : 'Creating...'}
+                      {uploading ? 'Uploading...' : (editingProduct ? 'Updating...' : 'Creating...')}
                     </span>
                   ) : (
                     editingProduct ? 'Update Product' : 'Create Product'
@@ -519,7 +623,8 @@ function ManageProducts() {
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="bg-gray-200 text-gray-700 cursor-pointer px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors"
+                  disabled={uploading}
+                  className="bg-gray-200 text-gray-700 cursor-pointer px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
                 >
                   Cancel
                 </button>

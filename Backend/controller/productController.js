@@ -1,34 +1,25 @@
 const Product = require('../models/Product');
-const { uploadToCloudinary } = require('../middleware/upload');
 
-// create product (supports multipart/form-data images)
+// Create product - NOW receives URLs from frontend (no file upload)
 async function createProduct(req, res) {
   try {
-    const { name, slug, description, categoryId, price, discountPrice, stockQuantity, vedioUrl, carretRate } = req.body;
-    const images = [];
-    let certificateImageUrl = '';
+    const { 
+      name, 
+      slug, 
+      description, 
+      categoryId, 
+      price, 
+      discountPrice, 
+      stockQuantity, 
+      vedioUrl, 
+      carretRate,
+      images,           // Array of {url, isPrimary} from frontend
+      certificateImage  // URL string from frontend
+    } = req.body;
 
-    // Handle files when using upload.fields()
-    if (req.files) {
-      // Handle product images
-      if (req.files.images && req.files.images.length > 0) {
-        for (const f of req.files.images) {
-          const url = await uploadToCloudinary(f.buffer, f.originalname);
-          images.push({ url, isPrimary: false });
-        }
-        if (images.length > 0) images[0].isPrimary = true;
-      }
+    console.log('Create product data:', req.body);
 
-      // Handle certificate image
-      if (req.files.certificateImage && req.files.certificateImage.length > 0) {
-        certificateImageUrl = await uploadToCloudinary(
-          req.files.certificateImage[0].buffer, 
-          req.files.certificateImage[0].originalname
-        );
-      }
-    }
-
-    // Parse carretRate if it's a string
+    // Parse carretRate if needed
     let parsedCarretRate = null;
     if (carretRate) {
       if (typeof carretRate === 'string') {
@@ -43,21 +34,21 @@ async function createProduct(req, res) {
       slug, 
       description,
       categoryId,
-      price: +price,
-      discountPrice: discountPrice ? +discountPrice : undefined,
-      stockQuantity: +stockQuantity || 0,
+      price: Number(price),
+      discountPrice: discountPrice ? Number(discountPrice) : undefined,
+      stockQuantity: Number(stockQuantity) || 0,
       vedioUrl: vedioUrl || null,
       carretRate: parsedCarretRate ? { 
         min: parseFloat(parsedCarretRate.min) || 1, 
         max: parseFloat(parsedCarretRate.max) || 1 
       } : undefined,
-      certificateImage: certificateImageUrl || '',
-      images
+      certificateImage: certificateImage || '',
+      images: images || []
     });
 
     res.json(p);
   } catch (err) {
-    console.error(err);
+    console.error('Create product error:', err);
     res.status(500).json({ message: err.message });
   }
 }
@@ -66,33 +57,6 @@ async function updateProduct(req, res) {
   try {
     const updates = { ...req.body };
     
-    // Handle files when using upload.fields()
-    if (req.files) {
-      // Handle product images
-      if (req.files.images && req.files.images.length > 0) {
-        const newImages = [];
-        
-        for (const f of req.files.images) {
-          const url = await uploadToCloudinary(f.buffer, f.originalname);
-          newImages.push({ url, isPrimary: false });
-        }
-        
-        // Merge with existing images if any
-        if (newImages.length > 0) {
-          if (!updates.images) updates.images = [];
-          updates.images = updates.images.concat(newImages);
-        }
-      }
-
-      // Handle certificate image
-      if (req.files.certificateImage && req.files.certificateImage.length > 0) {
-        updates.certificateImage = await uploadToCloudinary(
-          req.files.certificateImage[0].buffer,
-          req.files.certificateImage[0].originalname
-        );
-      }
-    }
-
     // Parse carretRate if it's a string
     if (updates.carretRate) {
       if (typeof updates.carretRate === 'string') {
@@ -109,7 +73,11 @@ async function updateProduct(req, res) {
     if (updates.discountPrice) updates.discountPrice = Number(updates.discountPrice);
     if (updates.stockQuantity !== undefined) updates.stockQuantity = Number(updates.stockQuantity);
 
-    const p = await Product.findByIdAndUpdate(req.params.id, updates, { new: true }).populate('categoryId');
+    const p = await Product.findByIdAndUpdate(
+      req.params.id, 
+      updates, 
+      { new: true }
+    ).populate('categoryId');
     
     if (!p) return res.status(404).json({ message: 'Product not found' });
     
@@ -120,7 +88,6 @@ async function updateProduct(req, res) {
   }
 }
 
-// ... rest of your functions remain the same
 async function listProducts(req, res) {
   const products = await Product.find().populate('categoryId');
   res.json(products);
@@ -168,4 +135,12 @@ async function countByCategory(req, res) {
   }
 }
 
-module.exports = { createProduct, listProducts, listProductsForNavBar, getProduct, updateProduct, deleteProduct, countByCategory };
+module.exports = { 
+  createProduct, 
+  listProducts, 
+  listProductsForNavBar, 
+  getProduct, 
+  updateProduct, 
+  deleteProduct, 
+  countByCategory 
+};
