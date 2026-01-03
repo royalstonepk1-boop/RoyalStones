@@ -393,7 +393,7 @@ function ManageProducts() {
                   min={1}
                   onChange={(e) => setForm({ ...form, stockQuantity: e.target.value })}
                   className="w-full px-4 py-2 outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="1"
+                  placeholder="e.g., 1"
                 />
               </div>
 
