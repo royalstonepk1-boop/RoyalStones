@@ -1,6 +1,5 @@
 export const inAppBrowser = () => {
-    const ua = navigator.userAgent || navigator.vendor || window.opera;
-    return(
-        /tiktok|instagram|fbav|fbios|fban|fb_iab/i.test(ua)
-    )
-}
+  const ua = navigator.userAgent || navigator.vendor || window.opera;
+
+  return /instagram|fbav|fbios|fban|fb_iab|bytedance|musical\.ly|aweme|tiktok/i.test(ua);
+};
