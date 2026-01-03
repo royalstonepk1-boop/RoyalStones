@@ -390,7 +390,7 @@ function ManageProducts() {
                   type="number"
                   required
                   value={form.stockQuantity}
-                  min={0}
+                  min={1}
                   onChange={(e) => setForm({ ...form, stockQuantity: e.target.value })}
                   className="w-full px-4 py-2 outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="0"

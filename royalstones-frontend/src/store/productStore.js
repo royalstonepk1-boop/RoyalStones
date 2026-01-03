@@ -94,7 +94,10 @@ export const useProductStore = create((set, get) => ({
     set({ loading: true });
     try {
       const res = await createProduct(data);
-      set({ products: [ res.data, ...products], loading: false });
+      set((state) => ({ 
+        products: [res.data, ...state.products], 
+        loading: false 
+      }));
     } catch (err) {
       console.error("getProductById error", err);
       set({ loading: false });
