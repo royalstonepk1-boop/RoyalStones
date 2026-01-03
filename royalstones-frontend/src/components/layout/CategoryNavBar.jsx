@@ -307,7 +307,9 @@ function Dropdown({ id, title, children, activeDropdown, setActiveDropdown }) {
       }
     }
     function handleEsc(e) {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        // setOpen(false);
+      }
     }
     document.addEventListener("mousedown", handleDocClick);
     document.addEventListener("keydown", handleEsc);
@@ -337,7 +339,7 @@ function Dropdown({ id, title, children, activeDropdown, setActiveDropdown }) {
         type="button"
         aria-haspopup="menu"
         aria-expanded={open}
-        onClick={() => setOpen((s) => !s)}
+        // onClick={() => setOpen((s) => !s)}
         className="text-gray-700 hover:text-black transition whitespace-nowrap"
       >
         {title}
@@ -349,11 +351,11 @@ function Dropdown({ id, title, children, activeDropdown, setActiveDropdown }) {
           style={{ zIndex: 10001 }}
           onMouseEnter={() => {
             setActiveDropdown(id);
-            setActiveNested(null); // ⭐ VERY IMPORTANT
+            // setActiveNested(null); // ⭐ VERY IMPORTANT
           }}
         >
           <div className="py-2 max-h-[500px] overflow-y-auto custom-scroll" role="menu">
-            {children.length>0 ? children : <span className="flex justify-center items-center p-3">No item found</span>}
+            {children?.length>0 ? children : <span className="flex justify-center items-center p-3">No item found</span>}
           </div>
         </div>
       )}

@@ -463,13 +463,13 @@ export default function ProductDetails() {
                   )}
                   {/* Certificate Image */}
                   {product?.certificateImage && (
-                    <div className="my-12 pt-6 border-t border-gray-300 max-h-60">
+                    <div className="my-12 pt-6 border-t border-gray-300 max-h-auto">
                       <h3 className="text-lg font-semibold text-gray-900 mb-4">Certificate of Authenticity</h3>
                       <div className="bg-gray-50 rounded-lg overflow-hidden border border-gray-200">
                         <img
                           src={product?.certificateImage}
                           alt="Certificate of Authenticity"
-                          className="w-full h-60 cursor-pointer hover:opacity-90 transition-opacity"
+                          className="w-full h-auto cursor-pointer hover:opacity-90 transition-opacity"
                         />
                       </div>
                     </div>

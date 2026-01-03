@@ -345,7 +345,6 @@ function ManageProducts() {
                 >
                   <option value="">Select a category</option>
                   {categories
-                  .filter(c=>c.parentId !==null)
                   .map(cat => (
                     <option key={cat._id} value={cat._id}>{cat.name.length > 30 ? cat.name.slice(0,30)+'...' : cat.name}</option>
                   ))}
