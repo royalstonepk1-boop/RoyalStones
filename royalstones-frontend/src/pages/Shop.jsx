@@ -101,7 +101,6 @@ export default function Shop() {
           </div>
         }
         {categories
-          .filter((cat) => cat.parentId !== null)
           .filter((cat) => productsByCategory[cat._id]?.items?.length > 0) // Only show categories with loaded products
           .sort((a, b) => {
             const aCount = (productsByCategory[a._id]?.items || []).length;

@@ -100,7 +100,6 @@ export default function CategoryNavBar({ mobileOpen, setMobileOpen }) {
 
         <div className="p-4 space-y-3 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 80px)' }}>
           {categories
-            .filter(cat => cat.parentId !== null)
             .filter((cat) => productsByCategory[cat._id]?.items?.length > 0) // Only show categories with loaded products
           .sort((a, b) => {
             const aCount = (productsByCategory[a._id]?.items || []).length;
