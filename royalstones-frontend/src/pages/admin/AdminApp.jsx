@@ -662,7 +662,7 @@ function ManageProducts() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {(searchQuery ? filteredProducts : products)?.reverse().map(product => (
+              {(searchQuery ? filteredProducts : products)?.map(product => (
                 <tr key={product._id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-normal max-w-md">
                     <div className="flex items-start gap-3">
