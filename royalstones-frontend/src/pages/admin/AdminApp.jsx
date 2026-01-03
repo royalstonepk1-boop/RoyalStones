@@ -98,7 +98,7 @@ function ManageProducts() {
     e.preventDefault();
     try {
       const formData = new FormData();
-      
+
       // Add regular fields
       formData.append('name', form.name);
       formData.append('slug', form.slug);
@@ -108,7 +108,7 @@ function ManageProducts() {
       formData.append('discountPrice', form.discountPrice);
       formData.append('stockQuantity', form.stockQuantity);
       formData.append('vedioUrl', form.vedioUrl);
-      
+
       // Add carretRate as JSON string
       if (form.carretRateMin || form.carretRateMax) {
         const carretRate = {
@@ -345,9 +345,9 @@ function ManageProducts() {
                 >
                   <option value="">Select a category</option>
                   {categories
-                  .map(cat => (
-                    <option key={cat._id} value={cat._id}>{cat.name.length > 30 ? cat.name.slice(0,30)+'...' : cat.name}</option>
-                  ))}
+                    .map(cat => (
+                      <option key={cat._id} value={cat._id}>{cat.name.length > 30 ? cat.name.slice(0, 30) + '...' : cat.name}</option>
+                    ))}
                 </select>
               </div>
 
@@ -411,7 +411,7 @@ function ManageProducts() {
               {/* Carret Rate Fields */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                 Carat Rate Min *
+                  Carat Rate Min *
                 </label>
                 <input
                   type="number"
@@ -427,7 +427,7 @@ function ManageProducts() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                Carat Rate Max *
+                  Carat Rate Max *
                 </label>
                 <input
                   type="number"
@@ -476,7 +476,7 @@ function ManageProducts() {
                 <label className="w-full flex items-center justify-between px-4 py-2 border border-gray-300 rounded-lg cursor-pointer bg-white hover:bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500">
                   <span className="text-gray-500">
                     {form.certificateImage
-                      ? form.certificateImage.name
+                      ? form.certificateImage.name.length > 20 ? form.certificateImage.name.slice(0, 20) + '...' : form.certificateImage.name
                       : "Select certificate image"}
                   </span>
 
@@ -498,9 +498,23 @@ function ManageProducts() {
               <div className="md:col-span-2 flex gap-3">
                 <button
                   type="submit"
-                  className="bg-blue-600 text-white cursor-pointer px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  disabled={loading}
+                  className={`bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors ${loading
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'hover:bg-blue-700 cursor-pointer'
+                    }`}
                 >
-                  {editingProduct ? 'Update Product' : 'Create Product'}
+                  {loading ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      {editingProduct ? 'Updating...' : 'Creating...'}
+                    </span>
+                  ) : (
+                    editingProduct ? 'Update Product' : 'Create Product'
+                  )}
                 </button>
                 <button
                   type="button"
@@ -535,7 +549,7 @@ function ManageProducts() {
                   Stock
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Carat Rate
+                  Carat Rate
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
@@ -543,7 +557,7 @@ function ManageProducts() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {(searchQuery ? filteredProducts : products)?.map(product => (
+              {(searchQuery ? filteredProducts : products)?.reverse().map(product => (
                 <tr key={product._id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-normal max-w-md">
                     <div className="flex items-start gap-3">
@@ -576,13 +590,13 @@ function ManageProducts() {
                     <div className="text-sm text-gray-900">
                       {
                         product.certificateImage ?
-                        <img
-                          src={product.certificateImage}
-                          alt={product.name}
-                          className="w-10 h-10 rounded object-cover shrink-0"
-                        />: 'N/A'
+                          <img
+                            src={product.certificateImage}
+                            alt={product.name}
+                            className="w-10 h-10 rounded object-cover shrink-0"
+                          /> : 'N/A'
                       }
-                    
+
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -1215,7 +1229,7 @@ function ManageOrders() {
                   <div className="space-y-2">
                     {order.orderItems?.map((item, idx) => (
                       <div key={idx} className="flex justify-between text-sm">
-                        <span className='break-words w-[40%]'>{item.productId?.name || 'Product'} × {item.quantity} ({item.carretValue ? item.carretValue+' Carat' :''})</span>
+                        <span className='break-words w-[40%]'>{item.productId?.name || 'Product'} × {item.quantity} ({item.carretValue ? item.carretValue + ' Carat' : ''})</span>
                         {
                           item.msgNote !== '' &&
                           <span className="text-gray-600 max-w-200px break-words w-[40%] md:max-w-300px text-wrap">

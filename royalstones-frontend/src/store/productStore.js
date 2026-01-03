@@ -1,25 +1,36 @@
 import { create } from "zustand";
-import { fetchProducts, fetchFirst6Products, fetchSingleProduct ,createProduct ,updateProduct ,deleteProduct, } from "../api/product.api";
-import { fetchCategories,updateSingleCategory, createCategory ,deleteCategory } from "../api/category.api";
+import { 
+  fetchProducts, 
+  fetchFirst6Products, 
+  fetchSingleProduct,
+  createProduct as apiCreateProduct,
+  updateProduct as apiUpdateProduct,
+  deleteProduct as apiDeleteProduct
+} from "../api/product.api";
+import { 
+  fetchCategories,
+  updateSingleCategory, 
+  createCategory as apiCreateCategory,
+  deleteCategory as apiDeleteCategory
+} from "../api/category.api";
 
 export const useProductStore = create((set, get) => ({
-  // global list (if you still need it)
   products: [],
   categories: [],
-  // per-category store: { [categoryId]: { items: [], page: 0, finished: false, loading: false } }
   productsByCategory: {},
   product: null,
   loading: false,
 
-  // keep existing getProducts for any global listing (optional usage)
   getProducts: async (search = "", category = "") => {
     set({ loading: true });
     try {
       const res = await fetchProducts({ search, category });
       set({ products: res.data || [], loading: false });
+      return res.data;
     } catch (err) {
-      console.error("getProducts error", err);
+      console.error("getProducts error:", err);
       set({ loading: false });
+      throw err;
     }
   },
 
@@ -28,28 +39,35 @@ export const useProductStore = create((set, get) => ({
     try {
       const res = await fetchCategories();
       set({ categories: res.data || [], loading: false });
+      return res.data;
     } catch (err) {
-      console.error("getCategories error", err);
+      console.error("getCategories error:", err);
       set({ loading: false });
+      throw err;
     }
   },
 
-  // load first page for a category (page 0) or subsequent pages
   getProductsByCategory: async (categoryId, { append = false, limit = 6 } = {}) => {
     if (!categoryId) return;
     const state = get();
-    const catState = state.productsByCategory[categoryId] || { items: [], page: 0, finished: false, loading: false };
+    const catState = state.productsByCategory[categoryId] || { 
+      items: [], 
+      page: 0, 
+      finished: false, 
+      loading: false 
+    };
 
-    if (catState.finished && append) return; // nothing more to load
+    if (catState.finished && append) return;
 
-    // determine next page
     const nextPage = append ? (catState.page + 1) : 0;
 
-    // set loading for this category
     set((s) => ({
       productsByCategory: {
         ...s.productsByCategory,
-        [categoryId]: { ...(s.productsByCategory[categoryId] || { items: [], page: 0, finished: false }), loading: true }
+        [categoryId]: { 
+          ...(s.productsByCategory[categoryId] || { items: [], page: 0, finished: false }), 
+          loading: true 
+        }
       }
     }));
 
@@ -60,7 +78,7 @@ export const useProductStore = create((set, get) => ({
       set((s) => {
         const prev = s.productsByCategory[categoryId] || { items: [], page: 0, finished: false };
         const items = append ? prev.items.concat(fetched) : fetched;
-        const finished = fetched.length < limit; // less than requested => no more
+        const finished = fetched.length < limit;
         return {
           productsByCategory: {
             ...s.productsByCategory,
@@ -68,15 +86,19 @@ export const useProductStore = create((set, get) => ({
           }
         };
       });
+      return fetched;
     } catch (err) {
-      console.error("getProductsByCategory error", err);
-      // clear loading flag
+      console.error("getProductsByCategory error:", err);
       set((s) => ({
         productsByCategory: {
           ...s.productsByCategory,
-          [categoryId]: { ...(s.productsByCategory[categoryId] || { items: [], page: 0 }), loading: false }
+          [categoryId]: { 
+            ...(s.productsByCategory[categoryId] || { items: [], page: 0 }), 
+            loading: false 
+          }
         }
       }));
+      throw err;
     }
   },
 
@@ -85,66 +107,107 @@ export const useProductStore = create((set, get) => ({
     try {
       const res = await fetchSingleProduct(id);
       set({ product: res.data, loading: false });
+      return res.data;
     } catch (err) {
-      console.error("getProductById error", err);
+      console.error("getProductById error:", err);
       set({ loading: false });
+      throw err;
     }
   },
+
   createProduct: async (data) => {
     set({ loading: true });
     try {
-      const res = await createProduct(data);
+      const res = await apiCreateProduct(data);
       set((state) => ({ 
         products: [res.data, ...state.products], 
         loading: false 
       }));
+      return res.data;
     } catch (err) {
-      console.error("getProductById error", err);
+      console.error("createProduct error:", err);
       set({ loading: false });
+      throw err;
     }
   },
-  updateProduct: async (id,data) => {
+
+  updateProduct: async (id, data) => {
     set({ loading: true });
     try {
-      const res = await updateProduct(id,data);
-      set({ product:res.data, loading: false });
+      const res = await apiUpdateProduct(id, data);
+      set((state) => ({
+        products: state.products.map(p => p._id === id ? res.data : p),
+        product: res.data,
+        loading: false
+      }));
+      return res.data;
     } catch (err) {
-      console.error("getProductById error", err);
+      console.error("updateProduct error:", err);
       set({ loading: false });
+      throw err;
     }
   },
+
   deleteProduct: async (id) => {
     set({ loading: true });
     try {
-      const res = await deleteProduct(id);
-      set({ product: null, loading: false });
+      await apiDeleteProduct(id);
+      set((state) => ({
+        products: state.products.filter(p => p._id !== id),
+        product: null,
+        loading: false
+      }));
     } catch (err) {
-      console.error("getProductById error", err);
+      console.error("deleteProduct error:", err);
       set({ loading: false });
+      throw err;
     }
   },
+
   deleteCategory: async (id) => {
     set({ loading: true });
     try {
-      const res = await deleteCategory(id);
-      //console.log(res);
-      set((state)=>({ categories: state.categories.filter((c)=> c._id !== id ), loading: false }));
+      await apiDeleteCategory(id);
+      set((state) => ({ 
+        categories: state.categories.filter((c) => c._id !== id), 
+        loading: false 
+      }));
     } catch (err) {
-      console.error("getProductById error", err);
+      console.error("deleteCategory error:", err);
       set({ loading: false });
+      throw err;
     }
   },
-    updateCateoryByID: async (id,data) => {
-      set({ loading: true });
-      const res = await updateSingleCategory(id,data);
-      set((state)=>({ categories: state.categories.filter((c)=> c._id === res.data._id ? res.data : c), loading: false }));
-    },
-    createCategory: async (data) => {
-      set({ loading: true });
-      const res = await createCategory(data);
+
+  updateCateoryByID: async (id, data) => {
+    set({ loading: true });
+    try {
+      const res = await updateSingleCategory(id, data);
+      set((state) => ({ 
+        categories: state.categories.map(c => c._id === id ? res.data : c), 
+        loading: false 
+      }));
+      return res.data;
+    } catch (err) {
+      console.error("updateCateoryByID error:", err);
+      set({ loading: false });
+      throw err;
+    }
+  },
+
+  createCategory: async (data) => {
+    set({ loading: true });
+    try {
+      const res = await apiCreateCategory(data);
       set((state) => ({ 
         categories: [res.data, ...state.categories], 
         loading: false 
       }));
-    },
+      return res.data;
+    } catch (err) {
+      console.error("createCategory error:", err);
+      set({ loading: false });
+      throw err;
+    }
+  },
 }));
