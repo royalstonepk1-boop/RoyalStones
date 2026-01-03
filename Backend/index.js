@@ -20,7 +20,7 @@ app.post('/api/orders/lemonsqueezy-webhook',
 // middleware
 // app.use(cors({ origin: process.env.CORS_ORIGIN || true }));
 app.use(cors({ origin: "*" || true }));
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // routes (mount)
