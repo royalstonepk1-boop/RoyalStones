@@ -360,7 +360,6 @@ function ManageProducts() {
                   required
                   value={form.price}
                   min={1}
-                  step="10"
                   onChange={(e) => setForm({ ...form, price: e.target.value })}
                   className="w-full px-4 py-2 outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Enter Price in Rs"
@@ -375,7 +374,6 @@ function ManageProducts() {
                   type="number"
                   value={form.discountPrice}
                   min={0}
-                  step="10"
                   onChange={(e) => setForm({ ...form, discountPrice: e.target.value })}
                   className="w-full px-4 py-2 outline-none border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Enter Price in Rs"
