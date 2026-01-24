@@ -236,6 +236,7 @@ const ReviewItem = ({ review, isUserReview, productId, onEdit }) => {
 export const ProductReviews = ({ productId }) => {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [editingReview, setEditingReview] = useState(null);
+  const [showReviews, setShowReviews] = useState(false);
   
   const user = useAuthStore((s) => s.user);
   const {
@@ -276,6 +277,9 @@ export const ProductReviews = ({ productId }) => {
   const handleCloseForm = () => {
     setShowReviewForm(false);
     setEditingReview(null);
+  };
+  const handleShowReview = () => {
+    setShowReviews(!showReviews);
   };
 
   return (
@@ -333,6 +337,15 @@ export const ProductReviews = ({ productId }) => {
             Write a Review
           </button>
         )}
+        <button
+            onClick={handleShowReview}
+            className="mt-6 w-full md:w-auto bg-blue-600 text-white py-3 px-6 mx-4 rounded-lg font-semibold text-xs md:text-base hover:bg-blue-700 transition-colors cursor-pointer"
+          >
+            See Reviews ({totalReviews})
+            {
+              showReviews ? <i class="bi bi-chevron-down"></i> : <i class="bi bi-chevron-up"></i>
+            }
+          </button>
       </div>
 
       {/* Review Form */}
@@ -346,10 +359,6 @@ export const ProductReviews = ({ productId }) => {
 
       {/* Reviews List */}
       <div>
-        <h3 className="text-sm md:text-base font-bold text-gray-900 mb-4">
-          All Reviews ({totalReviews})
-        </h3>
-
         {loading ? (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
@@ -363,7 +372,7 @@ export const ProductReviews = ({ productId }) => {
           </div>
         ) : (
           <div className="space-y-6 max-h-[300px] overflow-y-auto">
-            {reviews.map((review) => (
+            {showReviews && reviews.map((review) => (
               <ReviewItem
                 key={review._id}
                 review={review}

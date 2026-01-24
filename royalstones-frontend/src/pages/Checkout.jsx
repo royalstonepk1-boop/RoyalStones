@@ -60,29 +60,13 @@ export default function Checkout() {
   };
 
   const handleGuestAddressChange = (e) => {
-    const { name, value } = e.target;
-    setGuestAddress(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    // Clear error for this field
-    if (addressErrors[name]) {
-      setAddressErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
+    setGuestAddress({ ...guestAddress, [e.target.name]: e.target.value });
   };
 
   const validateGuestAddress = () => {
     const errors = {};
     
     if (!guestAddress.fullName.trim()) errors.fullName = 'Full name is required';
-    if (!guestAddress.email.trim()) {
-      errors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(guestAddress.email)) {
-      errors.email = 'Invalid email format';
-    }
     if (!guestAddress.phone.trim()) {
       errors.phone = 'Phone number is required';
     } else if (!/^[0-9]{10,15}$/.test(guestAddress.phone.replace(/[\s-]/g, ''))) {
@@ -91,7 +75,6 @@ export default function Checkout() {
     if (!guestAddress.address.trim()) errors.address = 'Address is required';
     if (!guestAddress.city.trim()) errors.city = 'City is required';
     if (!guestAddress.state.trim()) errors.state = 'State/Province is required';
-    if (!guestAddress.postalCode.trim()) errors.postalCode = 'Postal code is required';
 
     setAddressErrors(errors);
     return Object.keys(errors).length === 0;
@@ -353,200 +336,6 @@ Total: Rs ${order.totalAmount.toLocaleString()}
     </div>
   );
 
-  // Guest Address Form Component
-  const GuestAddressForm = () => (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2 mb-4">
-        <User className="text-blue-600" size={24} />
-        <h2 className="text-2xl font-bold text-gray-800">Enter Delivery Details</h2>
-      </div>
-
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-        <p className="text-sm text-blue-800">
-          <strong>Guest Checkout:</strong> You're checking out as a guest. Your information will only be used for this order.
-        </p>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-4">
-        {/* Full Name */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Full Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            name="fullName"
-            value={guestAddress.fullName}
-            onChange={handleGuestAddressChange}
-            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              addressErrors.fullName ? 'border-red-500' : 'border-gray-300'
-            }`}
-            placeholder="John Doe"
-          />
-          {addressErrors.fullName && (
-            <p className="text-red-500 text-xs mt-1">{addressErrors.fullName}</p>
-          )}
-        </div>
-
-        {/* Email */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Email Address <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="email"
-            name="email"
-            value={guestAddress.email}
-            onChange={handleGuestAddressChange}
-            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              addressErrors.email ? 'border-red-500' : 'border-gray-300'
-            }`}
-            placeholder="john@example.com"
-          />
-          {addressErrors.email && (
-            <p className="text-red-500 text-xs mt-1">{addressErrors.email}</p>
-          )}
-        </div>
-
-        {/* Phone */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Phone Number <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="tel"
-            name="phone"
-            value={guestAddress.phone}
-            onChange={handleGuestAddressChange}
-            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              addressErrors.phone ? 'border-red-500' : 'border-gray-300'
-            }`}
-            placeholder="03001234567"
-          />
-          {addressErrors.phone && (
-            <p className="text-red-500 text-xs mt-1">{addressErrors.phone}</p>
-          )}
-        </div>
-
-        {/* Address */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Street Address <span className="text-red-500">*</span>
-          </label>
-          <textarea
-            name="address"
-            value={guestAddress.address}
-            onChange={handleGuestAddressChange}
-            rows="2"
-            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              addressErrors.address ? 'border-red-500' : 'border-gray-300'
-            }`}
-            placeholder="House #, Street, Area"
-          />
-          {addressErrors.address && (
-            <p className="text-red-500 text-xs mt-1">{addressErrors.address}</p>
-          )}
-        </div>
-
-        {/* City and State */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              City <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              name="city"
-              value={guestAddress.city}
-              onChange={handleGuestAddressChange}
-              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                addressErrors.city ? 'border-red-500' : 'border-gray-300'
-              }`}
-              placeholder="Rawalpindi"
-            />
-            {addressErrors.city && (
-              <p className="text-red-500 text-xs mt-1">{addressErrors.city}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              State/Province <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              name="state"
-              value={guestAddress.state}
-              onChange={handleGuestAddressChange}
-              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                addressErrors.state ? 'border-red-500' : 'border-gray-300'
-              }`}
-              placeholder="Punjab"
-            />
-            {addressErrors.state && (
-              <p className="text-red-500 text-xs mt-1">{addressErrors.state}</p>
-            )}
-          </div>
-        </div>
-
-        {/* Postal Code and Country */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Postal Code <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              name="postalCode"
-              value={guestAddress.postalCode}
-              onChange={handleGuestAddressChange}
-              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                addressErrors.postalCode ? 'border-red-500' : 'border-gray-300'
-              }`}
-              placeholder="46000"
-            />
-            {addressErrors.postalCode && (
-              <p className="text-red-500 text-xs mt-1">{addressErrors.postalCode}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
-            <input
-              type="text"
-              name="country"
-              value={guestAddress.country}
-              onChange={handleGuestAddressChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
-              readOnly
-            />
-          </div>
-        </div>
-      </div>
-
-      {errorMsg && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-          {errorMsg}
-        </div>
-      )}
-
-      <div className="flex gap-3">
-        <button
-          onClick={() => { setErrorMsg(''); setAddressErrors({}); setStep(1); }}
-          className="flex-1 bg-gray-200 cursor-pointer hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg transition-colors"
-        >
-          Back
-        </button>
-        <button
-          onClick={proceedToPayment}
-          className="flex-1 bg-blue-600 cursor-pointer hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-        >
-          Continue to Payment
-        </button>
-      </div>
-    </div>
-  );
-
   // Address Selection for authenticated users
   const AddressSelection = () => (
     <div className="space-y-6">
@@ -739,7 +528,189 @@ Total: Rs ${order.totalAmount.toLocaleString()}
         {step === 1 && <PageWrapper><CartReview /></PageWrapper>}
         {step === 2 && (
           <PageWrapper>
-            {user ? <AddressSelection /> : <GuestAddressForm />}
+            {user ? <AddressSelection /> : <div className="space-y-6">
+      <div className="flex items-center gap-2 mb-4">
+        <User className="text-blue-600" size={24} />
+        <h2 className="text-2xl font-bold text-gray-800">Enter Delivery Details</h2>
+      </div>
+
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <p className="text-sm text-blue-800">
+          <strong>Guest Checkout:</strong> You're checking out as a guest. Your information will only be used for this order.
+        </p>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-4">
+        {/* Full Name */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Full Name <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            name="fullName"
+            value={guestAddress.fullName}
+            onChange={handleGuestAddressChange}
+            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              addressErrors.fullName ? 'border-red-500' : 'border-gray-300'
+            }`}
+            placeholder="John Doe"
+          />
+          {addressErrors.fullName && (
+            <p className="text-red-500 text-xs mt-1">{addressErrors.fullName}</p>
+          )}
+        </div>
+
+        {/* Email */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Email Address
+          </label>
+          <input
+            type="email"
+            name="email"
+            value={guestAddress.email}
+            onChange={handleGuestAddressChange}
+            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              'border-gray-300'
+            }`}
+            placeholder="john@example.com"
+          />
+        </div>
+
+        {/* Phone */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Phone Number <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="tel"
+            name="phone"
+            value={guestAddress.phone}
+            onChange={handleGuestAddressChange}
+            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              addressErrors.phone ? 'border-red-500' : 'border-gray-300'
+            }`}
+            placeholder="03001234567"
+          />
+          {addressErrors.phone && (
+            <p className="text-red-500 text-xs mt-1">{addressErrors.phone}</p>
+          )}
+        </div>
+
+        {/* Address */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Street Address <span className="text-red-500">*</span>
+          </label>
+          <textarea
+            name="address"
+            value={guestAddress.address}
+            onChange={handleGuestAddressChange}
+            rows="2"
+            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              addressErrors.address ? 'border-red-500' : 'border-gray-300'
+            }`}
+            placeholder="House #, Street, Area"
+          />
+          {addressErrors.address && (
+            <p className="text-red-500 text-xs mt-1">{addressErrors.address}</p>
+          )}
+        </div>
+
+        {/* City and State */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              City <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              name="city"
+              value={guestAddress.city}
+              onChange={handleGuestAddressChange}
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                addressErrors.city ? 'border-red-500' : 'border-gray-300'
+              }`}
+              placeholder="Rawalpindi"
+            />
+            {addressErrors.city && (
+              <p className="text-red-500 text-xs mt-1">{addressErrors.city}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              State/Province <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              name="state"
+              value={guestAddress.state}
+              onChange={handleGuestAddressChange}
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                addressErrors.state ? 'border-red-500' : 'border-gray-300'
+              }`}
+              placeholder="Punjab"
+            />
+            {addressErrors.state && (
+              <p className="text-red-500 text-xs mt-1">{addressErrors.state}</p>
+            )}
+          </div>
+        </div>
+
+        {/* Postal Code and Country */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Postal Code
+            </label>
+            <input
+              type="text"
+              name="postalCode"
+              value={guestAddress.postalCode}
+              onChange={handleGuestAddressChange}
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                'border-gray-300'
+              }`}
+              placeholder="46000"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+            <input
+              type="text"
+              name="country"
+              value={guestAddress.country}
+              onChange={handleGuestAddressChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
+            />
+          </div>
+        </div>
+      </div>
+
+      {errorMsg && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {errorMsg}
+        </div>
+      )}
+
+      <div className="flex gap-3">
+        <button
+          onClick={() => { setErrorMsg(''); setAddressErrors({}); setStep(1); }}
+          className="flex-1 bg-gray-200 cursor-pointer hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg transition-colors"
+        >
+          Back
+        </button>
+        <button
+          onClick={proceedToPayment}
+          className="flex-1 bg-blue-600 cursor-pointer hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+        >
+          Continue to Payment
+        </button>
+      </div>
+    </div>}
           </PageWrapper>
         )}
         {step === 3 && <PageWrapper><PaymentMethod /></PageWrapper>}

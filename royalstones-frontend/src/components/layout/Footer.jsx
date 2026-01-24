@@ -2,6 +2,10 @@ import { useNavigate } from 'react-router-dom';
 import FooterImg1 from '../../Images/Group-1.png';
 import FooterImg2 from '../../Images/Group-2.png';
 import FooterImg3 from '../../Images/Group-3.png';
+import TIKTOK from '../../Images/tiktok.png';
+import FB from '../../Images/fb.png';
+import YT from '../../Images/youtube.png';
+import EMAIL from '../../Images/gmail.png';
 
 export default function Footer() {
   const navigate = useNavigate();
@@ -45,10 +49,10 @@ export default function Footer() {
 
       <div>
         <div className='[&>i]:mx-2 text-2xl flex justify-center mt-2 py-4 [&>i]:px-2 text-gray-500 [&>i]:hover:text-gray-800 cursor-pointer transform duration-150'>
-          <i class="bi bi-facebook" onClick={()=>open('https://www.facebook.com/share/17jUiZNTtH/')}></i>
-          <i class="bi bi-tiktok" onClick={()=>open('https://www.tiktok.com/@royal_stone1?_r=1&_t=ZS-91kp31807kr')}></i>
-          <i class="bi bi-youtube" onClick={()=>open('https://youtube.com/@royal_stone_asad_ullah?si=O9s7qR4Su3cxo7GY')}></i>
-          <i class="bi bi-envelope" onClick={()=>open('mailto:royalstonepk1@gmail.com')}></i>
+          <img src={FB} width={45} height={45} className='mx-4' onClick={()=>open('https://www.facebook.com/share/1Y8Rxen3kp/')}/>
+          <img src={TIKTOK} width={45} height={45} className='mx-4' onClick={()=>open('https://www.tiktok.com/@royal_stone1?_r=1&_t=ZS-91kp31807kr')}/>
+          <img src={YT} width={45} height={45} className='mx-4' onClick={()=>open('https://youtube.com/@royal_stone_asad_ullah?si=O9s7qR4Su3cxo7GY')}/>
+          <img src={EMAIL} width={45} height={45} className='mx-4' onClick={()=>open('mailto:royalstonepk1@gmail.com')}/>
         </div>
       </div>
       <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-6 px-6 py-10">

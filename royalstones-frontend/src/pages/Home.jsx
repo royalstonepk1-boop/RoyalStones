@@ -5,7 +5,7 @@ import PageWrapper from "../util/PageWrapper";
 export default function Home() {
   return (
     <PageWrapper>
-    <div className="relative bg-cover bg-center bg-no-repeat text-white text-center py-24 min-h-screen"
+    <div className="relative bg-cover bg-center bg-no-repeat text-white text-center py-24 min-h-40 md:min-h-screen"
          style={{ backgroundImage: `url(https://res.cloudinary.com/dox58sidi/image/upload/v1769200637/Screenshot_2026-01-24_005216_tenmnn.png)` }}>
 
       {/* Overlay - stays behind text */}

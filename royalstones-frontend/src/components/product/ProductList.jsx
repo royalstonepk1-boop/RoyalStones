@@ -16,7 +16,7 @@ export default function ProductList({ products = [] ,catData=[] ,getProductsByCa
   
 
   return (
-    <div className="flex gap-7 overflow-x-auto scrollbar-light py-2 w-auto" onScroll={handleScroll}>
+    <div className="flex gap-7 overflow-x-auto scrollbar-light pt-2 pb-6 w-auto" onScroll={handleScroll}>
       {products.map((p) => (
           <ProductCard key={p._id} product={p} products={products} catData={catData} cat={cat} />
       ))}
