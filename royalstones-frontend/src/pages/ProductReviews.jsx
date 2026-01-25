@@ -337,15 +337,18 @@ export const ProductReviews = ({ productId }) => {
             Write a Review
           </button>
         )}
-        <button
-            onClick={handleShowReview}
-            className="mt-6 w-full md:w-auto bg-blue-600 text-white py-3 px-6 mx-4 rounded-lg font-semibold text-xs md:text-base hover:bg-blue-700 transition-colors cursor-pointer"
-          >
-            See Reviews ({totalReviews})
-            {
-              showReviews ? <i class="bi bi-chevron-down"></i> : <i class="bi bi-chevron-up"></i>
-            }
-          </button>
+        {
+          totalReviews !== 0 &&
+          <button
+          onClick={handleShowReview}
+          className="mt-6 w-full md:w-auto bg-blue-600 text-white py-3 px-6 md:mx-4 rounded-lg font-semibold text-xs md:text-base hover:bg-blue-700 transition-colors cursor-pointer"
+        >
+          See Reviews ({totalReviews})
+          {
+            showReviews ? <i class="bi bi-chevron-down"></i> : <i class="bi bi-chevron-up"></i>
+          }
+        </button>
+        }
       </div>
 
       {/* Review Form */}
@@ -364,7 +367,7 @@ export const ProductReviews = ({ productId }) => {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
             <p className="mt-4 text-gray-600 text-sm md:text-base">Loading reviews...</p>
           </div>
-        ) : reviews.length === 0 ? (
+        ) : (reviews.length === 0 && showReviewForm) ? (
           <div className="text-center py-12 bg-gray-50 rounded-lg">
             <i className="bi bi-chat-square-text text-5xl text-gray-400 mb-4"></i>
             <p className="text-gray-600 text-sm md:text-base">No reviews yet</p>
