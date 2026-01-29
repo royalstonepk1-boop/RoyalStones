@@ -7,6 +7,9 @@ import { useAuthStore } from '../store/authStore';
 import PageWrapper from '../util/PageWrapper';
 import { createOrderApi } from '../api/order.api';
 import { toast } from 'react-toastify';
+import HBL from '../Images/hbl.png';
+import EP from '../Images/ep.png';
+import JZ from '../Images/jz.png';
 import { loadStripe } from '@stripe/stripe-js';
 import BACKEND_URL from '../api/backend';
 
@@ -483,6 +486,60 @@ Total: Rs ${order.totalAmount.toLocaleString()}
           <div className='flex justify-start items-center text-red-500'>{errorMsg}</div>
         )}
       </div>
+      <div class="grid grid-cols-3 gap-2 md:gap-6">
+            
+            <div class="p-4 border-2 border-green-500 rounded-lg bg-green-50 hover:shadow-lg transition">
+                <div class="flex justify-center mb-3">
+                    <img src={EP}
+                         alt="Easypaisa" 
+                         class="h-12 object-contain"/>
+                </div>
+                <div class="text-center">
+                    <p class="text-xs text-gray-600 mb-1">Account Number</p>
+                    <p class="text-sm font-mono font-bold text-gray-800 mb-3">0315-5066472</p>
+                    <p class="text-xs text-gray-600 mb-1">Account Title</p>
+                    <p class="text-sm font-medium text-gray-800">ASAD ULLAH</p>
+                </div>
+            </div>
+
+            <div class="p-4 border-2 border-orange-500 rounded-lg bg-orange-50 hover:shadow-lg transition">
+                <div class="flex justify-center mb-3">
+                    <img src={JZ}
+                         alt="JazzCash" 
+                         class="h-12 object-contain"/>
+                </div>
+                <div class="text-center">
+                    <p class="text-xs text-gray-600 mb-1">Account Number</p>
+                    <p class="text-sm font-mono font-bold text-gray-800 mb-3">0315-5066472</p>
+                    <p class="text-xs text-gray-600 mb-1">Account Title</p>
+                    <p class="text-sm font-medium text-gray-800">ASAD ULLAH</p>
+                </div>
+            </div>
+
+            <div class="p-4 border-2 border-blue-600 rounded-lg bg-blue-50 hover:shadow-lg transition">
+                <div class="flex justify-center mb-3">
+                    <img src={HBL} 
+                         alt="HBL" 
+                         class="h-12 object-contain"/>
+                </div>
+                <div class="text-center">
+                    <p class="text-xs text-gray-600 mb-1">Account Number</p>
+                    <p class="text-sm font-mono font-bold text-gray-800 mb-2 break-all">22447901391303</p>
+                    <p class="text-xs text-gray-600 mb-1">IBAN</p>
+                    <p class="text-xs font-mono font-medium text-gray-800 mb-2 break-all">PK83HABB0022447901391303</p>
+                    <p class="text-xs text-gray-600 mb-1">Account Title</p>
+                    <p class="text-sm font-medium text-gray-800">ASAD ULLAH</p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mt-6 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p class="text-sm text-yellow-800 text-center">
+                <span class="font-semibold">Note:</span> Please send payment screenshot for confirmation
+            </p>
+        </div>
+
 
       <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
         <h3 className="font-semibold text-gray-800 mb-3">Order Summary</h3>
