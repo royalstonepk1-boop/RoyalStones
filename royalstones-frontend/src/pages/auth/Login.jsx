@@ -1,6 +1,6 @@
 import { useState,useEffect } from "react";
 import { auth } from "../../firebase/firebase";
-import { signInWithEmailAndPassword, signInWithPopup,signInWithRedirect,getRedirectResult, GoogleAuthProvider } from "firebase/auth";
+import { signInWithEmailAndPassword,signInWithCredential, signInWithPopup,signInWithRedirect,getRedirectResult, GoogleAuthProvider } from "firebase/auth";
 import { useAuthStore } from "../../store/authStore";
 import { useNavigate, Link } from "react-router-dom";
 import { getUserByEmail } from "../../api/auth.api";
@@ -20,6 +20,34 @@ export default function Login() {
   const navigate = useNavigate();
 
   const isInApp = inAppBrowser();
+
+  useEffect(() => {
+    // Handle native Android Google Sign-In
+    window.handleNativeGoogleSignIn = async (idToken) => {
+      try {
+        setGoogleLoading(true);
+        
+        const credential = GoogleAuthProvider.credential(idToken);
+        const res = await signInWithCredential(auth, credential);
+        
+        const token = await res.user.getIdToken();
+        setToken(token);
+        
+        const response = await getUserByEmail(res.user.email);
+        if (response) {
+          setUser(response?.data);
+        }
+        
+        toast.success("Login success!");
+        navigate(-1);
+      } catch (err) {
+        console.error("Native sign-in error:", err);
+        toast.error("Google login failed");
+      } finally {
+        setGoogleLoading(false);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const handleRedirect = async () => {
@@ -84,18 +112,20 @@ export default function Login() {
 
   const loginWithGoogle = async () => {
     setGoogleLoading(true);
+    
     try {
-      const provider = new GoogleAuthProvider();
-      let res='';
-      if (isInApp) {
-        // ✅ REQUIRED for Instagram / FB / TikTok
-        await signInWithRedirect(auth, provider);
+      // Check if Android native is available
+      if (window.Android && window.Android.startGoogleSignIn) {
+        window.Android.startGoogleSignIn();
         return;
       }
-      res = await signInWithPopup(auth, provider);
+      
+      // Otherwise use web popup
+      const provider = new GoogleAuthProvider();
+      const res = await signInWithPopup(auth, provider);
       const token = await res.user.getIdToken();
-      // console.log(res, token)
       setToken(token);
+      
       if (res) {
         const response = await getUserByEmail(res.user.email);
         if (response) {

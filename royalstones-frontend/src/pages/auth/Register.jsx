@@ -2,7 +2,7 @@ import { useState,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../../firebase/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { signInWithPopup, GoogleAuthProvider,signInWithRedirect,getRedirectResult,fetchSignInMethodsForEmail } from "firebase/auth";
+import { signInWithPopup, GoogleAuthProvider,signInWithCredential,signInWithRedirect,getRedirectResult,fetchSignInMethodsForEmail } from "firebase/auth";
 import { addProfileWithEmail, addProfileWithGoogle } from "../../api/auth.api";
 import PageWrapper from "../../util/PageWrapper";
 import { useAuthStore } from "../../store/authStore";
@@ -23,6 +23,36 @@ export default function Register() {
   const isInApp = inAppBrowser();
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Handle native Android Google Sign-In for registration
+    window.handleNativeGoogleRegister = async (idToken) => {
+      try {
+        setLoading(true);
+        
+        const credential = GoogleAuthProvider.credential(idToken);
+        const response = await signInWithCredential(auth, credential);
+        
+        if (response) {
+          toast.success("Registered successfully!");
+          
+          const res = await addProfileWithGoogle({ 
+            uid: response?.user?.uid, 
+            email: response?.user?.email, 
+            name: response?.user?.displayName 
+          });
+          
+          setUser(res?.data?.user);
+          navigate("/");
+        }
+      } catch (err) {
+        console.error("Native register error:", err);
+        toast.error("Google registration failed");
+      } finally {
+        setLoading(false);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const handleRedirect = async () => {
@@ -109,15 +139,21 @@ export default function Register() {
       setErrorMessage("Please agree to the Terms & Conditions");
       return;
     }
+    
+    setLoading(true);
+    
     try {
-      const provider = new GoogleAuthProvider();
-      let response = '';
-      if (isInApp) {
-        // ✅ REQUIRED for Instagram / FB / TikTok
-        await signInWithRedirect(auth, provider);
+      // Check if Android native is available
+      if (window.Android && window.Android.startGoogleSignIn) {
+        window.Android.startGoogleSignIn();
+        // The callback will be window.handleNativeGoogleRegister
         return;
       }
-      response = await signInWithPopup(auth, provider);
+      
+      // Otherwise use web popup
+      const provider = new GoogleAuthProvider();
+      const response = await signInWithPopup(auth, provider);
+      
       if (response) {
         toast.success("Registered successfully!", {
           position: "top-right",
@@ -126,7 +162,13 @@ export default function Register() {
           pauseOnHover: false,
           draggable: true,
         });
-        const res = await addProfileWithGoogle({ uid: response?.user?.uid, email: response?.user?.email, name: response?.user?.displayName });
+        
+        const res = await addProfileWithGoogle({ 
+          uid: response?.user?.uid, 
+          email: response?.user?.email, 
+          name: response?.user?.displayName 
+        });
+        
         setUser(res?.data?.user);
         navigate("/");
       }
