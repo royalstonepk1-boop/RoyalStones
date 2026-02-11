@@ -58,7 +58,7 @@ export default function Navbar() {
     <>
       <SubNavBar />
       <nav className={`bg-white shadow-md sticky top-0 z-50 max-h-[90px] ${location.pathname === '/login' || location.pathname === '/register' ? 'hidden' : ''}`}>
-        <div className="max-w-7xl mx-auto flex justify-between items-center px-4 py-3">
+        <div className="max-w-7xl mx-auto flex justify-between items-center px-5 max-[392px]:px-4 py-3">
           <div className="flex md:hidden justify-between items-center px-4 max-[393px]:px-1 py-3">
             <button
               onClick={() => setMobileOpen(true)}
