@@ -59,24 +59,24 @@ export default function Navbar() {
       <SubNavBar />
       <nav className={`bg-white shadow-md sticky top-0 z-50 max-h-[90px] ${location.pathname === '/login' || location.pathname === '/register' ? 'hidden' : ''}`}>
         <div className="max-w-7xl mx-auto flex justify-between items-center px-4 py-3">
-          <div className="flex md:hidden justify-between items-center px-4 py-3">
+          <div className="flex md:hidden justify-between items-center px-4 max-[393px]:px-1 py-3">
             <button
               onClick={() => setMobileOpen(true)}
-              className="text-2xl cursor-pointer"
+              className="text-xl sm:text-2xl cursor-pointer"
             >
               <i className="bi bi-list"></i>
             </button>
           </div>
           {/* Logo */}
           <Link to="/" className="text-2xl font-bold tracking-wide">
-            <img src={NavBarLogo} alt="logo" className="min-w-[140px] max-h-[70px]" />
+            <img src={NavBarLogo} alt="logo" className="min-w-[140px] max-[392px]:min-w-[100px] max-[360px]:min-w-[80px] max-h-[70px]" />
           </Link>
 
           {/* Desktop Bottom Nav */}
           <div className="hidden xl:flex gap-6 text-sm font-medium">
             <Link to="/" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Home</Link>
             <Link to="/shop" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Gemstones</Link>
-            <Link to="/star" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Birth Stones</Link>
+            <Link to="/star" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Birthstone</Link>
             <Link to="/about" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">About Stones</Link>
             <Link to="/contact" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Contact Us</Link>
             {
@@ -88,34 +88,34 @@ export default function Navbar() {
               <Link to="/admin" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Admin</Link>
             )} </div>
           {/* Mobile Bottom Navbar */}
-          <div className="md:hidden fixed bottom-0 left-0 w-full bg-white border-t flex justify-around items-center py-2 text-xs font-medium z-50">
-            <Link to="/" className="flex flex-col items-center"><i className="bi bi-house text-lg"></i>Home</Link>
-            <Link to="/shop" className="flex flex-col items-center"><i className="bi bi-gem text-lg"></i>Shop</Link>
-            <Link to="/star" className="flex flex-col items-center"><i className="bi bi-moon-stars text-lg"></i>Birth Stones</Link>
-            <Link to="/about" className="flex flex-col items-center"><i className="bi bi-info-circle text-lg"></i>About</Link>
-            <Link to="/contact" className="flex flex-col items-center"><i className="bi bi-telephone text-lg"></i>Contact</Link>
+          <div className="md:hidden fixed bottom-0 left-0 w-full bg-white border-t flex justify-center gap-5 items-center py-2 text-xs font-medium z-50">
+            <Link to="/" className="flex flex-col items-center text-[10px] max-[392px]:text-[9px] "><i className="bi bi-house text-lg max-[392px]:text-sm"></i>Home</Link>
+            <Link to="/shop" className="flex flex-col items-center text-[10px] max-[392px]:text-[9px] "><i className="bi bi-gem text-lg max-[392px]:text-sm"></i>Shop</Link>
+            <Link to="/star" className="flex flex-col items-center text-[10px] max-[392px]:text-[9px] "><i className="bi bi-moon-stars text-lg max-[392px]:text-sm"></i>Birthstone</Link>
+            <Link to="/about" className="flex flex-col items-center text-[10px] max-[392px]:text-[9px] "><i className="bi bi-info-circle text-lg max-[392px]:text-sm"></i>About</Link>
+            <Link to="/contact" className="flex flex-col items-center text-[10px] max-[392px]:text-[9px] "><i className="bi bi-telephone text-lg max-[392px]:text-sm"></i>Contact</Link>
             {
               user?.role !== "admin" &&
               (
-                <Link to="/orders" className="flex flex-col items-center"><i class="bi bi-box-seam text-lg"></i>Orders</Link>
+                <Link to="/orders" className="flex flex-col items-center text-[10px] max-[392px]:text-[9px] "><i class="bi bi-box-seam text-lg max-[392px]:text-sm"></i>Orders</Link>
               )
             }
             {user?.role === "admin" && (
-              <Link to="/admin" className="flex flex-col items-center">
-                <i className="bi bi-shield-lock text-lg"></i>Admin</Link>
+              <Link to="/admin" className="flex flex-col items-center text-[10px] max-[392px]:text-[9px] ">
+                <i className="bi bi-shield-lock text-lg max-[392px]:text-sm"></i>Admin</Link>
             )}
           </div>
             
 
           {/* Right Side */}
           <div className="flex gap-4 items-center text-sm">
-          <i class="bi bi-search cursor-pointer text-xl" onClick={() => setSearchOpen(true)}></i>
+          <i class="bi bi-search cursor-pointer text-lg sm:text-xl" onClick={() => setSearchOpen(true)}></i>
           {
             user?.role !== "admin" &&
             <button onClick={openCart} className="relative cursor-pointer">
-              <div className="bg-[#333333] px-[10px] py-2 sm:p-3 rounded-full text-white flex items-center hover:opacity-55 hover:transform duration-300">
+              <div className="bg-[#333333] px-[8px] py-1.5 sm:p-3 rounded-full text-white flex items-center hover:opacity-55 hover:transform duration-300">
                 <i class="bi bi-cart3 text-[14px]"></i>
-                <span className="absolute top-0 right-0 sm:top-1 sm:right-29 bg-[#C09578] text-white text-[10px] px-1 rounded-full">
+                <span className="absolute top-[-4px] right-[-2px] sm:top-1 sm:right-29 bg-[#C09578] text-white text-[10px] px-1 rounded-full">
                   {cart?.items?.length || 0}
                 </span>
                 <span className="ml-4 hidden sm:inline-block ">
@@ -134,12 +134,12 @@ export default function Navbar() {
               </>
             ) : (
               <>
-                <div className="bg-amber-500 w-10 h-10 rounded-full flex items-center justify-center cursor-pointer hover:opacity-80 hover:transform duration-150 text-gray-900 text-md md:text-xl"
+                <div className="bg-amber-500 w-9 h-9  sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer hover:opacity-80 hover:transform duration-150 text-gray-900 text-md md:text-xl"
                   onClick={() => navigate("/profile")}>
                   {user?.name?.charAt(0).toUpperCase()}
                 </div>
                 <div className="relative group inline-block">
-                  <i className="bi bi-box-arrow-left text-xl cursor-pointer hover:opacity-70 transition"
+                  <i className="bi bi-box-arrow-left text-lg sm:text-xl cursor-pointer hover:opacity-70 transition"
                   onClick={logout}></i>
 
                   <span className="absolute -top-6 left-1/2 -translate-x-1/2 
@@ -158,7 +158,7 @@ export default function Navbar() {
       <div className={`hidden md:flex xl:hidden gap-6 text-sm justify-center items-center min-h-16 font-medium ${location.pathname === '/login' || location.pathname === '/register' ? 'hidden' : ''}`}>
         <Link to="/" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Home</Link>
         <Link to="/shop" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Gemstones</Link>
-        <Link to="/star" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Birth Stones</Link>
+        <Link to="/star" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Birthstone</Link>
         <Link to="/about" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">About Stones</Link>
         <Link to="/contact" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Contact Us</Link>
         {
