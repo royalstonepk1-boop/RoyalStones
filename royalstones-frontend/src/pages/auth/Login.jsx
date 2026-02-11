@@ -89,7 +89,7 @@ export default function Login() {
       let res='';
       if (isInApp) {
         // ✅ REQUIRED for Instagram / FB / TikTok
-        res = await signInWithRedirect(auth, provider);
+        await signInWithRedirect(auth, provider);
         return;
       }
       res = await signInWithPopup(auth, provider);

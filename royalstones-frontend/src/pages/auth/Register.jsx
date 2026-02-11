@@ -114,7 +114,7 @@ export default function Register() {
       let response = '';
       if (isInApp) {
         // ✅ REQUIRED for Instagram / FB / TikTok
-        response = await signInWithRedirect(auth, provider);
+        await signInWithRedirect(auth, provider);
         return;
       }
       response = await signInWithPopup(auth, provider);
