@@ -88,7 +88,7 @@ export default function Navbar() {
               <Link to="/admin" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Admin</Link>
             )} </div>
           {/* Mobile Bottom Navbar */}
-          <div className="md:hidden fixed bottom-0 left-0 w-full bg-white border-t flex justify-center gap-8 items-center py-2 text-xs font-medium z-50">
+          <div className="md:hidden fixed bottom-0 left-0 w-full bg-white border-t flex justify-center gap-7 items-center py-2 text-xs font-medium z-50">
             <Link to="/" className="flex flex-col items-center text-[10px] max-[392px]:text-[9px] "><i className="bi bi-house text-lg"></i>Home</Link>
             <Link to="/shop" className="flex flex-col items-center text-[10px] max-[392px]:text-[9px] "><i className="bi bi-gem text-lg"></i>Shop</Link>
             <Link to="/star" className="flex flex-col items-center text-[10px] max-[392px]:text-[9px] "><i className="bi bi-moon-stars text-lg"></i>Birthstone</Link>
