@@ -122,11 +122,11 @@ export default function ProductCard({ product ,products, catData, cat}) {
           <div className="mt-2 flex items-baseline gap-2">
             {discount ? (
               <>
-                <span className="text-sm md:text-base font-semibold">Rs {discount*carret}</span>
-                <span className="text-xs line-through text-gray-400">Rs {price*carret}</span>
+                <span className="text-sm md:text-base font-semibold">Rs {(discount*carret).toLocaleString()}</span>
+                <span className="text-xs line-through text-gray-400">Rs {(price*carret).toLocaleString()}</span>
               </>
             ) : (
-              <span className="text-sm md:text-base font-semibold">Rs {price*carret}</span>
+              <span className="text-sm md:text-base font-semibold">Rs {(price*carret).toLocaleString()}</span>
             )}
           </div>
 

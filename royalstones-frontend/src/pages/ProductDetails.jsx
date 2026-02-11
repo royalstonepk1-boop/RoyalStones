@@ -19,7 +19,7 @@ export default function ProductDetails() {
   const location = useLocation();
   const {products, catData ,cat} = location.state || {};
 
-  const exceptSelectedProduct = products?.filter(p =>p._id !== product?._id);
+  // const exceptSelectedProduct = products?.filter(p =>p._id !== product?._id);
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [showFullDescription, setShowFullDescription] = useState(false);
@@ -513,7 +513,7 @@ export default function ProductDetails() {
           products && products.length > 0 && cat && 
           <div className="max-w-7xl mx-auto px-4 mt-4 sm:px-6 lg:px-8 mb-10">
         <h2 className="text-xl md:text-2xl font-semibold mb-4">More products in {cat?.name}</h2>
-        <ProductList products={exceptSelectedProduct} catData={catData} getProductsByCategory={getProductsByCategory} cat={cat} />
+        <ProductList products={products} catData={catData} getProductsByCategory={getProductsByCategory} cat={cat} />
         </div>
         }
       </PageWrapper>
