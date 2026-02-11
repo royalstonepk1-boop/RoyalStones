@@ -88,21 +88,21 @@ export default function Navbar() {
               <Link to="/admin" className="hover:text-gray-700 hover:border-b border-solid border-gray-700 hover:transform duration-150 ">Admin</Link>
             )} </div>
           {/* Mobile Bottom Navbar */}
-          <div className="md:hidden fixed bottom-0 left-0 w-full bg-white border-t flex justify-center gap-5 items-center py-2 text-xs font-medium z-50">
-            <Link to="/" className="flex flex-col items-center text-[10px] max-[392px]:text-[9px] "><i className="bi bi-house text-lg max-[392px]:text-sm"></i>Home</Link>
-            <Link to="/shop" className="flex flex-col items-center text-[10px] max-[392px]:text-[9px] "><i className="bi bi-gem text-lg max-[392px]:text-sm"></i>Shop</Link>
-            <Link to="/star" className="flex flex-col items-center text-[10px] max-[392px]:text-[9px] "><i className="bi bi-moon-stars text-lg max-[392px]:text-sm"></i>Birthstone</Link>
-            <Link to="/about" className="flex flex-col items-center text-[10px] max-[392px]:text-[9px] "><i className="bi bi-info-circle text-lg max-[392px]:text-sm"></i>About</Link>
-            <Link to="/contact" className="flex flex-col items-center text-[10px] max-[392px]:text-[9px] "><i className="bi bi-telephone text-lg max-[392px]:text-sm"></i>Contact</Link>
+          <div className="md:hidden fixed bottom-0 left-0 w-full bg-white border-t flex justify-center gap-8 items-center py-2 text-xs font-medium z-50">
+            <Link to="/" className="flex flex-col items-center text-[10px] max-[392px]:text-[9px] "><i className="bi bi-house text-lg"></i>Home</Link>
+            <Link to="/shop" className="flex flex-col items-center text-[10px] max-[392px]:text-[9px] "><i className="bi bi-gem text-lg"></i>Shop</Link>
+            <Link to="/star" className="flex flex-col items-center text-[10px] max-[392px]:text-[9px] "><i className="bi bi-moon-stars text-lg"></i>Birthstone</Link>
+            <Link to="/about" className="flex flex-col items-center text-[10px] max-[392px]:text-[9px] "><i className="bi bi-info-circle text-lg"></i>About</Link>
+            <Link to="/contact" className="flex flex-col items-center text-[10px] max-[392px]:text-[9px] "><i className="bi bi-telephone text-lg"></i>Contact</Link>
             {
               user?.role !== "admin" &&
               (
-                <Link to="/orders" className="flex flex-col items-center text-[10px] max-[392px]:text-[9px] "><i class="bi bi-box-seam text-lg max-[392px]:text-sm"></i>Orders</Link>
+                <Link to="/orders" className="flex flex-col items-center text-[10px] max-[392px]:text-[9px] "><i class="bi bi-box-seam text-lg"></i>Orders</Link>
               )
             }
             {user?.role === "admin" && (
               <Link to="/admin" className="flex flex-col items-center text-[10px] max-[392px]:text-[9px] ">
-                <i className="bi bi-shield-lock text-lg max-[392px]:text-sm"></i>Admin</Link>
+                <i className="bi bi-shield-lock text-lg"></i>Admin</Link>
             )}
           </div>
             
