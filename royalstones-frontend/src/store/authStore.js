@@ -36,12 +36,12 @@ export const useAuthStore = create(
 
       logout: () => {
         set({ user: null, token: null });
-        sessionStorage.removeItem("auth-storage");
+        localStorage.removeItem("auth-storage");
       },
     }),
     {
       name: "auth-storage",
-      storage: createJSONStorage(() => sessionStorage),
+      storage: createJSONStorage(() => localStorage),
     }
   )
 );

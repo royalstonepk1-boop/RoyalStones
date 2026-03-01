@@ -99,8 +99,12 @@ const uploadToCloudinary = async (file, onProgress) => {
     xhr.addEventListener('load', () => {
       if (xhr.status === 200) {
         const response = JSON.parse(xhr.responseText);
+        const optimizedUrl = response.secure_url.replace(
+          "/upload/",
+          "/upload/q_auto,f_auto,w_500/"
+        );
         resolve({
-          url: response.secure_url,
+          url: optimizedUrl,
           publicId: response.public_id
         });
       } else {

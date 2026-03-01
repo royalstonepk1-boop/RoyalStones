@@ -14,12 +14,27 @@ export default function Shop() {
   const navigate = useNavigate();
   const hasScrolled = useRef(false);
   const [priceSort, setPriceSort] = useState("");
+  const [visibleCount, setVisibleCount] = useState(3);
+  const loaderRef = useRef(null);
 
 
   // global products if you still need them for other usage
   useEffect(() => {
     getProducts(search, categoryFilter);
   }, [search, categoryFilter, getProducts]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount((prev) => prev + 3);
+        }
+      },
+      { threshold: 1 }
+    );
+    if (loaderRef.current) observer.observe(loaderRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     // Reset scroll flag when location changes
@@ -108,6 +123,7 @@ export default function Shop() {
             const bCount = (productsByCategory[b._id]?.items || []).length;
             return bCount - aCount;
           })
+          .slice(0, visibleCount)
           .map((cat) => {
             const catData = productsByCategory[cat._id] || { items: [], page: 0, finished: false, loading: false };
             const sortedProducts = sortProductsByPrice(catData.items);
@@ -155,6 +171,7 @@ export default function Shop() {
               </section>
             );
           })}
+        <div ref={loaderRef} className="h-10" />
       </div>
     </PageWrapper>
   );
