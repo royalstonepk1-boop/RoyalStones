@@ -30,7 +30,7 @@ export default function Footer() {
           <div className='text-start'>
             <p className="font-semibold text-lg">Natural Gemstones</p>
             <p className="text-sm text-gray-400">
-              All our gemstones are lab certified.
+              All our gemstones are lab Tested.
             </p>
           </div>
         </div>

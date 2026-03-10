@@ -14,10 +14,10 @@ export default function Home() {
       {/* Hero */}
       <div className="relative z-10 pb-24 pt-0">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-wide">
-          PAKISTAN BIGGEST CERTIFIED
+        PAKISTAN'S GEMSTONE
         </h1>
         <p className="text-4xl sm:text-6xl md:text-9xl mt-4 text-gray-300">
-          GEMSTONE BRAND
+        BY ROYAL STONES
         </p>
 
         <Link to="/shop">
@@ -35,7 +35,7 @@ export default function Home() {
       {/* Features */}
       {/* <div className="relative z-10 grid md:grid-cols-3 gap-6 p-10 text-center">
         <div>
-          <h3 className="font-semibold">Certified Stones</h3>
+          <h3 className="font-semibold">Tested Stones</h3>
           <p className="text-sm text-gray-300 mt-2">
             100% Authentic & lab tested gemstones
           </p>

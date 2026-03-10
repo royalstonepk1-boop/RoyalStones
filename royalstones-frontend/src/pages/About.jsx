@@ -75,7 +75,7 @@ export default function About() {
         {/* Header */}
         <div className="text-center my-12">
           <h1 className="text-2xl md:text-3xl font-bold mb-4">
-            Discover Popular Gemstones
+            Explore Popular Gemstones
           </h1>
           <p className="text-gray-400 text-sm md:text-md max-w-2xl mx-auto">
             Explore the world's most beloved gemstones, their properties, and healing benefits
@@ -139,7 +139,7 @@ export default function About() {
             Looking for Your Perfect Gemstone?
           </h2>
           <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-            Explore our collection of authentic, certified gemstones and find the one that resonates with you
+            Explore our collection of authentic, Tested gemstones and find the one that resonates with you
           </p>
           <button className="bg-amber-500 hover:bg-amber-600 py-3 px-8 rounded-lg transition-colors duration-200 cursor-pointer"
           onClick={()=>{navigate('/shop')}}>

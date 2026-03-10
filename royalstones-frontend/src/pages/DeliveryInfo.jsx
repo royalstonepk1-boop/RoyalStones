@@ -24,7 +24,7 @@ const DeliveryInfo = () => {
                 <i className="bi bi-box-seam text-amber-600 text-2xl"></i>
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-3">Premium Packaging</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-3">Good Packaging</h2>
                 <p className="text-gray-700 leading-relaxed mb-3">
                   At Royal Stones, we understand that gemstones are precious and delicate. Each gemstone is carefully packaged with multiple layers of protection:
                 </p>
